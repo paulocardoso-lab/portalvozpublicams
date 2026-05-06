@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
 
 export function MobileMasthead({ title }: { title?: string }) {
@@ -11,15 +12,17 @@ export function MobileMasthead({ title }: { title?: string }) {
           </svg>
         </button>
         <div className="flex-1 text-center">
-          {title ? (
-            <div className="font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-vp-accent">{title}</div>
-          ) : (
-            <Monogram size="sm" />
-          )}
+          <Link href="/" aria-label="Home" className="bg-transparent border-none text-vp-text p-0 cursor-pointer no-underline inline-block">
+            {title ? (
+              <div className="font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-vp-accent">{title}</div>
+            ) : (
+              <Monogram size="sm" />
+            )}
+          </Link>
         </div>
-        <button aria-label="Buscar" className="bg-transparent border-none text-vp-text p-0 cursor-pointer">
+        <Link href="/busca" aria-label="Buscar" className="bg-transparent border-none text-vp-text p-0 cursor-pointer no-underline">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        </button>
+        </Link>
       </div>
       {/* Edition strip */}
       <div className="px-4 py-[6px] border-t border-vp-border font-sans text-[10px] text-vp-text-3 flex justify-between tracking-[0.06em] uppercase">
