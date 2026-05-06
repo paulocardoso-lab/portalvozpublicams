@@ -4,7 +4,18 @@ import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
 
-export function DesktopHome() {
+import { Article, User, Section } from '@prisma/client';
+
+type ArticleWithRelations = Article & {
+  authors: User[];
+  section: Section;
+};
+
+export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations[] }) {
+  const hero = articles[0];
+  const secondary = articles.slice(1, 4);
+  const others = articles.slice(4);
+
   return (
     <div className="flex flex-col min-h-[100dvh] bg-vp-bg w-full">
       <SiteHeader />
@@ -27,42 +38,52 @@ export function DesktopHome() {
         <div>
           {/* Hero */}
           <section className="pb-7 border-b border-vp-border">
-            <Link href="/o-rio-que-sumiu-taquari" className="grid grid-cols-[1.1fr_1fr] gap-7 no-underline">
-              <div>
-                <span className="eyebrow text-[10px]">Exclusivo · Investigação</span>
-                <h1 className="font-display text-[46px] leading-[1.05] mt-2.5 mb-3.5 tracking-[-0.01em] hover:text-vp-accent transition-colors">
-                  Empresas do agro receberam R$ 2,1 bi do BNDES sem comprovar regularização ambiental
-                </h1>
-                <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-4 text-pretty">
-                  Levantamento do Voz Pública cruza dados do banco público com autuações do Ibama e revela que 38 grupos do sul de MS acessaram crédito subsidiado enquanto respondiam por desmatamento no Pantanal.
-                </p>
-                <div className="byline text-[11px]">
-                  Por <strong className="text-vp-text">Marina Ribeiro</strong> e <strong className="text-vp-text">Carlos Benites</strong> · 22 de abril, 06:00
+            {hero ? (
+              <Link href={`/${hero.slug}`} className="grid grid-cols-[1.1fr_1fr] gap-7 no-underline">
+                <div>
+                  <span className="eyebrow text-[10px]">{hero.eyebrow || hero.section.name}</span>
+                  <h1 className="font-display text-[46px] leading-[1.05] mt-2.5 mb-3.5 tracking-[-0.01em] hover:text-vp-accent transition-colors">
+                    {hero.title}
+                  </h1>
+                  <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-4 text-pretty">
+                    {hero.lead}
+                  </p>
+                  <div className="byline text-[11px]">
+                    Por {hero.authors.map((a, i) => (
+                      <React.Fragment key={a.id}>
+                        <strong className="text-vp-text">{a.name}</strong>
+                        {i < hero.authors.length - 1 && ' e '}
+                      </React.Fragment>
+                    ))} · {hero.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(hero.publishedAt)) : 'Recente'}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <ImgPH label="capa · pantanal queimado" height={380} />
-                <div className="meta mt-2 italic text-[11px]">Vista aérea da Nhecolândia após focos de incêndio em 2025. Foto: Bruno Kelly / Voz Pública</div>
-              </div>
-            </Link>
+                <div>
+                  <ImgPH label={hero.eyebrow || 'capa'} height={380} />
+                  {hero.heroCaption && <div className="meta mt-2 italic text-[11px]">{hero.heroCaption}</div>}
+                </div>
+              </Link>
+            ) : (
+              <div className="py-20 text-center text-vp-text-3 font-serif italic">Nenhuma matéria publicada no momento.</div>
+            )}
           </section>
 
           {/* Secondary row — 3 up */}
           <section className="grid grid-cols-3 gap-6 py-7 border-b border-vp-border">
-            {[
-              { tag: 'Política', h: 'Governador sanciona lei que amplia isenção para frigoríficos e gera reação no MP', b: 'Texto também cria grupo de trabalho sobre royalties do gás.', s: 'isencao-frigorificos' },
-              { tag: 'Cidades · Campo Grande', h: 'Obra da Avenida Duque de Caxias atrasa 14 meses e custa 60% a mais', b: 'Relatório do TCE aponta aditivos sem justificativa técnica.', s: 'obra-duque-caxias' },
-              { tag: 'Indígenas', h: '“Estão abrindo o mato com trator”: Guarani Kaiowá denunciam invasão em retomada', b: 'Fazendeiros da região negam e acionam Justiça.', s: 'guarani-kaiowa' },
-            ].map((x, i) => (
-              <article key={i}>
-                <Link href={`/${x.s}`} className="no-underline">
-                  <ImgPH label={x.tag} height={150} style={{ marginBottom: 12 }} />
-                  <span className="eyebrow text-[10px]">{x.tag}</span>
-                  <h3 className="font-display text-[19px] leading-[1.15] mt-1.5 mb-2 hover:text-vp-accent cursor-pointer transition-colors">{x.h}</h3>
-                  <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] text-pretty">{x.b}</p>
+            {secondary.map((x, i) => (
+              <article key={x.id}>
+                <Link href={`/${x.slug}`} className="no-underline">
+                  <ImgPH label={x.eyebrow || x.section.name} height={150} style={{ marginBottom: 12 }} />
+                  <span className="eyebrow text-[10px]">{x.eyebrow || x.section.name}</span>
+                  <h3 className="font-display text-[19px] leading-[1.15] mt-1.5 mb-2 hover:text-vp-accent cursor-pointer transition-colors">{x.title}</h3>
+                  <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] text-pretty line-clamp-3">{x.lead}</p>
                 </Link>
-                <div className="byline text-[11px] mt-2.5">Há 2h · 4 min de leitura</div>
+                <div className="byline text-[11px] mt-2.5">
+                  {x.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(x.publishedAt)) : 'Recente'} · {x.readTimeMin || 4} min de leitura
+                </div>
               </article>
+            ))}
+            {secondary.length === 0 && Array(3).fill(0).map((_, i) => (
+              <div key={i} className="animate-pulse bg-vp-surface h-[250px]" />
             ))}
           </section>
 
