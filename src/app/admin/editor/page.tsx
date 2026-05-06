@@ -141,8 +141,8 @@ export default function AdminEditorPage() {
         <div className="bg-[#141413] border border-vp-border p-4">
           <h4 className="text-[12px] mb-2.5 uppercase tracking-[0.1em] text-vp-text-3">Opções</h4>
           {[['Comentários abertos', true],['Permitir indexação', true],['Aparecer na home', true],['Paywall/assinantes', false],['Enviar push', true],['Incluir na newsletter', true]].map(([l,v]) => (
-            <label key={l} className="flex items-center justify-between py-1.5 text-[12px] cursor-pointer">
-              <span>{l}</span>
+            <label key={String(l)} className="flex items-center justify-between py-1.5 text-[12px] cursor-pointer">
+              <span>{String(l)}</span>
               <div className={`w-7 h-4 rounded-full relative transition-colors ${v ? 'bg-vp-accent' : 'bg-vp-border-2'}`}>
                 <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${v ? 'left-3.5' : 'left-0.5'}`} />
               </div>
