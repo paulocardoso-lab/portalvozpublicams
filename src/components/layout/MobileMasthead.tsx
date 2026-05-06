@@ -6,11 +6,11 @@ export function MobileMasthead({ title }: { title?: string }) {
   return (
     <div className="sticky top-0 z-50 bg-vp-bg border-b border-vp-border">
       <div className="flex items-center px-4 py-3 gap-3">
-        <button aria-label="Menu" className="bg-transparent border-none text-vp-text p-0 cursor-pointer">
+        <Link href="/menu" aria-label="Menu" className="bg-transparent border-none text-vp-text p-0 cursor-pointer no-underline">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 6h18M3 12h18M3 18h18" />
           </svg>
-        </button>
+        </Link>
         <div className="flex-1 text-center">
           <Link href="/" aria-label="Home" className="bg-transparent border-none text-vp-text p-0 cursor-pointer no-underline inline-block">
             {title ? (

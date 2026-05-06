@@ -46,14 +46,14 @@ export function SiteHeader({ date = 'quarta-feira, 22 de abril de 2026' }: { dat
       {/* Logo row */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-4.5 gap-5">
         <div className="flex items-center gap-3.5">
-          <button className="bg-transparent border-none text-vp-text cursor-pointer font-sans text-[12px] flex items-center gap-2 hover:text-vp-accent">
+          <Link href="/menu" className="bg-transparent border-none text-vp-text cursor-pointer font-sans text-[12px] flex items-center gap-2 hover:text-vp-accent no-underline">
             <span className="inline-block w-4 h-[11px] relative">
               <span className="absolute left-0 right-0 top-0 h-[1.5px] bg-current" />
               <span className="absolute left-0 right-0 top-[5px] h-[1.5px] bg-current" />
               <span className="absolute left-0 right-0 bottom-0 h-[1.5px] bg-current" />
             </span>
             MENU
-          </button>
+          </Link>
           <Link href="/busca" className="bg-transparent border-none text-vp-text cursor-pointer font-sans text-[12px] flex items-center gap-1.5 hover:text-vp-accent no-underline">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             BUSCAR
