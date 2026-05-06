@@ -5,9 +5,10 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { MobileMasthead } from '@/components/layout/MobileMasthead';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 
-export default function ColumnistPage({ params }: { params: { slug: string } }) {
+export default async function ColumnistPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   // Mock data for slug
-  const name = params.slug === 'tereza-mattos' ? 'Tereza Mattos' : 'Tereza Mattos';
+  const name = slug === 'tereza-mattos' ? 'Tereza Mattos' : 'Tereza Mattos';
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-vp-bg w-full">

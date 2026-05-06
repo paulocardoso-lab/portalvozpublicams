@@ -5,9 +5,10 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { MobileMasthead } from '@/components/layout/MobileMasthead';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 
-export default function SectionPage({ params }: { params: { slug: string } }) {
+export default async function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   // Mock data for slug
-  const title = params.slug.charAt(0).toUpperCase() + params.slug.slice(1);
+  const title = slug.charAt(0).toUpperCase() + slug.slice(1);
   
   return (
     <div className="flex flex-col min-h-[100dvh] bg-vp-bg w-full">
