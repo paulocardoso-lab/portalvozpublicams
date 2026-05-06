@@ -1,27 +1,12 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
-import { MobileMasthead } from '@/components/layout/MobileMasthead';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
+import { prisma } from '@/lib/prisma';
 
-export default function MenuPage() {
-  const sections = [
-    { n: 'Política', s: 'politica' },
-    { n: 'Cidades', s: 'cidades' },
-    { n: 'Pantanal', s: 'pantanal' },
-    { n: 'Agronegócio', s: 'agronegocio' },
-    { n: 'Economia', s: 'economia' },
-    { n: 'Segurança', s: 'seguranca' },
-    { n: 'Saúde', s: 'saude' },
-    { n: 'Educação', s: 'educacao' },
-    { n: 'Indígenas', s: 'indigenas' },
-    { n: 'Fronteira', s: 'fronteira' },
-    { n: 'Cultura', s: 'cultura' },
-    { n: 'Esportes', s: 'esportes' },
-    { n: 'Opinião', s: 'opiniao' },
-    { n: 'Especiais', s: 'especiais' },
-  ];
+export default async function MenuPage() {
+  const sections = await prisma.section.findMany({
+    orderBy: { name: 'asc' }
+  });
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-[#111110] text-vp-text w-full max-w-[480px] mx-auto border-x border-vp-border">
@@ -34,8 +19,8 @@ export default function MenuPage() {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid gap-6">
           {sections.map(s => (
-            <Link key={s.s} href={`/editoria/${s.s}`} className="block no-underline">
-              <div className="font-display text-[32px] leading-none hover:text-vp-accent transition-colors">{s.n}</div>
+            <Link key={s.id} href={`/editoria/${s.slug}`} className="block no-underline">
+              <div className="font-display text-[32px] leading-none hover:text-vp-accent transition-colors">{s.name}</div>
             </Link>
           ))}
         </div>

@@ -3,33 +3,73 @@ import Link from 'next/link';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
+import { AdSlot } from '@/components/shared/AdSlot';
+import { NewsletterCounter } from '@/components/shared/NewsletterCounter';
+import { NewsletterSection } from '@/components/sections/NewsletterSection';
 
-import { Article, User, Section } from '@prisma/client';
+import { Article, User, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
 
 type ArticleWithRelations = Article & {
   authors: User[];
   section: Section;
 };
 
-export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations[] }) {
+type SeriesWithArticles = Series & {
+  articles: Article[];
+};
+
+export function DesktopHome({ 
+  articles = [], 
+  newsletterCount = 0,
+  agendaEvents = [],
+  columnists = [],
+  mostRead = [],
+  activeAlert = null,
+  featuredSeries = null,
+  activePodcast = null,
+  politica = [],
+  economia = [],
+  cidades = []
+}: { 
+  articles?: ArticleWithRelations[],
+  newsletterCount?: number,
+  agendaEvents?: AgendaEvent[],
+  columnists?: (User & { articles: { title: string; slug: string }[] })[],
+  mostRead?: Article[],
+  politica?: ArticleWithRelations[],
+  economia?: ArticleWithRelations[],
+  cidades?: ArticleWithRelations[],
+  activeAlert?: Alert | null,
+  featuredSeries?: SeriesWithArticles | null,
+  activePodcast?: PodcastEpisode | null
+}) {
   const hero = articles[0];
   const secondary = articles.slice(1, 4);
-  const others = articles.slice(4);
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-vp-bg w-full">
       <SiteHeader />
 
-      {/* Breaking/live strip */}
-      <Link href="/ao-vivo" className="border-b border-vp-border bg-vp-surface px-7 py-2.5 flex items-center gap-3.5 font-sans text-[12px] no-underline">
-        <span className="vp-tag vp-tag-live shrink-0">AO VIVO</span>
-        <span className="text-vp-text font-semibold hover:text-vp-accent">Assembleia aprova LDO 2027 em MS após 6 horas de sessão</span>
-        <span className="text-vp-text-3 ml-auto shrink-0">atualizado há 4 min</span>
-      </Link>
+      {/* Breaking/live strip dynamic */}
+      {activeAlert && (
+        <Link href={activeAlert.link || '#'} className={`border-b border-vp-border bg-vp-surface px-7 py-2.5 flex items-center gap-3.5 font-sans text-[12px] no-underline ${activeAlert.link ? 'cursor-pointer hover:bg-vp-surface-2' : 'cursor-default'}`}>
+          <span className={`vp-tag shrink-0 ${activeAlert.type === 'LIVE' ? 'vp-tag-live' : activeAlert.type === 'BREAKING' ? 'bg-[#ffaa00] text-black border-[#ffaa00]' : 'bg-[#444] text-white border-[#444]'}`}>
+            {activeAlert.type === 'LIVE' ? 'AO VIVO' : activeAlert.type === 'BREAKING' ? 'URGENTE' : 'AVISO'}
+          </span>
+          <span className="text-vp-text font-semibold hover:text-vp-accent transition-colors">
+            {activeAlert.message}
+          </span>
+          {activeAlert.updatedAt && (
+            <span className="text-vp-text-3 ml-auto shrink-0 hidden md:inline">
+              atualizado às {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(activeAlert.updatedAt))}
+            </span>
+          )}
+        </Link>
+      )}
 
       {/* Top leaderboard ad */}
       <div className="px-7 pt-4">
-        <div className="vp-ad h-[90px]">728 × 90 — LEADERBOARD</div>
+        <AdSlot id="home-leaderboard" className="h-[90px]" fallbackText="728 × 90 — LEADERBOARD" />
       </div>
 
       {/* Main grid */}
@@ -88,46 +128,48 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
           </section>
 
           {/* Pantanal / investigação em destaque */}
-          <section className="py-7 border-b border-vp-border">
-            <div className="flex items-baseline gap-4 mb-4.5">
-              <h2 className="font-display text-[24px]">Especial · Pantanal</h2>
-              <div className="flex-1 h-[1px] bg-vp-border" />
-              <Link href="/editoria/pantanal" className="text-[11px] text-vp-accent tracking-[0.1em] uppercase cursor-pointer hover:underline no-underline">Ver tudo →</Link>
-            </div>
+          {featuredSeries && (
+            <section className="py-7 border-b border-vp-border">
+              <div className="flex items-baseline gap-4 mb-4.5">
+                <h2 className="font-display text-[24px]">Especial · {featuredSeries.name}</h2>
+                <div className="flex-1 h-[1px] bg-vp-border" />
+                <Link href="/especiais" className="text-[11px] text-vp-accent tracking-[0.1em] uppercase cursor-pointer hover:underline no-underline">Ver tudo →</Link>
+              </div>
 
-            <div className="grid grid-cols-2 gap-7">
-              <article>
-                <Link href="/o-rio-que-sumiu-taquari" className="no-underline">
-                  <ImgPH label="série · pantanal queimado" height={260} style={{ marginBottom: 14 }} />
-                  <span className="eyebrow text-[10px]">Parte 3 de 5</span>
-                  <h3 className="font-display text-[26px] leading-[1.15] mt-2 mb-2.5 hover:text-vp-accent cursor-pointer">
-                    O rio que sumiu: como o Taquari virou corredor de sedimentos
-                  </h3>
-                  <p className="font-serif text-[15px] text-vp-text-2 leading-[1.5] text-pretty">
-                    Em oito meses de apuração, nossa equipe percorreu 420 km do leito e documentou o colapso do principal afluente do Pantanal sul.
-                  </p>
-                </Link>
-              </article>
-              <div className="grid gap-4.5">
-                {[
-                  'Cinco perguntas que o governo de MS não respondeu sobre o Plano de Manejo',
-                  'Dados inéditos: 72% das autuações por queimada viram “dívida ativa” e prescrevem',
-                  'Vídeo: o dia em que o fogo chegou na escola ribeirinha de Porto Murtinho',
-                  'Quem são os donos das terras que mais desmatam no Pantanal de MS',
-                ].map((h, i) => (
-                  <article key={i} className={`pb-3.5 ${i < 3 ? 'border-b border-vp-border' : ''}`}>
-                    <Link href="/o-rio-que-sumiu-taquari" className="grid grid-cols-[70px_1fr] gap-3.5 no-underline">
-                      <ImgPH label="" height={70} width={70} style={{ aspectRatio: '1/1' }} />
-                      <div>
-                        <h4 className="font-display text-[15px] leading-[1.2] mb-1.5 hover:text-vp-accent cursor-pointer">{h}</h4>
-                        <div className="byline text-[11px]">Série Pantanal · {['há 3h','ontem','2 dias','3 dias'][i]}</div>
-                      </div>
+              <div className="grid grid-cols-2 gap-7">
+                {featuredSeries.articles.length > 0 ? (
+                  <article>
+                    <Link href={`/${featuredSeries.articles[0].slug}`} className="no-underline">
+                      <ImgPH label={`série · ${featuredSeries.name}`} height={260} style={{ marginBottom: 14 }} />
+                      <span className="eyebrow text-[10px]">Parte 1 de {featuredSeries.totalParts}</span>
+                      <h3 className="font-display text-[26px] leading-[1.15] mt-2 mb-2.5 hover:text-vp-accent cursor-pointer">
+                        {featuredSeries.articles[0].title}
+                      </h3>
+                      <p className="font-serif text-[15px] text-vp-text-2 leading-[1.5] text-pretty">
+                        {featuredSeries.articles[0].lead}
+                      </p>
                     </Link>
                   </article>
-                ))}
+                ) : (
+                  <div className="text-vp-text-3 italic font-serif py-10">Nenhum artigo publicado na série.</div>
+                )}
+                
+                <div className="grid gap-4.5">
+                  {featuredSeries.articles.slice(1).map((art: Article, i: number) => (
+                    <article key={art.id} className={`pb-3.5 ${i < featuredSeries.articles.length - 2 ? 'border-b border-vp-border' : ''}`}>
+                      <Link href={`/${art.slug}`} className="grid grid-cols-[70px_1fr] gap-3.5 no-underline">
+                        <ImgPH label="" height={70} width={70} style={{ aspectRatio: '1/1' }} />
+                        <div>
+                          <h4 className="font-display text-[15px] leading-[1.2] mb-1.5 hover:text-vp-accent cursor-pointer">{art.title}</h4>
+                          <div className="byline text-[11px]">Série Especial · {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : 'Recente'}</div>
+                        </div>
+                      </Link>
+                    </article>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Inline sponsor native */}
           <section className="py-5 border-b border-vp-border">
@@ -137,9 +179,9 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
           {/* Cidades / Política / Economia — 3 columns */}
           <section className="grid grid-cols-3 gap-6 py-7 border-b border-vp-border">
             {[
-              { name: 'Política', slug: 'politica', items: ['Oposição protocola CPI do Gás com 10 assinaturas', 'MP eleitoral arquiva investigação sobre deputado federal de MS', 'Prefeito de Dourados enfrenta 3ª tentativa de cassação'] },
-              { name: 'Economia', slug: 'economia', items: ['Soja de MS fecha safra com alta de 12% e recorde de exportação', 'Nova fábrica de celulose em Ribas terá investimento de R$ 8,4 bi', 'Desemprego cai para 4,1% mas informalidade chega a 39%'] },
-              { name: 'Cidades', slug: 'cidades', items: ['Campo Grande terá BRT na Afonso Pena a partir de agosto', 'Três Lagoas perde ônibus urbano após falência de concessionária', 'Corumbá decreta situação de emergência por falta d\'água'] },
+              { name: 'Política', slug: 'politica', items: politica },
+              { name: 'Economia', slug: 'economia', items: economia },
+              { name: 'Cidades', slug: 'cidades', items: cidades },
             ].map(col => (
               <div key={col.name}>
                 <Link href={`/editoria/${col.slug}`} className="flex items-center gap-2 mb-3.5 no-underline group">
@@ -147,12 +189,15 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
                   <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold group-hover:text-vp-accent transition-colors">{col.name}</h3>
                 </Link>
                 <ul className="list-none p-0 m-0 grid gap-3.5">
-                  {col.items.map((h, i) => (
-                    <li key={i} className={`pb-3.5 ${i < col.items.length-1 ? 'border-b border-vp-border' : ''}`}>
-                      <Link href="/o-rio-que-sumiu-taquari" className="no-underline">
-                        <h4 className="font-display text-[16px] leading-[1.2] mb-1.5 hover:text-vp-accent cursor-pointer text-balance">{h}</h4>
+                  {col.items.length === 0 && <li className="text-vp-text-3 italic text-[12px]">Nenhuma matéria recente.</li>}
+                  {col.items.map((art, i) => (
+                    <li key={art.id} className={`pb-3.5 ${i < col.items.length-1 ? 'border-b border-vp-border' : ''}`}>
+                      <Link href={`/${art.slug}`} className="no-underline">
+                        <h4 className="font-display text-[16px] leading-[1.2] mb-1.5 hover:text-vp-accent cursor-pointer text-balance">{art.title}</h4>
                       </Link>
-                      <div className="byline text-[11px]">por {['L. Mattos','A. Figueira','R. Duarte'][i]} · há {3+i}h</div>
+                      <div className="byline text-[11px]">
+                        por {art.authors[0]?.name || 'Redação'} · {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : 'Recente'}
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -167,20 +212,22 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
               <div className="flex-1 h-[1px] bg-vp-border" />
             </div>
             <div className="grid grid-cols-4 gap-5">
-              {[
-                { n: 'Tereza Mattos', t: 'O silêncio cúmplice da bancada ruralista', tag: 'Política', s: 'tereza-mattos' },
-                { n: 'Ademir Paredão', t: 'Campo Grande precisa decidir que cidade quer ser', tag: 'Cidades', s: 'ademir-paredao' },
-                { n: 'Sandra Yoko', t: 'Por que a MP da reforma tributária penaliza MS', tag: 'Economia', s: 'sandra-yoko' },
-                { n: 'Jair Kaiowá', t: 'Retomadas não são invasão — são memória', tag: 'Indígenas', s: 'jair-kaiowa' },
-              ].map((c, i) => (
-                <article key={i} className="grid grid-cols-[52px_1fr] gap-3">
-                  <ImgPH label="" width={52} height={52} style={{ borderRadius: '50%' }} />
+              {columnists.length === 0 && <div className="text-vp-text-3 italic col-span-4">Nenhum colunista cadastrado.</div>}
+              {columnists.map((c) => (
+                <article key={c.id} className="grid grid-cols-[52px_1fr] gap-3">
+                  {c.avatar ? (
+                    <img src={c.avatar} alt={c.name} className="w-[52px] h-[52px] rounded-full object-cover border border-vp-border" />
+                  ) : (
+                    <ImgPH label="" width={52} height={52} style={{ borderRadius: '50%' }} />
+                  )}
                   <div>
-                    <div className="font-sans text-[10px] tracking-[0.1em] uppercase text-vp-accent font-bold">{c.tag}</div>
-                    <Link href={`/colunista/${c.s}`} className="no-underline">
-                      <h4 className="font-display text-[15px] leading-[1.25] my-1 font-serif italic hover:text-vp-accent cursor-pointer">“{c.t}”</h4>
+                    <div className="font-sans text-[10px] tracking-[0.1em] uppercase text-vp-accent font-bold">Coluna</div>
+                    <Link href={`/colunista/${c.slug || c.id}`} className="no-underline">
+                      <h4 className="font-display text-[15px] leading-[1.25] my-1 font-serif italic hover:text-vp-accent cursor-pointer">
+                        “{c.articles[0]?.title || "Em breve..."}”
+                      </h4>
                     </Link>
-                    <div className="byline font-semibold text-vp-text-2 text-[11px]">{c.n}</div>
+                    <div className="byline font-semibold text-vp-text-2 text-[11px]">{c.name}</div>
                   </div>
                 </article>
               ))}
@@ -192,17 +239,12 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
             <div>
               <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold mb-4">Mais lidas da semana</h3>
               <ol className="list-none p-0 m-0 grid gap-3.5">
-                {[
-                  'Raio-X: o patrimônio dos 24 deputados estaduais de MS',
-                  '“Temos medo de denunciar”: relato de servidoras do Detran-MS',
-                  'Como o PCC se instalou nas cidades de fronteira de MS',
-                  'Por que a água de Campo Grande custa mais que a de São Paulo',
-                  'O mapa dos incêndios no Pantanal atualizado em tempo real',
-                ].map((h, i) => (
-                  <li key={i} className={`grid grid-cols-[36px_1fr] gap-3.5 pb-3 ${i < 4 ? 'border-b border-vp-border' : ''}`}>
+                {mostRead.length === 0 && <li className="text-vp-text-3 italic text-[13px]">Aguardando dados...</li>}
+                {mostRead.map((art, i) => (
+                  <li key={art.id} className={`grid grid-cols-[36px_1fr] gap-3.5 pb-3 ${i < mostRead.length - 1 ? 'border-b border-vp-border' : ''}`}>
                     <span className="font-display text-[28px] font-bold text-vp-accent leading-none">{i+1}</span>
-                    <Link href="/o-rio-que-sumiu-taquari" className="no-underline">
-                      <h4 className="font-display text-[15px] leading-[1.25] hover:text-vp-accent cursor-pointer">{h}</h4>
+                    <Link href={`/${art.slug}`} className="no-underline">
+                      <h4 className="font-display text-[15px] leading-[1.25] hover:text-vp-accent cursor-pointer">{art.title}</h4>
                     </Link>
                   </li>
                 ))}
@@ -210,23 +252,50 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
             </div>
             <div>
               <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold mb-4">Podcast · Voz Alta</h3>
-              <ImgPH label="capa do episódio" height={200} style={{ marginBottom: 14 }} />
-              <div className="font-sans text-[11px] text-vp-text-3 tracking-[0.08em] uppercase">Episódio 042 · 38 min</div>
-              <h4 className="font-display text-[22px] leading-[1.2] my-2 hover:text-vp-accent cursor-pointer">O que a prisão do deputado X revela sobre o esquema do gás</h4>
-              <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] mb-3.5">Conversa com a repórter Marina Ribeiro sobre 4 meses de apuração.</p>
-              <div className="flex items-center gap-2.5 p-3 bg-vp-surface border border-vp-border">
-                <button aria-label="Play" className="w-9 h-9 rounded-full bg-vp-accent border-none text-[#1a1a19] cursor-pointer flex items-center justify-center pl-1">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </button>
-                <div className="flex-1">
-                  <div className="h-[3px] bg-vp-border-2 rounded-sm relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-[32%] bg-vp-accent" />
+              {activePodcast ? (
+                <>
+                  {activePodcast.coverImage ? (
+                    <img src={activePodcast.coverImage} alt={activePodcast.title} className="w-full h-[200px] object-cover rounded-[2px] mb-3.5 border border-vp-border" />
+                  ) : (
+                    <ImgPH label="capa do episódio" height={200} style={{ marginBottom: 14 }} />
+                  )}
+                  <div className="font-sans text-[11px] text-vp-text-3 tracking-[0.08em] uppercase">
+                    {activePodcast.duration ? `${activePodcast.duration}` : 'Novo episódio'} 
+                    {activePodcast.publishedAt && ` · ${new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(activePodcast.publishedAt))}`}
                   </div>
-                  <div className="flex justify-between mt-1.5 font-mono text-[10px] text-vp-text-3">
-                    <span>12:14</span><span>38:22</span>
+                  <h4 className="font-display text-[22px] leading-[1.2] my-2 hover:text-vp-accent cursor-pointer line-clamp-2">
+                    {activePodcast.title}
+                  </h4>
+                  {activePodcast.description && (
+                    <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] mb-3.5 line-clamp-2">
+                      {activePodcast.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2.5 p-3 bg-vp-surface border border-vp-border">
+                    <a 
+                      href={activePodcast.embedUrl || '#'} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full bg-vp-accent border-none text-[#1a1a19] cursor-pointer flex items-center justify-center pl-1 no-underline"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    </a>
+                    <div className="flex-1">
+                      <div className="h-[3px] bg-vp-border-2 rounded-sm relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[0%] bg-vp-accent" />
+                      </div>
+                      <div className="flex justify-between mt-1.5 font-mono text-[10px] text-vp-text-3 uppercase">
+                        <span>Ouça agora</span>
+                        <span>{activePodcast.duration || ''}</span>
+                      </div>
+                    </div>
                   </div>
+                </>
+              ) : (
+                <div className="p-10 border border-dashed border-vp-border text-center text-vp-text-3 italic text-[13px]">
+                  Novos episódios em breve.
                 </div>
-              </div>
+              )}
             </div>
           </section>
         </div>
@@ -240,7 +309,7 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
               Jornalismo de MS que você pode confiar.
             </h3>
             <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5] mb-3.5">
-              Somos sustentados por leitores. 4.812 apoiadores até hoje.
+              Somos sustentados por leitores. <NewsletterCounter initialCount={newsletterCount} />
             </p>
             <Link href="/apoiar" className="no-underline">
               <button className="vp-btn vp-btn-primary w-full text-[13px]">Apoie o Voz Pública →</button>
@@ -257,17 +326,13 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
               <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold">Agenda pública</h3>
             </div>
             <ul className="list-none p-0 m-0 grid gap-3 text-[13px]">
-              {[
-                ['09:00', 'ALMS', 'Votação do PL 124/26 (educação)'],
-                ['14:30', 'TJ-MS', 'Habeas corpus — ex-secretário da Saúde'],
-                ['16:00', 'MPMS', 'Audiência pública — Pantanal'],
-                ['19:00', 'Câmara CG', 'LOA 2027 — 2ª discussão'],
-              ].map(([t,o,d],i) => (
-                <li key={i} className={`grid grid-cols-[44px_1fr] gap-2.5 pb-2.5 ${i < 3 ? 'border-b border-vp-border' : ''}`}>
-                  <span className="font-mono text-[13px] text-vp-accent font-bold">{t}</span>
+              {agendaEvents.length === 0 && <li className="text-vp-text-3 italic">Nenhum compromisso hoje.</li>}
+              {agendaEvents.map((ev, i) => (
+                <li key={ev.id} className={`grid grid-cols-[44px_1fr] gap-2.5 pb-2.5 ${i < agendaEvents.length - 1 ? 'border-b border-vp-border' : ''}`}>
+                  <span className="font-mono text-[13px] text-vp-accent font-bold">{ev.time}</span>
                   <div>
-                    <div className="font-sans text-[10px] tracking-[0.1em] uppercase text-vp-text-3">{o}</div>
-                    <div className="text-vp-text-2 font-serif text-[13px]">{d}</div>
+                    <div className="font-sans text-[10px] tracking-[0.1em] uppercase text-vp-text-3">{ev.organ}</div>
+                    <div className="text-vp-text-2 font-serif text-[13px]">{ev.description}</div>
                   </div>
                 </li>
               ))}
@@ -289,6 +354,7 @@ export function DesktopHome({ articles = [] }: { articles?: ArticleWithRelations
         </aside>
       </div>
 
+      <NewsletterSection />
       <SiteFooter />
     </div>
   );

@@ -40,7 +40,7 @@ export default function AdminSettingsPage() {
               <span>vozpublicams.com.br</span>
               <span className="vp-tag bg-vp-ok text-[#1a1a19] border-transparent font-sans px-2">● SSL ATIVO · expira em 78d</span>
             </div>
-            <div className="text-[11px] text-vp-text-3 mt-2.5">Certificado renovado automaticamente via Let's Encrypt. CDN: Cloudflare.</div>
+            <div className="text-[11px] text-vp-text-3 mt-2.5">Certificado renovado automaticamente via Let&apos;s Encrypt. CDN: Cloudflare.</div>
           </div>
 
           {/* Integrações */}

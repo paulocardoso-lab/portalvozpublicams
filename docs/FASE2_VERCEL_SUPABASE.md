@@ -22,35 +22,43 @@ Este plano detalha a estratégia de implantação utilizando uma stack **Serverl
 
 ### ⚙️ Sprint 6: Conexão Supabase & Prisma
 **Objetivo:** Estabelecer a base de dados na nuvem.
-- [ ] **Supabase Setup:** Criar projeto, configurar `Pooling` (Transaction Mode) para Serverless.
-- [ ] **Prisma Integration:** Atualizar `DATABASE_URL` e `DIRECT_URL` (para migrações) no `.env`.
-- [ ] **Migração Inicial:** Rodar `npx prisma migrate deploy` para o banco de produção do Supabase.
-- [ ] **RLS:** Configurar políticas de Row Level Security se necessário (ou gerenciar via App Layer).
+- [x] **Supabase Setup:** Criar projeto, configurar `Pooling` (Transaction Mode) para Serverless.
+- [x] **Prisma Integration:** Atualizar `DATABASE_URL` e `DIRECT_URL` (para migrações) no `.env`.
+- [x] **Migração Inicial:** Rodar `npx prisma migrate deploy` para o banco de produção do Supabase.
+- [x] **RLS:** Configurar políticas de Row Level Security se necessário (ou gerenciar via App Layer).
 
 ### 🚀 Sprint 7: Deploy Vercel & Domínios
 **Objetivo:** Pipeline de deploy contínuo e ambiente de produção.
-- [ ] **Vercel Link:** Conectar repositório GitHub à Vercel.
-- [ ] **Domain:** Apontar o DNS do domínio `vozpublica.com.br` para a Vercel.
-- [ ] **Environment Variables:** Configurar todas as chaves (DATABASE, AUTH_SECRET, etc.) no painel da Vercel.
-- [ ] **Edge Middleware:** Validar proteção de rotas administrativas na infra da Vercel.
+- [x] **Vercel Link:** Conectar repositório GitHub à Vercel.
+- [x] **Domain:** Apontar o DNS do domínio `vozpublica.com.br` para a Vercel.
+- [x] **Environment Variables:** Configurar todas as chaves (DATABASE, AUTH_SECRET, etc.) no painel da Vercel.
+- [x] **Edge Middleware:** Validar proteção de rotas administrativas na infra da Vercel.
 
 ### 🔐 Sprint 8: Comunicação & Auth (Resend)
 **Objetivo:** Fluxos de e-mail e login funcional.
-- [ ] **Resend Setup:** Validar domínio e configurar DNS (DKIM/SPF).
-- [ ] **NextAuth:** Configurar `EmailProvider` usando a chave do Resend.
-- [ ] **Templates:** Criar templates de e-mail personalizados para o Voz Pública MS.
+- [x] **Resend Setup:** Validar domínio e configurar DNS (DKIM/SPF).
+- [x] **NextAuth:** Configurar `EmailProvider` usando a chave do Resend.
+- [x] **Templates:** Criar templates de e-mail personalizados para o Voz Pública MS.
 
 ### 📁 Sprint 9: CMS & Media (Supabase Storage)
 **Objetivo:** Gestão de ativos sem servidor.
-- [ ] **Buckets:** Criar buckets `articles` e `profiles` no Supabase Storage.
-- [ ] **API Integration:** Implementar Server Actions para upload direto para o bucket.
-- [ ] **Editor Sync:** Garantir que o editor do Admin salve as URLs das imagens do Supabase.
+- [x] **Buckets:** Criar buckets `articles` e `profiles` no Supabase Storage.
+- [x] **API Integration:** Implementar Server Actions para upload direto para o bucket.
+- [x] **Editor Sync:** Garantir que o editor do Admin salve as URLs das imagens do Supabase.
 
 ### 📊 Sprint 10: Inteligência & Pagamentos
 **Objetivo:** Finalizar o ciclo de negócio e monitoramento.
-- [ ] **Webhooks:** Configurar endpoints de recebimento de pagamento para atualizar status de assinante.
-- [ ] **Vercel Analytics:** Ativar Speed Insights e Web Vitals.
-- [ ] **Sentry:** Integrar monitoramento de erros para capturar bugs em tempo real.
+- [x] **Webhooks:** Configurar endpoints de recebimento de pagamento para atualizar status de assinante.
+- [x] **Vercel Analytics:** Ativar Speed Insights e Web Vitals.
+- [x] **Sentry:** Integrar monitoramento de erros para capturar bugs em tempo real.
+
+### ✨ Sprint 11: Engajamento & Refinamento
+**Objetivo:** Polimento final e ferramentas de interação.
+- [x] **SEO Dinâmico:** Metadados e OpenGraph para todas as matérias.
+- [x] **Busca Global:** Página de busca integrada ao banco de dados.
+- [x] **Newsletter:** Componente de captura de leads na Home.
+- [x] **Admin Dashboard:** Painel inicial com métricas reais do Prisma.
+- [x] **Página de Denúncia:** Canal seguro para jornalismo investigativo.
 
 ---
 

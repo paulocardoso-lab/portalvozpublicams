@@ -13,10 +13,11 @@ export default auth((req) => {
 
   // Se estiver no admin, verifica o papel (role)
   if (isOnAdmin && isLoggedIn) {
-    const userRole = (req.auth?.user as any)?.role;
+    const user = req.auth?.user as { role?: string } | undefined;
+    const userRole = user?.role;
     const allowedRoles = ["SUPER_ADMIN", "EDITOR_CHIEF", "SECTION_EDITOR", "REPORTER", "COLUMNIST", "MODERATOR", "FINANCE"];
     
-    if (!allowedRoles.includes(userRole)) {
+    if (!userRole || !allowedRoles.includes(userRole)) {
       // Se for apenas um READER tentando entrar no admin, manda pra home
       return NextResponse.redirect(new URL("/", req.nextUrl));
     }

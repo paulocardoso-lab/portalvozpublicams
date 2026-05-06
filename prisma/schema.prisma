@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -44,6 +45,7 @@ model VerificationToken {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
+  slug          String?   @unique
   name          String
   avatar        String?
   image         String?
@@ -141,6 +143,8 @@ model Section {
   name        String
   description String?
   parentId    String?
+  showInMenu  Boolean   @default(false)
+  menuOrder   Int       @default(0)
   articles    Article[]
 }
 
@@ -304,4 +308,75 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+model Tip {
+  id          String   @id @default(cuid())
+  name        String?
+  email       String?
+  content     String   @db.Text
+  attachments String[]
+  status      TipStatus @default(NEW)
+  createdAt   DateTime @default(now())
+}
+
+enum TipStatus {
+  NEW
+  INVESTIGATING
+  PUBLISHED
+  ARCHIVED
+}
+
+model MarketIndicator {
+  key       String   @id // ex: 'boi', 'soja', 'usd'
+  value     String
+  unit      String?  // ex: 'R$/@', 'R$/sc'
+  updatedAt DateTime @updatedAt
+}
+
+model AgendaEvent {
+  id          String   @id @default(cuid())
+  time        String   // "09:00"
+  organ       String   // "ALMS", "TJ-MS"
+  description String
+  date        DateTime @default(now())
+  status      String   @default("CONFIRMED")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteSetting {
+  key       String   @id // e.g., 'FEATURED_SERIES_ID', 'SOCIAL_FB', etc.
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model PodcastEpisode {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  embedUrl    String?
+  audioUrl    String?
+  coverImage  String?
+  duration    String?  // e.g. "45 min"
+  isActive    Boolean  @default(true)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum AlertType {
+  LIVE
+  BREAKING
+  INFO
+}
+
+model Alert {
+  id        String    @id @default(cuid())
+  message   String
+  link      String?
+  type      AlertType @default(INFO)
+  isActive  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }

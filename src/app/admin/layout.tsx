@@ -2,6 +2,8 @@ import React from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 function AdminTopbar() {
   return (
     <div className="flex items-center gap-3.5 py-3 px-5.5 border-b border-vp-border bg-[#141413] sticky top-0 z-10">

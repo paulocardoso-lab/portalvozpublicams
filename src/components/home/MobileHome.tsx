@@ -5,14 +5,28 @@ import { MobileEditoriaScroller } from '@/components/home/MobileEditoriaScroller
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import { ImgPH } from '@/components/shared/ImgPH';
 
-import { Article, User, Section } from '@prisma/client';
+import { Article, User, Section, Alert, Series, PodcastEpisode } from '@prisma/client';
 
 type ArticleWithRelations = Article & {
   authors: User[];
   section: Section;
 };
 
-export function MobileHome({ articles = [] }: { articles?: ArticleWithRelations[] }) {
+type SeriesWithArticles = Series & {
+  articles: Article[];
+};
+
+export function MobileHome({ 
+  articles = [],
+  activeAlert = null,
+  featuredSeries = null,
+  activePodcast = null
+}: { 
+  articles?: ArticleWithRelations[],
+  activeAlert?: Alert | null,
+  featuredSeries?: SeriesWithArticles | null,
+  activePodcast?: PodcastEpisode | null
+}) {
   const hero = articles[0];
   const listItems = articles.slice(1, 6);
 
@@ -21,11 +35,17 @@ export function MobileHome({ articles = [] }: { articles?: ArticleWithRelations[
       <MobileMasthead />
       <MobileEditoriaScroller />
 
-      {/* Live strip */}
-      <div className="px-4 py-2.5 flex gap-2.5 items-center border-b border-vp-border">
-        <span className="vp-tag vp-tag-live shrink-0">AO VIVO</span>
-        <span className="font-sans text-[12px] font-semibold text-vp-text leading-tight">ALMS aprova LDO 2027 após 6h de sessão</span>
-      </div>
+      {/* Live strip dynamic */}
+      {activeAlert && (
+        <Link href={activeAlert.link || '#'} className={`px-4 py-2.5 flex gap-2.5 items-center border-b border-vp-border no-underline ${activeAlert.link ? 'cursor-pointer hover:bg-vp-surface-2' : ''}`}>
+          <span className={`vp-tag shrink-0 ${activeAlert.type === 'LIVE' ? 'vp-tag-live' : activeAlert.type === 'BREAKING' ? 'bg-[#ffaa00] text-black border-[#ffaa00]' : 'bg-[#444] text-white border-[#444]'}`}>
+            {activeAlert.type === 'LIVE' ? 'AO VIVO' : activeAlert.type === 'BREAKING' ? 'URGENTE' : 'AVISO'}
+          </span>
+          <span className="font-sans text-[12px] font-semibold text-vp-text leading-tight truncate">
+            {activeAlert.message}
+          </span>
+        </Link>
+      )}
 
       <div className="flex-1 overflow-y-auto vp-scroll">
         {/* Hero */}
@@ -81,20 +101,52 @@ export function MobileHome({ articles = [] }: { articles?: ArticleWithRelations[
           <div className="vp-ad h-[100px]">320 × 100</div>
         </div>
 
-        {/* Section header */}
-        <div className="px-4 pt-[18px] pb-2.5 flex items-center gap-2.5">
-          <span className="w-1.5 h-1.5 bg-vp-accent rotate-45" />
-          <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold">Especial · Pantanal</h3>
-          <Link href="/editoria/pantanal" className="meta ml-auto text-vp-accent cursor-pointer hover:underline no-underline">Ver tudo →</Link>
-        </div>
-        <Link href="/o-rio-que-sumiu-taquari" className="block no-underline">
-          <article className="px-4 pb-4 border-b border-vp-border">
-            <ImgPH label="série · pantanal" height={170} style={{ marginBottom: 10 }} />
-            <span className="eyebrow text-[10px]">Parte 3 de 5</span>
-            <h3 className="font-display text-[19px] leading-[1.15] my-1.5">O rio que sumiu: como o Taquari virou corredor de sedimentos</h3>
-            <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5]">8 meses de apuração e 420 km percorridos.</p>
-          </article>
-        </Link>
+        {/* Section header dinâmica: Especial */}
+        {featuredSeries ? (
+          <>
+            <div className="px-4 pt-[18px] pb-2.5 flex items-center gap-2.5">
+              <span className="w-1.5 h-1.5 bg-vp-accent rotate-45" />
+              <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold">Especial · {featuredSeries.name}</h3>
+              <Link href="/especiais" className="meta ml-auto text-vp-accent cursor-pointer hover:underline no-underline">Ver tudo →</Link>
+            </div>
+            {featuredSeries.articles.length > 0 && (
+              <Link href={`/${featuredSeries.articles[0].slug}`} className="block no-underline">
+                <article className="px-4 pb-4 border-b border-vp-border">
+                  <ImgPH label={`série · ${featuredSeries.name}`} height={170} style={{ marginBottom: 10 }} />
+                  <span className="eyebrow text-[10px]">Parte 1 de {featuredSeries.totalParts}</span>
+                  <h3 className="font-display text-[19px] leading-[1.15] my-1.5">{featuredSeries.articles[0].title}</h3>
+                  <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5] line-clamp-2">{featuredSeries.articles[0].lead}</p>
+                </article>
+              </Link>
+            )}
+          </>
+        ) : null}
+
+        {/* Podcast dinâmico no mobile */}
+        {activePodcast && (
+          <div className="bg-vp-surface border-y border-vp-border my-2">
+            <div className="px-4 pt-3 pb-2 flex items-center gap-2">
+              <span className="text-[10px] text-vp-accent">🎧</span>
+              <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold">Podcast · Voz Alta</h3>
+            </div>
+            <Link href={activePodcast.embedUrl || '#'} target="_blank" className="block px-4 pb-4 no-underline">
+              <div className="flex gap-4 items-center">
+                {activePodcast.coverImage ? (
+                  <img src={activePodcast.coverImage} alt="Capa" className="w-14 h-14 object-cover rounded-[2px]" />
+                ) : (
+                  <div className="w-14 h-14 bg-vp-bg border border-vp-border flex items-center justify-center text-[8px] text-vp-text-3">CAPA</div>
+                )}
+                <div className="flex-1">
+                  <h4 className="font-display text-[15px] leading-tight mb-1">{activePodcast.title}</h4>
+                  <div className="text-[10px] text-vp-text-3 uppercase tracking-wider">{activePodcast.duration || 'Ouça agora'}</div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-vp-accent text-vp-bg flex items-center justify-center pl-0.5 shadow-sm">
+                  ▶
+                </div>
+              </div>
+            </Link>
+          </div>
+        )}
 
         {/* Mais lidas */}
         <div className="p-4">

@@ -1,9 +1,13 @@
 import "dotenv/config";
 import { PrismaClient } from '@prisma/client'
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
 
 console.log('DB URL check:', process.env.DATABASE_URL ? 'Found' : 'Missing');
 
-const prisma = new PrismaClient()
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log('🌱 Seeding database...')
@@ -15,6 +19,15 @@ async function main() {
     { name: 'Pantanal', slug: 'pantanal', description: 'Ciência, meio ambiente e as vozes do bioma.' },
     { name: 'Indígenas', slug: 'indigenas', description: 'Territórios, cultura e direitos originários.' },
     { name: 'Agronegócio', slug: 'agronegocio', description: 'A força econômica e os desafios do campo.' },
+    { name: 'Economia', slug: 'economia', description: 'Mercado, finanças e desenvolvimento regional.' },
+    { name: 'Segurança', slug: 'seguranca', description: 'Políticas públicas, ocorrências e direitos humanos.' },
+    { name: 'Saúde', slug: 'saude', description: 'Sistema público, ciência e bem-estar.' },
+    { name: 'Educação', slug: 'educacao', description: 'Ensino superior, básico e políticas pedagógicas.' },
+    { name: 'Fronteira', slug: 'fronteira', description: 'A vida e os desafios nos limites do estado.' },
+    { name: 'Cultura', slug: 'cultura', description: 'Artes, tradições e a identidade sul-mato-grossense.' },
+    { name: 'Esportes', slug: 'esportes', description: 'Clubes locais, competições e atletas de MS.' },
+    { name: 'Opinião', slug: 'opiniao', description: 'Onde as vozes de MS se encontram.' },
+    { name: 'Especiais', slug: 'especiais', description: 'Reportagens de fôlego e séries investigativas.' },
   ]
 
   for (const s of sections) {
@@ -25,7 +38,7 @@ async function main() {
     })
   }
 
-  // 2. Criar um usuário Editor (para ser autor)
+  // 2. Criar usuários administrativos
   const editor = await prisma.user.upsert({
     where: { email: 'editor@vozpublicams.com.br' },
     update: {},
@@ -33,6 +46,17 @@ async function main() {
       email: 'editor@vozpublicams.com.br',
       name: 'Marina Ribeiro',
       role: 'EDITOR_CHIEF',
+      status: 'ACTIVE',
+    },
+  })
+
+  const admin = await prisma.user.upsert({
+    where: { email: 'girassolinteligencia@gmail.com' },
+    update: {},
+    create: {
+      email: 'girassolinteligencia@gmail.com',
+      name: 'Girassol Admin',
+      role: 'SUPER_ADMIN',
       status: 'ACTIVE',
     },
   })
