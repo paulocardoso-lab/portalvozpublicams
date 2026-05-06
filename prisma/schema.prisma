@@ -1,0 +1,307 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  avatar        String?
+  image         String?
+  emailVerified DateTime?
+  role          Role      @default(READER)
+  bio           String?   @db.Text
+  social        Json?
+  twoFA         Boolean   @default(false)
+  twoFASecret   String?
+  city          String?
+  state         String?   @default("MS")
+  status        UserStatus @default(ACTIVE)
+  createdAt     DateTime  @default(now())
+
+  articles      Article[] @relation("Authors")
+  comments      Comment[]
+  savedArticles SavedArticle[]
+  subscription  Subscription?
+  sessions      Session[]
+  accounts      Account[]
+}
+
+enum Role {
+  SUPER_ADMIN
+  EDITOR_CHIEF
+  SECTION_EDITOR
+  REPORTER
+  COLUMNIST
+  MODERATOR
+  FINANCE
+  READER
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+  DELETED
+}
+
+model Article {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  title               String
+  eyebrow             String?
+  lead                String?  @db.Text
+  body                Json
+  heroImage           String?
+  heroCaption         String?
+  authors             User[]   @relation("Authors")
+  sectionId           String
+  section             Section  @relation(fields: [sectionId], references: [id])
+  seriesId            String?
+  series              Series?  @relation(fields: [seriesId], references: [id])
+  tags                Tag[]
+  status              ArticleStatus @default(DRAFT)
+  publishedAt         DateTime?
+  scheduledAt         DateTime?
+  allowComments       Boolean  @default(true)
+  paywall             Boolean  @default(false)
+  sendPush            Boolean  @default(false)
+  includeInNewsletter Boolean  @default(true)
+  views               Int      @default(0)
+  readTimeMin         Int?
+  comments            Comment[]
+  saves               SavedArticle[]
+  versions            ArticleVersion[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([sectionId])
+}
+
+enum ArticleStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+model ArticleVersion {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  body      Json
+  authorId  String
+  createdAt DateTime @default(now())
+}
+
+model Section {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  parentId    String?
+  articles    Article[]
+}
+
+model Series {
+  id         String    @id @default(cuid())
+  name       String
+  parts      Int
+  totalParts Int
+  articles   Article[]
+}
+
+model Tag {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  articles Article[]
+}
+
+model Comment {
+  id         String        @id @default(cuid())
+  articleId  String
+  article    Article       @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?         @relation(fields: [userId], references: [id])
+  guestName  String?
+  body       String        @db.Text
+  status     CommentStatus @default(PENDING)
+  flags      Int           @default(0)
+  votes      Int           @default(0)
+  parentId   String?
+  parent     Comment?      @relation("Replies", fields: [parentId], references: [id])
+  replies    Comment[]     @relation("Replies")
+  ip         String?
+  userAgent  String?
+  flagReason String?
+  createdAt  DateTime      @default(now())
+
+  @@index([status, createdAt])
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  HIDDEN
+  SPAM
+  BANNED
+}
+
+model SavedArticle {
+  userId    String
+  articleId String
+  user      User    @relation(fields: [userId], references: [id])
+  article   Article @relation(fields: [articleId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@id([userId, articleId])
+}
+
+model Subscription {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id])
+  plan         Plan
+  amount       Int
+  status       SubStatus     @default(ACTIVE)
+  method       PaymentMethod
+  externalId   String?
+  startedAt    DateTime      @default(now())
+  cancelledAt  DateTime?
+  transactions Transaction[]
+}
+
+enum Plan {
+  READER
+  SUPPORTER
+  GUARDIAN
+  PATRON
+  CUSTOM
+}
+
+enum SubStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  PAUSED
+}
+
+enum PaymentMethod {
+  PIX
+  CARD
+  BOLETO
+}
+
+model Transaction {
+  id             String        @id @default(cuid())
+  subscriptionId String
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
+  amount         Int
+  method         PaymentMethod
+  status         TxStatus
+  externalId     String?
+  receiptUrl     String?
+  createdAt      DateTime      @default(now())
+}
+
+enum TxStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  name        String
+  client      String
+  slot        String
+  creative    String
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  startsAt    DateTime
+  endsAt      DateTime
+  status      String
+}
+
+model AdSlot {
+  id         String @id @default(cuid())
+  name       String
+  dimensions String
+  page       String
+  position   String
+}
+
+model Newsletter {
+  id          String                 @id @default(cuid())
+  name        String
+  slug        String                 @unique
+  description String                 @db.Text
+  sentAt      DateTime?
+  subscribers NewsletterSubscriber[]
+}
+
+model NewsletterSubscriber {
+  id           String     @id @default(cuid())
+  email        String
+  newsletterId String
+  newsletter   Newsletter @relation(fields: [newsletterId], references: [id])
+  confirmed    Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+
+  @@unique([email, newsletterId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  target    String?
+  ip        String?
+  status    String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

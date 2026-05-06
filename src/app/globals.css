@@ -1,0 +1,288 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-vp-bg: var(--vp-bg);
+  --color-vp-surface: var(--vp-surface);
+  --color-vp-surface-2: var(--vp-surface-2);
+  --color-vp-surface-3: var(--vp-surface-3);
+  --color-vp-border: var(--vp-border);
+  --color-vp-border-2: var(--vp-border-2);
+
+  --color-vp-text: var(--vp-text);
+  --color-vp-text-2: var(--vp-text-2);
+  --color-vp-text-3: var(--vp-text-3);
+  --color-vp-text-4: var(--vp-text-4);
+
+  --color-vp-accent: var(--vp-accent);
+  --color-vp-accent-hover: var(--vp-accent-hover);
+  --color-vp-accent-soft: var(--vp-accent-soft);
+
+  --color-vp-urgent: var(--vp-urgent);
+  --color-vp-live: var(--vp-live);
+  --color-vp-ok: var(--vp-ok);
+
+  --color-role-admin: #e85d4a;
+  --color-role-editor: #d97757;
+  --color-role-section: #e0b44a;
+  --color-role-reporter: #7aa2f7;
+  --color-role-columnist: #c4a7e7;
+  --color-role-mod: #7aa37a;
+  --color-role-finance: #8a887f;
+
+  --font-display: var(--vp-serif-display);
+  --font-serif: var(--vp-serif);
+  --font-sans: var(--vp-sans);
+  --font-mono: var(--vp-mono);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+}
+
+/* Voz Pública MS — design tokens (dark do Claude) */
+:root {
+  /* Backgrounds */
+  --vp-bg: #1a1a19;
+  --vp-surface: #262624;
+  --vp-surface-2: #2f2f2d;
+  --vp-surface-3: #3a3a37;
+  --vp-border: #3a3a37;
+  --vp-border-2: #4a4a46;
+
+  /* Text */
+  --vp-text: #faf9f5;
+  --vp-text-2: #d1cfc4;
+  --vp-text-3: #8a887f;
+  --vp-text-4: #5a5852;
+
+  /* Accent — laranja editorial (Claude) */
+  --vp-accent: #d97757;
+  --vp-accent-hover: #c96442;
+  --vp-accent-soft: rgba(217, 119, 87, 0.12);
+
+  /* Semantic */
+  --vp-urgent: #e85d4a;
+  --vp-live: #e85d4a;
+  --vp-ok: #7aa37a;
+
+  /* Type */
+  --vp-serif: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --vp-serif-display: "Playfair Display", "Source Serif 4", Georgia, serif;
+  --vp-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --vp-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+.vp-root {
+  background: var(--vp-bg);
+  color: var(--vp-text);
+  font-family: var(--vp-serif);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Utility classes scoped to .vp-root */
+.vp-root a { color: inherit; text-decoration: none; }
+.vp-root a:hover { color: var(--vp-accent); }
+.vp-root .sans { font-family: var(--vp-sans); }
+.vp-root .serif { font-family: var(--vp-serif); }
+.vp-root .display { font-family: var(--vp-serif-display); }
+.vp-root .mono { font-family: var(--vp-mono); }
+
+.vp-root .eyebrow {
+  font-family: var(--vp-sans);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--vp-accent);
+}
+.vp-root .meta {
+  font-family: var(--vp-sans);
+  font-size: 12px;
+  color: var(--vp-text-3);
+  letter-spacing: 0.02em;
+}
+.vp-root .byline {
+  font-family: var(--vp-sans);
+  font-size: 12px;
+  color: var(--vp-text-3);
+}
+
+.vp-root h1, .vp-root h2, .vp-root h3 {
+  font-family: var(--vp-serif-display);
+  color: var(--vp-text);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.vp-root .rule { height: 1px; background: var(--vp-border); width: 100%; }
+.vp-root .rule-2 { height: 2px; background: var(--vp-text); width: 100%; }
+.vp-root .rule-accent { height: 2px; background: var(--vp-accent); width: 100%; }
+
+/* Monogram VP|MS */
+.vp-monogram {
+  display: inline-flex;
+  align-items: stretch;
+  font-family: var(--vp-serif-display);
+  font-weight: 700;
+  border: 1.5px solid var(--vp-text);
+  line-height: 1;
+  user-select: none;
+}
+.vp-monogram .m-l, .vp-monogram .m-r {
+  padding: 6px 9px 5px;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+.vp-monogram .m-l { background: var(--vp-text); color: var(--vp-bg); }
+.vp-monogram .m-r { color: var(--vp-text); font-family: var(--vp-sans); font-weight: 600; font-size: 13px; padding-top: 8px; }
+
+/* Buttons */
+.vp-btn {
+  font-family: var(--vp-sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 3px;
+  border: 1px solid var(--vp-border-2);
+  background: transparent;
+  color: var(--vp-text);
+  cursor: pointer;
+  transition: all 0.12s;
+  letter-spacing: 0.01em;
+}
+.vp-btn:hover { background: var(--vp-surface-2); border-color: var(--vp-text-3); }
+.vp-btn-primary {
+  background: var(--vp-accent);
+  border-color: var(--vp-accent);
+  color: #1a1a19;
+}
+.vp-btn-primary:hover { background: var(--vp-accent-hover); border-color: var(--vp-accent-hover); color: #1a1a19; }
+.vp-btn-ghost { border-color: transparent; }
+
+/* Image placeholders — diagonal stripes */
+.vp-img-ph {
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 2px,
+      transparent 2px, transparent 10px),
+    linear-gradient(180deg, #2a2a28, #1f1f1e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--vp-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--vp-text-3);
+  position: relative;
+  overflow: hidden;
+}
+.vp-img-ph::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(217,119,87,0.08), transparent 50%);
+  pointer-events: none;
+}
+
+/* Tags/badges */
+.vp-tag {
+  font-family: var(--vp-sans);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.vp-tag-live {
+  background: var(--vp-live);
+  color: #fff;
+  animation: vp-pulse 2s infinite;
+}
+.vp-tag-exclusive {
+  background: var(--vp-accent);
+  color: #1a1a19;
+}
+.vp-tag-outline {
+  border: 1px solid var(--vp-text-3);
+  color: var(--vp-text-2);
+  padding: 2px 6px;
+}
+@keyframes vp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Ad label */
+.vp-ad {
+  position: relative;
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 6px,
+      transparent 6px, transparent 12px),
+    #202020;
+  border: 1px dashed var(--vp-border-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vp-text-3);
+  font-family: var(--vp-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+.vp-ad::before {
+  content: "PUBLICIDADE";
+  position: absolute;
+  top: 4px; left: 6px;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--vp-text-4);
+}
+
+/* Scrollbars within artboard interiors */
+.vp-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.vp-scroll::-webkit-scrollbar-track { background: transparent; }
+.vp-scroll::-webkit-scrollbar-thumb { background: var(--vp-border-2); border-radius: 3px; }
+
+/* Headline link hover — subtle orange slide underline */
+.vp-headline {
+  font-family: var(--vp-serif-display);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--vp-text);
+  text-wrap: balance;
+  transition: color 0.15s;
+}
+.vp-headline:hover { color: var(--vp-accent); }
+
+/* Admin */
+.vp-admin { font-family: var(--vp-sans); font-size: 13px; color: var(--vp-text); }
+.vp-admin h1, .vp-admin h2, .vp-admin h3 { font-family: var(--vp-sans); letter-spacing: -0.01em; }
+
+.vp-panel {
+  background: var(--vp-surface);
+  border: 1px solid var(--vp-border);
+  border-radius: 6px;
+}
+.vp-input {
+  background: var(--vp-bg);
+  border: 1px solid var(--vp-border);
+  color: var(--vp-text);
+  font-family: var(--vp-sans);
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  outline: none;
+  width: 100%;
+}
+.vp-input:focus { border-color: var(--vp-accent); }

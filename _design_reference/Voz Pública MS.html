@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Voz Pública MS — Design System</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="styles/tokens.css" />
+
+<style>
+  html, body { margin:0; padding:0; background:#f0eee9; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="components/shared.jsx"></script>
+<script type="text/babel" src="pages/Home.jsx"></script>
+<script type="text/babel" src="pages/Article.jsx"></script>
+<script type="text/babel" src="pages/Pages2.jsx"></script>
+<script type="text/babel" src="pages/AdminShell.jsx"></script>
+<script type="text/babel" src="pages/AdminEditor.jsx"></script>
+<script type="text/babel" src="pages/AdminMore.jsx"></script>
+<script type="text/babel" src="pages/Mobile.jsx"></script>
+<script type="text/babel" src="pages/MobileExtra.jsx"></script>
+<script type="text/babel" src="pages/AdminExtra.jsx"></script>
+<script type="text/babel" src="pages/MissingScreens.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+// ─────────────────────────────────────────────────────────────
+// Tweakable defaults
+// ─────────────────────────────────────────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#7aa37a",
+  "density": "densa",
+  "mode": "dark",
+  "fontPair": "serif-editorial",
+  "adPosition": "sidebar+topo"
+}/*EDITMODE-END*/;
+
+// ─────────────────────────────────────────────────────────────
+// Admin wrapper — handles nav state
+// ─────────────────────────────────────────────────────────────
+function AdminApp({ initial }) {
+  const [page, setPage] = useState(initial || 'dashboard');
+  return (
+    <AdminShell active={page} onNavigate={setPage}>
+      {page === 'dashboard'   && <Dashboard />}
+      {page === 'editor'      && <AdminEditor />}
+      {page === 'posts'       && <AdminEditor />}
+      {page === 'comments'    && <AdminComments />}
+      {page === 'users'       && <AdminUsers />}
+      {page === 'ads'         && <AdminAds />}
+      {page === 'appearance'  && <AdminAppearance />}
+      {page === 'social'      && <AdminSocial />}
+      {page === 'kanban'      && <AdminKanban />}
+      {page === 'metrics'     && <AdminMetrics />}
+      {page === 'subscriptions' && <AdminSubscriptions />}
+      {page === 'profile'     && <AdminProfile />}
+      {page === 'audit'       && <AdminAudit />}
+      {page === 'settings'    && <AdminSettings />}
+    </AdminShell>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Tweaks panel
+// ─────────────────────────────────────────────────────────────
+function useTweaks() {
+  const [t, setT] = useState(TWEAK_DEFAULTS);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--vp-accent', t.accent);
+  }, [t.accent]);
+  const set = (k, v) => {
+    const nt = { ...t, [k]: v };
+    setT(nt);
+    try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*'); } catch(e){}
+  };
+  return [t, set];
+}
+
+function TweaksPanel({ visible, tweaks, setTweak, onClose }) {
+  if (!visible) return null;
+  const accents = [['Laranja (Claude)', '#d97757'], ['Ocre', '#c89c5a'], ['Azul Pantanal', '#7aa2f7'], ['Verde cerrado', '#7aa37a'], ['Vermelho editorial', '#c74a42']];
+  return (
+    <div style={{ position: 'fixed', right: 16, bottom: 16, width: 300, background: '#1a1a19', color: '#faf9f5', border: '1px solid #3a3a37', borderRadius: 8, padding: 16, zIndex: 9999, fontFamily: 'Inter, sans-serif', fontSize: 12, boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <strong style={{ fontSize: 13, letterSpacing: '0.04em' }}>Tweaks</strong>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#8a887f', fontSize: 16, cursor: 'pointer' }}>×</button>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 10, color: '#8a887f', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Cor de destaque</div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {accents.map(([n,c]) => (
+            <span key={c} title={n} onClick={() => setTweak('accent', c)} style={{ width: 26, height: 26, borderRadius: '50%', background: c, cursor: 'pointer', border: tweaks.accent===c?'2px solid #faf9f5':'2px solid transparent' }} />
+          ))}
+        </div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 10, color: '#8a887f', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Modo</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+          {['dark','light'].map(m => (
+            <button key={m} onClick={() => setTweak('mode', m)} style={{ padding: 8, background: tweaks.mode===m?'#3a3a37':'transparent', border: '1px solid #3a3a37', color: '#faf9f5', cursor: 'pointer', fontSize: 11, textTransform: 'capitalize' }}>{m==='dark'?'Escuro':'Claro'}</button>
+          ))}
+        </div>
+        <div style={{ fontSize: 10, color: '#8a887f', marginTop: 4, fontStyle: 'italic' }}>(Site é otimizado para escuro — claro está em roadmap)</div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 10, color: '#8a887f', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Densidade da home</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+          {['leve','media','densa'].map(d => (
+            <button key={d} onClick={() => setTweak('density', d)} style={{ padding: 8, background: tweaks.density===d?'#3a3a37':'transparent', border: '1px solid #3a3a37', color: '#faf9f5', cursor: 'pointer', fontSize: 11 }}>{d}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 10, color: '#8a887f', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Tipografia</div>
+        <select value={tweaks.fontPair} onChange={e => setTweak('fontPair', e.target.value)} style={{ width: '100%', padding: 8, background: '#0e0e0d', border: '1px solid #3a3a37', color: '#faf9f5', fontSize: 12 }}>
+          <option value="serif-editorial">Playfair + Source Serif (editorial)</option>
+          <option value="serif-modern">Source Serif + Inter (moderno)</option>
+          <option value="sans">Inter em tudo (clean)</option>
+        </select>
+      </div>
+      <div>
+        <div style={{ fontSize: 10, color: '#8a887f', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Posição dos banners</div>
+        <select value={tweaks.adPosition} onChange={e => setTweak('adPosition', e.target.value)} style={{ width: '100%', padding: 8, background: '#0e0e0d', border: '1px solid #3a3a37', color: '#faf9f5', fontSize: 12 }}>
+          <option value="sidebar+topo">Sidebar + topo</option>
+          <option value="inline">Apenas inline</option>
+          <option value="minimo">Mínimo (discreto)</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Root
+// ─────────────────────────────────────────────────────────────
+function App() {
+  const [tweaks, setTweak] = useTweaks();
+  const [tweaksVisible, setTweaksVisible] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === '__activate_edit_mode')   setTweaksVisible(true);
+      if (e.data?.type === '__deactivate_edit_mode') setTweaksVisible(false);
+    };
+    window.addEventListener('message', handler);
+    try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e){}
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="portal" title="Portal público · vozpublicams.com.br" subtitle="Capa, leitura, editoria, colunista, busca">
+          <DCArtboard id="home"       label="Home — capa do portal"          width={1280} height={2400}><Home /></DCArtboard>
+          <DCArtboard id="article"    label="Página de matéria (leitura)"    width={1280} height={2400}><Article /></DCArtboard>
+          <DCArtboard id="section"    label="Página de editoria · Pantanal"  width={1280} height={2200}><Section /></DCArtboard>
+          <DCArtboard id="columnist"  label="Página de colunista"            width={1280} height={1700}><Columnist /></DCArtboard>
+          <DCArtboard id="search"     label="Busca"                          width={1280} height={1400}><Search /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="admin" title="Painel administrativo" subtitle="CMS, moderação, usuários, publicidade, aparência, redes e métricas">
+          <DCArtboard id="adm-dash"          label="Dashboard"                  width={1400} height={1200}><AdminApp initial="dashboard" /></DCArtboard>
+          <DCArtboard id="adm-editor"        label="Editor de matéria (CMS)"    width={1400} height={1500}><AdminApp initial="editor" /></DCArtboard>
+          <DCArtboard id="adm-kanban"        label="Fila editorial (kanban)"    width={1600} height={900}><AdminApp initial="kanban" /></DCArtboard>
+          <DCArtboard id="adm-comments"      label="Moderação de comentários"   width={1400} height={1100}><AdminApp initial="comments" /></DCArtboard>
+          <DCArtboard id="adm-users"         label="Usuários & permissões"      width={1400} height={1100}><AdminApp initial="users" /></DCArtboard>
+          <DCArtboard id="adm-ads"           label="Banners & publicidade"      width={1400} height={1400}><AdminApp initial="ads" /></DCArtboard>
+          <DCArtboard id="adm-metrics"       label="Métricas & tráfego"         width={1400} height={1500}><AdminApp initial="metrics" /></DCArtboard>
+          <DCArtboard id="adm-subs"          label="Assinaturas & doações"      width={1400} height={1200}><AdminApp initial="subscriptions" /></DCArtboard>
+          <DCArtboard id="adm-appearance"    label="Aparência & layout"         width={1400} height={1100}><AdminApp initial="appearance" /></DCArtboard>
+          <DCArtboard id="adm-social"        label="Redes sociais"              width={1400} height={900}><AdminApp initial="social" /></DCArtboard>
+          <DCArtboard id="adm-profile"       label="Meu perfil (autor)"         width={1400} height={1100}><AdminApp initial="profile" /></DCArtboard>
+          <DCArtboard id="adm-audit"         label="Logs de auditoria"          width={1400} height={900}><AdminApp initial="audit" /></DCArtboard>
+          <DCArtboard id="adm-settings"      label="Configurações gerais"       width={1400} height={1600}><AdminApp initial="settings" /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="mobile-portal" title="Portal — versão mobile" subtitle="iPhone 14 · 390×844 · onde 70% dos leitores chegam">
+          <DCArtboard id="m-home"     label="Home mobile"               width={440} height={920}>
+            <IOSDevice><MobileHome /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-article"  label="Matéria — leitura mobile"  width={440} height={920}>
+            <IOSDevice><MobileArticle /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-menu"     label="Menu / Editorias"          width={440} height={920}>
+            <IOSDevice><MobileMenu /></IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="mobile-admin" title="Admin — versão mobile" subtitle="Para a redação publicar e moderar de qualquer lugar">
+          <DCArtboard id="m-adm-dash"     label="Dashboard mobile"           width={440} height={920}>
+            <IOSDevice dark><MobileAdminDash /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-adm-editor"   label="Editor de matéria mobile"   width={440} height={920}>
+            <IOSDevice dark><MobileAdminEditor /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-adm-comments" label="Moderar comentários mobile" width={440} height={920}>
+            <IOSDevice dark><MobileAdminComments /></IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="mobile-funnel" title="Apoio & doação — funil mobile" subtitle="Conversão de leitor em apoiador · 4 etapas">
+          <DCArtboard id="m-don-amount"  label="1 · Escolher plano"   width={440} height={920}>
+            <IOSDevice><MobileDonateAmount /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-don-data"    label="2 · Dados pessoais"   width={440} height={920}>
+            <IOSDevice><MobileDonateData /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-don-pay"     label="3 · Pagamento PIX"    width={440} height={920}>
+            <IOSDevice><MobileDonatePay /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-don-success" label="4 · Confirmação"      width={440} height={920}>
+            <IOSDevice><MobileDonateSuccess /></IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="mobile-reader" title="Newsletter, conta & perfil — mobile" subtitle="Captura de e-mail, autenticação e área do leitor">
+          <DCArtboard id="m-newsletter" label="Newsletter — landing"   width={440} height={920}>
+            <IOSDevice><MobileNewsletter /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-login"      label="Login"                  width={440} height={920}>
+            <IOSDevice><MobileLogin /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-signup"     label="Cadastro"               width={440} height={920}>
+            <IOSDevice><MobileSignup /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="m-profile"    label="Perfil do leitor"       width={440} height={920}>
+            <IOSDevice><MobileReaderProfile /></IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="institucional" title="Institucional & confiança" subtitle="Manifesto, equipe e canal de denúncia segura — diferenciais editoriais">
+          <DCArtboard id="about"        label="Sobre · Manifesto editorial" width={1280} height={2200}><AboutPage /></DCArtboard>
+          <DCArtboard id="team"         label="A redação · Quem escreve"    width={1280} height={2400}><TeamPage /></DCArtboard>
+          <DCArtboard id="whistleblower" label="Denúncia segura · SecureDrop+Signal" width={1280} height={2600}><WhistleblowerPage /></DCArtboard>
+          <DCArtboard id="404"          label="Erro 404"                     width={1280} height={1100}><NotFoundPage /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="onboarding" title="Onboarding pós-cadastro — mobile" subtitle="4 etapas após criar conta · personaliza editorias, alertas e cidade">
+          <DCArtboard id="onb-1" label="1 · Boas-vindas"        width={440} height={920}>
+            <IOSDevice><MobileOnboarding step={1} /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="onb-2" label="2 · Editorias favoritas" width={440} height={920}>
+            <IOSDevice><MobileOnboarding step={2} /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="onb-3" label="3 · Alertas e canais"    width={440} height={920}>
+            <IOSDevice><MobileOnboarding step={3} /></IOSDevice>
+          </DCArtboard>
+          <DCArtboard id="onb-4" label="4 · Cidade em MS"        width={440} height={920}>
+            <IOSDevice><MobileOnboarding step={4} /></IOSDevice>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel visible={tweaksVisible} tweaks={tweaks} setTweak={setTweak} onClose={() => setTweaksVisible(false)} />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
