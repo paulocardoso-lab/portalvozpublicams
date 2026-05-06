@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function MobileTabBar({ active = 'home' }: { active?: 'home' | 'sections' | 'live' | 'saved' | 'me' }) {
+export function MobileTabBar({ active = 'home' }: { active?: 'home' | 'sections' | 'live' | 'saved' | 'me' | 'search' }) {
   const tabs = [
     { id: 'home',     l: 'Capa',     i: 'M3 12 12 4l9 8M5 10v10h14V10' },
     { id: 'sections', l: 'Editorias',i: 'M4 6h16M4 12h16M4 18h10' },
