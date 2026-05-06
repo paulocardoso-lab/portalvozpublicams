@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   description: "Jornalismo independente para Mato Grosso do Sul",
 };
 
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({
   children,
