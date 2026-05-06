@@ -27,6 +27,8 @@ export const metadata: Metadata = {
   description: "Jornalismo independente para Mato Grosso do Sul",
 };
 
+import { Analytics } from "@vercel/analytics/react"
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,7 +36,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`dark ${playfair.variable} ${sourceSerif.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="vp-root min-h-full flex flex-col">{children}</body>
+      <body className="vp-root min-h-full flex flex-col">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
