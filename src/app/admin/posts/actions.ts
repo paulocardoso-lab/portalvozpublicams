@@ -1,12 +1,8 @@
-'use server'
-
-import prisma from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { ArticleStatus } from '@prisma/client';
-import { uploadImage } from '@/lib/storage';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export async function saveArticle(formData: FormData) {
+  await requireAdmin();
+  
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
   const slug = formData.get('slug') as string;
@@ -26,19 +22,19 @@ export async function saveArticle(formData: FormData) {
       heroImageUrl = await uploadImage(heroImageFile, 'articles');
     } catch (error) {
       console.error('Error uploading hero image:', error);
-      // In a real app, we'd return an error to the UI here
     }
   }
 
-  const baseData: any = {
+  const baseData = {
     title,
     slug,
     eyebrow,
     lead,
-    body: content,
+    body: content as any, // body is Json in Prisma
     status,
     section: { connect: { id: sectionId } },
     updatedAt: new Date(),
+    heroImage: heroImageUrl || undefined,
   };
 
   if (heroImageUrl) {
@@ -75,6 +71,7 @@ export async function saveArticle(formData: FormData) {
 }
 
 export async function deleteArticle(id: string) {
+  await requireAdmin();
   await prisma.article.delete({ where: { id } });
   revalidatePath('/admin/posts');
   revalidatePath('/');

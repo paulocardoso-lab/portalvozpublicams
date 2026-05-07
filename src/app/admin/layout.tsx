@@ -1,8 +1,7 @@
 import React from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import Link from 'next/link';
-import { auth } from '@/auth';
-import { redirect } from 'next/navigation';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,17 +19,7 @@ function AdminTopbar() {
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  let session = null;
-  try {
-    session = await auth();
-  } catch (err) {
-    console.error("Auth error in layout:", err);
-  }
-
-  // Se não estiver logado, redireciona para login
-  if (!session?.user) {
-    redirect('/login');
-  }
+  const session = await requireAdmin();
 
   return (
     <div className="w-full min-h-[100dvh] grid grid-cols-[232px_1fr] bg-[#111110] text-vp-text font-sans">
@@ -38,11 +27,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <main className="min-w-0 flex flex-col relative">
         <AdminTopbar />
         <div className="p-6">
-          <div className="mb-4 p-4 bg-vp-surface-2 border border-vp-border rounded">
-            <h2 className="text-vp-accent font-bold">Debug: Admin Access</h2>
-            <p className="text-[12px]">User: {session.user.email}</p>
-            <p className="text-[12px]">Role: {(session.user as any).role || 'READER'}</p>
-          </div>
           {children}
         </div>
       </main>

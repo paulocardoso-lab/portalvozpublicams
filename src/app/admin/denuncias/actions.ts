@@ -4,17 +4,11 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { Resend } from "resend";
+import { requireAdmin } from "@/lib/auth-guard";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 type TipStatus = "NEW" | "INVESTIGATING" | "PUBLISHED" | "ARCHIVED";
-
-const STATUS_LABELS: Record<TipStatus, string> = {
-  NEW: "Nova",
-  INVESTIGATING: "Em investigação",
-  PUBLISHED: "Publicada",
-  ARCHIVED: "Arquivada",
-};
 
 async function logAudit(action: string, target: string, status: string) {
   const session = await auth();
@@ -30,6 +24,7 @@ async function logAudit(action: string, target: string, status: string) {
 }
 
 export async function updateTipStatus(id: string, status: TipStatus, _formData?: FormData) {
+  await requireAdmin();
   const tip = await prisma.tip.findUnique({ where: { id } });
   if (!tip) return;
 
@@ -73,6 +68,7 @@ export async function updateTipStatus(id: string, status: TipStatus, _formData?:
 }
 
 export async function saveTipNotes(id: string, formData: FormData) {
+  await requireAdmin();
   const notes = String(formData.get("notes") ?? "");
   await prisma.tip.update({
     where: { id },
@@ -83,6 +79,7 @@ export async function saveTipNotes(id: string, formData: FormData) {
 }
 
 export async function deleteTip(id: string, _formData?: FormData) {
+  await requireAdmin();
   await prisma.tip.delete({ where: { id } });
   await logAudit("TIP_DELETED", `tip:${id}`, "OK");
   revalidatePath("/admin/denuncias");
