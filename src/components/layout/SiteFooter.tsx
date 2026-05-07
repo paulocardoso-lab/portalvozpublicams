@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 import Link from 'next/link';
-import { Monogram } from '@/components/shared/Monogram';
+import { BrandLogo } from '@/components/shared/BrandLogo';
 
 export async function SiteFooter() {
   const settings = await getSiteSettings();
@@ -15,8 +15,8 @@ export async function SiteFooter() {
     <footer className="hidden md:block border-t-2 border-vp-text bg-vp-bg px-7 pt-8 pb-6 font-sans text-[12px] text-vp-text-3">
       <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-7 mb-7">
         <div>
-          <Monogram size="md" />
-          <p className="mt-3 leading-[1.6] text-vp-text-2 font-serif text-[14px]">
+          <BrandLogo size="lg" className="mb-3" />
+          <p className="leading-[1.6] text-vp-text-2 font-serif text-[14px]">
             {settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência.'}
           </p>
           <div className="mt-3.5 flex gap-2">
@@ -61,7 +61,9 @@ export async function SiteFooter() {
       </div>
       
       <div className="border-t border-vp-border pt-4 flex justify-between text-[11px]">
-        <span>© {new Date().getFullYear()} {settings['SITE_NAME'] || 'Voz Pública MS'} · Campo Grande, MS</span>
+        <div className="flex flex-col gap-1">
+          <span>© 2026 Voz Pública MS. Todos os direitos reservados.</span>
+        </div>
         <span className="font-mono">vozpublicams.com.br</span>
       </div>
     </footer>

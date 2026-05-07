@@ -1,0 +1,101 @@
+# Diagnóstico da Plataforma: Voz Pública MS
+
+Este documento fornece um panorama técnico detalhado da plataforma Voz Pública MS para auxiliar na investigação de erros de deploy e estabilização do ambiente de produção.
+
+---
+
+## 1. Visão Geral do Projeto
+- **Nome:** Voz Pública MS
+- **Objetivo:** Portal de notícias e manifestação pública do Mato Grosso do Sul, com sistema de assinaturas, área administrativa e integração de indicadores de mercado.
+- **Stack Principal:** 
+  - **Framework:** Next.js 16.2.4 (App Router)
+  - **Linguagem:** TypeScript
+  - **Estilização:** Tailwind CSS v4
+  - **Banco de Dados:** PostgreSQL (via Prisma ORM)
+  - **Autenticação:** Next-Auth v5 (Beta) + Supabase SSR
+  - **Monitoramento:** Sentry, Vercel Analytics/Speed Insights
+  - **Pagamentos:** Stripe & Pagarme
+
+---
+
+## 2. Arquitetura e Fluxos Core
+
+### Estrutura de Rotas
+A plataforma utiliza Route Groups do Next.js para isolar contextos:
+- `(public)`: Área acessível ao público (Notícias, Home, Apóie).
+- `(admin)`: Dashboard administrativo para editores e administradores.
+- `api/`: Endpoints para webhooks (Stripe, Pagarme), cron jobs e lógica de backend.
+
+### Modelo de Dados (Prisma)
+O schema é robusto e contempla:
+- **Gestão de Conteúdo:** `Article`, `Section`, `Series`, `Tag`, `Comment`.
+- **Assinaturas:** `Subscription`, `Transaction` (PIX, Card, Boleto).
+- **Interatividade:** `Newsletter`, `AuditLog`, `Tip` (Denúncias).
+- **Indicadores:** `MarketIndicator` (Boi, Soja, USD), `AgendaEvent`.
+
+---
+
+## 3. Ambiente de Deploy (Vercel)
+A plataforma é hospedada na Vercel e utiliza:
+- **Edge Runtime:** Utilizado em rotas críticas para performance, mas tem causado problemas de limite de tamanho de bundle.
+- **Serverless Functions:** Para lógica de backend pesada.
+- **Cron Jobs:** Definidos em `vercel.json` para atualização de indicadores (ex: `/api/cron/fetch-agri`).
+
+---
+
+## 4. Problemas Identificados e Histórico Recente
+
+### Erros de Deploy (Fase 2)
+1. **Edge Function Size Limit:** O bundle das funções Edge excedeu o limite da Vercel (geralmente 1MB-4MB dependendo do plano).
+   - *Causa provável:* Importação do Prisma Client e dependências pesadas em rotas configuradas como Edge.
+   - *Tentativa de Solução:* Decoupling do Prisma da lógica de autenticação Edge e otimização de imports.
+
+2. **Erro 500 em Produção:** Ocorrendo após o deploy, indicando falhas na conexão com o banco de dados ou variáveis de ambiente ausentes.
+   - *Verificação necessária:* `DATABASE_URL`, `NEXTAUTH_SECRET`, chaves do Supabase e Stripe.
+
+3. **Conflitos de Roteamento:** Colisão entre grupos de rotas `(admin)` e `(public)` que ocasionalmente impedem o servidor de desenvolvimento/build de processar as rotas corretamente.
+
+4. **Warnings de Build:** O build log trava ou fica lento na etapa de "Collecting page data", possivelmente devido a pré-renderização estática de páginas que dependem de conexão com DB externa mal configurada no build.
+
+---
+
+## 5. Configurações Relevantes
+
+### `package.json` (Trecho)
+```json
+"dependencies": {
+  "next": "16.2.4",
+  "next-auth": "^5.0.0-beta.31",
+  "prisma": "^7.8.0",
+  "@prisma/client": "^7.8.0",
+  "@supabase/ssr": "^0.10.2",
+  "stripe": "^22.1.0",
+  "zustand": "^5.0.13"
+}
+```
+
+### `next.config.ts`
+Utiliza `withSentryConfig` para monitoramento. Observou-se a necessidade de garantir que o `tunnelRoute` para o Sentry não esteja causando overhead desnecessário no build.
+
+### `vercel.json`
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/fetch-agri",
+      "schedule": "0 21 * * 1-5"
+    }
+  ]
+}
+```
+
+---
+
+## 6. Próximos Passos Sugeridos para Investigação (Claude)
+1. **Auditoria de Imports:** Verificar quais páginas/APIs estão usando `runtime: 'edge'` e se o Prisma está sendo importado nelas.
+2. **Revisão de Middleware:** O middleware de autenticação (Next-Auth) costuma rodar no Edge; garantir que ele seja o mais leve possível.
+3. **Debug de Conexão DB:** Validar se o Prisma Client está sendo instanciado corretamente como um Singleton para evitar vazamento de conexões.
+4. **Resolução de Tipagem:** Corrigir os erros de lint que podem estar mascarando falhas estruturais.
+
+---
+*Gerado por Antigravity em 07/05/2026*

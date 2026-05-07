@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Monogram } from '@/components/shared/Monogram';
+import { BrandLogo } from '@/components/shared/BrandLogo';
 import { HeaderTicker } from './HeaderTicker';
 import { getMarketData, getWeatherData } from '@/lib/external-data';
 import { prisma } from '@/lib/prisma';
@@ -66,8 +66,8 @@ export async function SiteHeader() {
           </Link>
         </div>
 
-        <Link href="/" className="flex flex-col items-center gap-1 no-underline">
-          <Monogram size="lg" />
+        <Link href="/" className="flex flex-col items-center gap-1.5 no-underline">
+          <BrandLogo size="xl" />
           <div className="font-serif italic text-[13px] text-vp-text-2 tracking-[0.02em]">
             {settings['SITE_TAGLINE'] || 'Jornalismo independente de Mato Grosso do Sul'}
           </div>

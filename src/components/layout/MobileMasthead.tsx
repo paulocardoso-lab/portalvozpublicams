@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Monogram } from '@/components/shared/Monogram';
+import { BrandLogo } from '@/components/shared/BrandLogo';
 
 export function MobileMasthead({ title }: { title?: string }) {
   return (
@@ -16,7 +16,7 @@ export function MobileMasthead({ title }: { title?: string }) {
             {title ? (
               <div className="font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-vp-accent">{title}</div>
             ) : (
-              <Monogram size="sm" />
+              <BrandLogo size="md" />
             )}
           </Link>
         </div>
