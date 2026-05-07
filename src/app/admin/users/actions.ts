@@ -22,7 +22,6 @@ export async function updateUserRole(userId: string, role: Role) {
     data: { role },
   });
   revalidatePath("/admin/users");
-  return { success: true };
 }
 
 export async function updateUserStatus(userId: string, status: UserStatus) {
@@ -32,7 +31,6 @@ export async function updateUserStatus(userId: string, status: UserStatus) {
     data: { status },
   });
   revalidatePath("/admin/users");
-  return { success: true };
 }
 
 export async function getUsers(search?: string) {
