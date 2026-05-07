@@ -1,9 +1,8 @@
-"use server";
-
-import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth-guard";
+import { CampaignStatus } from "@prisma/client";
 
 export async function createCampaign(formData: FormData) {
+  await requireAdmin();
   const startsAt = new Date(String(formData.get("startsAt")));
   const endsAt = new Date(String(formData.get("endsAt")));
 
@@ -17,18 +16,20 @@ export async function createCampaign(formData: FormData) {
       clicks: 0,
       startsAt,
       endsAt,
-      status: "ativa",
+      status: "ACTIVE",
     },
   });
   revalidatePath("/admin/ads");
 }
 
-export async function updateCampaignStatus(id: string, status: string, _formData?: FormData) {
+export async function updateCampaignStatus(id: string, status: CampaignStatus, _formData?: FormData) {
+  await requireAdmin();
   await prisma.campaign.update({ where: { id }, data: { status } });
   revalidatePath("/admin/ads");
 }
 
 export async function deleteCampaign(id: string, _formData?: FormData) {
+  await requireAdmin();
   await prisma.campaign.delete({ where: { id } });
   revalidatePath("/admin/ads");
 }

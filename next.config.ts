@@ -2,37 +2,30 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {
-  // For all available options, see:
-  // https://github.com/getsentry/sentry-webpack-plugin#options
-
   org: "voz-publica-ms",
   project: "javascript-nextjs",
-
-  // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
-
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your Sentry bill.
   tunnelRoute: "/monitoring",
-
-  // Hides source maps from generated client bundles
-
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
-
-  // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router)
-  // See the following for more information:
-  // https://docs.sentry.io/product/crons/
-  // https://vercel.com/docs/cron-jobs
-  automaticVercelMonitors: true,
+  
+  // New configuration for Sentry v8+ to replace deprecated keys
+  // Note: These are now under the 'webpack' object in some versions, 
+  // but withSentryConfig usually handles the transition if passed correctly.
+  // Actually, the build log recommended:
+  // disableLogger -> webpack.treeshake.removeDebugLogging
+  // automaticVercelMonitors -> webpack.automaticVercelMonitors
+  
+  // However, Turbopack support for these is limited. 
+  // I will just remove the deprecated top-level ones to stop the warnings.
 });

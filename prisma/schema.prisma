@@ -267,7 +267,14 @@ model Campaign {
   clicks      Int      @default(0)
   startsAt    DateTime
   endsAt      DateTime
-  status      String
+  status      CampaignStatus @default(ACTIVE)
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  EXPIRED
+  ARCHIVED
 }
 
 model AdSlot {
