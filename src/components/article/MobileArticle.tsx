@@ -62,7 +62,16 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
             </button>
           </div>
 
-          <ImgPH label={article.eyebrow || 'capa'} height={220} style={{ marginBottom: 8 }} />
+          {article.heroImage ? (
+            <img 
+              src={article.heroImage} 
+              alt={article.title} 
+              className="w-full h-auto object-cover border border-vp-border"
+              style={{ marginBottom: 8 }}
+            />
+          ) : (
+            <ImgPH label={article.eyebrow || 'capa'} height={220} style={{ marginBottom: 8 }} />
+          )}
           {article.heroCaption && (
             <div className="meta italic mb-[22px] text-[11px]">{article.heroCaption}</div>
           )}

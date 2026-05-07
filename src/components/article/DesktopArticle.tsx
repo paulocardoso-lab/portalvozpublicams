@@ -69,7 +69,16 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
             </div>
           </div>
 
-          <ImgPH label={article.eyebrow || 'capa'} height={460} style={{ marginBottom: 14 }} />
+          {article.heroImage ? (
+            <img 
+              src={article.heroImage} 
+              alt={article.title} 
+              className="w-full h-auto object-cover border border-vp-border"
+              style={{ marginBottom: 14, maxHeight: '600px' }}
+            />
+          ) : (
+            <ImgPH label={article.eyebrow || 'capa'} height={460} style={{ marginBottom: 14 }} />
+          )}
           {article.heroCaption && (
             <div className="meta font-serif italic text-[13px] mb-7 text-vp-text-3">
               {article.heroCaption}
