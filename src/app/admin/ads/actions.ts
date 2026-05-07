@@ -23,12 +23,12 @@ export async function createCampaign(formData: FormData) {
   revalidatePath("/admin/ads");
 }
 
-export async function updateCampaignStatus(id: string, status: string) {
+export async function updateCampaignStatus(id: string, status: string, _formData?: FormData) {
   await prisma.campaign.update({ where: { id }, data: { status } });
   revalidatePath("/admin/ads");
 }
 
-export async function deleteCampaign(id: string) {
+export async function deleteCampaign(id: string, _formData?: FormData) {
   await prisma.campaign.delete({ where: { id } });
   revalidatePath("/admin/ads");
 }

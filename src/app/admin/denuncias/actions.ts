@@ -29,7 +29,7 @@ async function logAudit(action: string, target: string, status: string) {
   });
 }
 
-export async function updateTipStatus(id: string, status: TipStatus) {
+export async function updateTipStatus(id: string, status: TipStatus, _formData?: FormData) {
   const tip = await prisma.tip.findUnique({ where: { id } });
   if (!tip) return;
 
@@ -72,7 +72,8 @@ export async function updateTipStatus(id: string, status: TipStatus) {
   revalidatePath("/admin/denuncias");
 }
 
-export async function saveTipNotes(id: string, notes: string) {
+export async function saveTipNotes(id: string, formData: FormData) {
+  const notes = String(formData.get("notes") ?? "");
   await prisma.tip.update({
     where: { id },
     data: { internalNotes: notes },
@@ -81,7 +82,7 @@ export async function saveTipNotes(id: string, notes: string) {
   revalidatePath("/admin/denuncias");
 }
 
-export async function deleteTip(id: string) {
+export async function deleteTip(id: string, _formData?: FormData) {
   await prisma.tip.delete({ where: { id } });
   await logAudit("TIP_DELETED", `tip:${id}`, "OK");
   revalidatePath("/admin/denuncias");
