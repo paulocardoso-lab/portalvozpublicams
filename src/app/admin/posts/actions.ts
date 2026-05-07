@@ -1,7 +1,14 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { redirect } from 'next/navigation';
+import { ArticleStatus } from '@prisma/client';
+import { uploadImage } from '@/lib/storage';
 import { requireAdmin } from '@/lib/auth-guard';
 
 export async function saveArticle(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
@@ -42,6 +49,19 @@ export async function saveArticle(formData: FormData) {
   }
 
   if (id) {
+    // 1. Create a version of the CURRENT state before updating
+    const currentArticle = await prisma.article.findUnique({ where: { id } });
+    if (currentArticle) {
+      await prisma.articleVersion.create({
+        data: {
+          articleId: id,
+          body: currentArticle.body as any,
+          authorId: admin.id,
+        },
+      });
+    }
+
+    // 2. Update the article
     await prisma.article.update({
       where: { id },
       data: {
@@ -75,4 +95,25 @@ export async function deleteArticle(id: string) {
   await prisma.article.delete({ where: { id } });
   revalidatePath('/admin/posts');
   revalidatePath('/');
+}
+
+export async function restoreVersion(versionId: string) {
+  await requireAdmin();
+  const version = await prisma.articleVersion.findUnique({
+    where: { id: versionId },
+    include: { article: true }
+  });
+
+  if (!version) throw new Error("Version not found");
+
+  await prisma.article.update({
+    where: { id: version.articleId },
+    data: {
+      body: version.body as any,
+      updatedAt: new Date(),
+    }
+  });
+
+  revalidatePath(`/admin/posts/edit/${version.articleId}`);
+  revalidatePath(`/${version.article.slug}`);
 }

@@ -9,7 +9,14 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   
   const article = await prisma.article.findUnique({
     where: { id },
-    include: { authors: true }
+    include: { 
+      authors: true,
+      versions: {
+        include: { author: true },
+        orderBy: { createdAt: 'desc' },
+        take: 10
+      }
+    }
   });
 
   if (!article) notFound();

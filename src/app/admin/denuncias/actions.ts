@@ -6,7 +6,10 @@ import { revalidatePath } from "next/cache";
 import { Resend } from "resend";
 import { requireAdmin } from "@/lib/auth-guard";
 
+import { tipStatusTemplate } from "@/lib/email-templates";
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_FROM = process.env.EMAIL_FROM || "Voz Pública MS <onboarding@resend.dev>";
 
 type TipStatus = "NEW" | "INVESTIGATING" | "PUBLISHED" | "ARCHIVED";
 
@@ -38,25 +41,12 @@ export async function updateTipStatus(id: string, status: TipStatus, _formData?:
     const isInvestigating = status === "INVESTIGATING";
     try {
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: EMAIL_FROM,
         to: tip.email,
         subject: isInvestigating
           ? "Sua denúncia está sendo investigada — Voz Pública MS"
           : "Sua denúncia foi publicada — Voz Pública MS",
-        html: `
-          <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; color: #1a1a19;">
-            <h2 style="color: #c94a2e;">Voz Pública MS</h2>
-            <p>Olá${tip.name ? `, <strong>${tip.name}</strong>` : ""},</p>
-            ${isInvestigating
-              ? `<p>Sua denúncia foi recebida e nossa equipe de jornalismo está <strong>investigando os fatos</strong>. Agradecemos pela confiança.</p>`
-              : `<p>Sua denúncia resultou em uma <strong>matéria publicada</strong> no portal Voz Pública MS. Obrigado por ajudar a fortalecer o jornalismo independente.</p>`
-            }
-            <p style="color: #888; font-size: 12px; margin-top: 24px;">
-              Este é um e-mail automático. Não responda a esta mensagem.<br/>
-              Voz Pública MS — Jornalismo Independente
-            </p>
-          </div>
-        `,
+        html: tipStatusTemplate(tip.name, status),
       });
     } catch (err) {
       // Silently fail — email is best-effort, don't break the main action
