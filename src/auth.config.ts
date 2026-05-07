@@ -1,28 +1,27 @@
 import type { NextAuthConfig } from "next-auth"
 import Google from "next-auth/providers/google"
-import Apple from "next-auth/providers/apple"
 import Resend from "next-auth/providers/resend"
 
 export default {
   providers: [
-    Google,
-    Apple,
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     Resend({
+      apiKey: process.env.RESEND_API_KEY,
       from: "no-reply@vozpublicams.com.br",
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.role = (user as { role?: string }).role;
+    session({ session, user }) {
+      if (session.user && user) {
+        (session.user as { role?: string }).role = (user as { role?: string }).role
       }
-      return token;
+      return session
     },
-    session({ session, token }) {
-      if (session.user) {
-        (session.user as { role?: string }).role = token.role as string;
-      }
-      return session;
-    },
+  },
+  pages: {
+    signIn: "/login",
   },
 } satisfies NextAuthConfig
