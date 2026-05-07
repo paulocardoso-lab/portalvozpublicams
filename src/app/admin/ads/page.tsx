@@ -1,6 +1,7 @@
 import React from "react";
 import prisma from "@/lib/prisma";
-import { createCampaign, updateCampaignStatus, deleteCampaign, AD_SLOTS } from "./actions";
+import { createCampaign, updateCampaignStatus, deleteCampaign } from "./actions";
+import { AD_SLOTS } from "./constants";
 
 export const dynamic = "force-dynamic";
 

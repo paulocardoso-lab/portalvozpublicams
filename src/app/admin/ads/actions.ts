@@ -3,16 +3,6 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-const AD_SLOTS = [
-  "Leaderboard topo (728×90)",
-  "Billboard inline (970×120)",
-  "Retângulo sidebar (300×250)",
-  "Skyscraper (300×600)",
-  "Nativo in-feed",
-] as const;
-
-export { AD_SLOTS };
-
 export async function createCampaign(formData: FormData) {
   const startsAt = new Date(String(formData.get("startsAt")));
   const endsAt = new Date(String(formData.get("endsAt")));
