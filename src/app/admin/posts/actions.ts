@@ -1,11 +1,25 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from 'next/navigation';
 import { ArticleStatus } from '@prisma/client';
 import { uploadImage } from '@/lib/storage';
-import { requireAdmin } from '@/lib/auth-guard';
+import { requireAdmin, requireSuperAdmin } from "@/lib/auth-guard";
+
+async function logAudit(action: string, target: string, status: string) {
+  const session = await auth();
+  await prisma.auditLog.create({
+    data: {
+      userId: session?.user?.id ?? null,
+      action,
+      target,
+      status,
+      ip: null,
+    },
+  });
+}
 
 export async function saveArticle(formData: FormData) {
   const admin = await requireAdmin();
@@ -83,6 +97,7 @@ export async function saveArticle(formData: FormData) {
     });
   }
 
+  await logAudit(id ? "POST_UPDATED" : "POST_CREATED", title, "OK");
   revalidatePath('/admin/posts');
   revalidatePath('/');
   revalidatePath(`/${slug}`);
@@ -93,6 +108,7 @@ export async function saveArticle(formData: FormData) {
 export async function deleteArticle(id: string) {
   await requireAdmin();
   await prisma.article.delete({ where: { id } });
+  await logAudit("POST_DELETED", `post:${id}`, "OK");
   revalidatePath('/admin/posts');
   revalidatePath('/');
 }
@@ -114,6 +130,7 @@ export async function restoreVersion(versionId: string) {
     }
   });
 
+  await logAudit("POST_RESTORED", `post:${version.articleId}`, "OK");
   revalidatePath(`/admin/posts/edit/${version.articleId}`);
   revalidatePath(`/${version.article.slug}`);
 }

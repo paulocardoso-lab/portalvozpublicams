@@ -3,33 +3,57 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
+import { requireAdmin, requireSuperAdmin } from "@/lib/auth-guard";
 
 type Role = "SUPER_ADMIN" | "EDITOR_CHIEF" | "SECTION_EDITOR" | "REPORTER" | "COLUMNIST" | "MODERATOR" | "FINANCE" | "READER";
 type UserStatus = "ACTIVE" | "BANNED" | "DELETED";
 
-async function assertSuperAdmin() {
+async function logAudit(action: string, target: string, status: string) {
   const session = await auth();
-  const role = (session?.user as { role?: string })?.role;
-  if (role !== "SUPER_ADMIN" && role !== "EDITOR_CHIEF") {
-    throw new Error("Sem permissão.");
-  }
+  await prisma.auditLog.create({
+    data: {
+      userId: session?.user?.id ?? null,
+      action,
+      target,
+      status,
+      ip: null,
+    },
+  });
+}
+
+export async function updateProfile(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: {
+      name: String(formData.get("name")),
+      bio: String(formData.get("bio") ?? ""),
+      city: String(formData.get("city") ?? ""),
+    },
+  });
+  await logAudit("PROFILE_UPDATED", `user:${session.user.id}`, "OK");
+  revalidatePath("/admin/profile");
 }
 
 export async function updateUserRole(userId: string, role: Role) {
-  await assertSuperAdmin();
+  await requireSuperAdmin();
   await prisma.user.update({
     where: { id: userId },
     data: { role },
   });
+  await logAudit(`USER_ROLE_CHANGED → ${role}`, `user:${userId}`, "OK");
   revalidatePath("/admin/users");
 }
 
 export async function updateUserStatus(userId: string, status: UserStatus) {
-  await assertSuperAdmin();
+  await requireSuperAdmin();
   await prisma.user.update({
     where: { id: userId },
     data: { status },
   });
+  await logAudit(`USER_STATUS_CHANGED → ${status}`, `user:${userId}`, "OK");
   revalidatePath("/admin/users");
 }
 

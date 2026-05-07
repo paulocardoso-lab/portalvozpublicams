@@ -5,6 +5,9 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminAuditPage() {
   const logs = await prisma.auditLog.findMany({
+    include: {
+      user: { select: { name: true } },
+    },
     orderBy: { createdAt: "desc" },
     take: 100,
   });
@@ -41,7 +44,7 @@ export default async function AdminAuditPage() {
                   <td className="px-4 py-3 font-mono text-vp-text-3 whitespace-nowrap">
                     {log.createdAt.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}
                   </td>
-                  <td className="px-4 py-3 text-vp-text-2">{log.userId ?? "sistema"}</td>
+                  <td className="px-4 py-3 text-vp-text-2">{log.user?.name ?? log.userId ?? "sistema"}</td>
                   <td className="px-4 py-3 font-semibold font-mono text-vp-accent">{log.action}</td>
                   <td className="px-4 py-3 text-vp-text-3 max-w-[200px] truncate">{log.target ?? "—"}</td>
                   <td className="px-4 py-3">

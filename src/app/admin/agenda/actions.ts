@@ -1,9 +1,25 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth-guard';
+
+async function logAudit(action: string, target: string, status: string) {
+  const session = await auth();
+  await prisma.auditLog.create({
+    data: {
+      userId: session?.user?.id ?? null,
+      action,
+      target,
+      status,
+      ip: null,
+    },
+  });
+}
 
 export async function saveAgendaEvent(formData: FormData) {
+  await requireAdmin();
   const id = formData.get('id') as string;
   const time = formData.get('time') as string;
   const organ = formData.get('organ') as string;
@@ -21,12 +37,15 @@ export async function saveAgendaEvent(formData: FormData) {
     });
   }
 
+  await logAudit("AGENDA_EVENT_SAVED", `${organ} - ${time}`, "OK");
   revalidatePath('/admin/agenda');
   revalidatePath('/');
 }
 
 export async function deleteAgendaEvent(id: string) {
+  await requireAdmin();
   await prisma.agendaEvent.delete({ where: { id } });
+  await logAudit("AGENDA_EVENT_DELETED", `agenda:${id}`, "OK");
   revalidatePath('/admin/agenda');
   revalidatePath('/');
 }

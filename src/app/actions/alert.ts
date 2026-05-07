@@ -1,8 +1,23 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth-guard';
 import { AlertType } from '@prisma/client';
+
+async function logAudit(action: string, target: string, status: string) {
+  const session = await auth();
+  await prisma.auditLog.create({
+    data: {
+      userId: session?.user?.id ?? null,
+      action,
+      target,
+      status,
+      ip: null,
+    },
+  });
+}
 
 export async function getAlerts() {
   return prisma.alert.findMany({
@@ -17,6 +32,8 @@ export async function saveAlert(data: {
   type: AlertType;
   isActive: boolean;
 }) {
+  await requireAdmin();
+  
   // Se for definido como ativo, desativa os outros
   if (data.isActive) {
     await prisma.alert.updateMany({
@@ -47,12 +64,15 @@ export async function saveAlert(data: {
     });
   }
 
+  await logAudit("ALERT_SAVED", data.message, "OK");
   revalidatePath('/');
   revalidatePath('/admin/alerts');
   return alert;
 }
 
 export async function toggleAlert(id: string, currentStatus: boolean) {
+  await requireAdmin();
+  
   // Se estamos ativando, precisamos desativar os outros primeiro
   if (!currentStatus) {
     await prisma.alert.updateMany({
@@ -66,12 +86,15 @@ export async function toggleAlert(id: string, currentStatus: boolean) {
     data: { isActive: !currentStatus }
   });
 
+  await logAudit(`ALERT_TOGGLED → ${!currentStatus}`, `alert:${id}`, "OK");
   revalidatePath('/');
   revalidatePath('/admin/alerts');
 }
 
 export async function deleteAlert(id: string) {
+  await requireAdmin();
   await prisma.alert.delete({ where: { id } });
+  await logAudit("ALERT_DELETED", `alert:${id}`, "OK");
   revalidatePath('/');
   revalidatePath('/admin/alerts');
 }
