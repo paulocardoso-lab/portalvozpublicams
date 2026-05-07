@@ -9,7 +9,7 @@ export default {
     Google,
     Resend({
       apiKey: process.env.RESEND_API_KEY,
-      from: "no-reply@vozpublicams.com.br",
+      from: "onboarding@resend.dev",
     }),
   ],
   callbacks: {
