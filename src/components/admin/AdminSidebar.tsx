@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ImgPH } from '@/components/shared/ImgPH';
 
+import { Monogram } from '@/components/shared/Monogram';
+
 export function AdminSidebar() {
   const pathname = usePathname() || '';
   
@@ -34,7 +36,7 @@ export function AdminSidebar() {
   return (
     <aside className="bg-[#0e0e0d] border-r border-vp-border py-4.5 flex flex-col gap-3.5 sticky top-0 h-[100dvh]">
       <div className="px-4.5 pb-4.5 border-b border-vp-border flex items-center gap-2.5">
-        <img src="/logo.png" alt="Voz Pública MS" className="h-[24px] w-auto object-contain" />
+        <Monogram size="sm" />
         <div className="text-[11px] text-vp-text-3 tracking-[0.1em] uppercase ml-auto">Admin</div>
       </div>
       
