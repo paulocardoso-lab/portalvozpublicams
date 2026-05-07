@@ -1,3 +1,7 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-guard";
 import { CampaignStatus } from "@prisma/client";
 

@@ -6,10 +6,10 @@ import { AD_SLOTS } from "./constants";
 export const dynamic = "force-dynamic";
 
 const STATUS_COLORS: Record<string, string> = {
-  ativa: "text-vp-ok border-vp-ok bg-vp-ok/10",
-  pausada: "text-vp-text-3 border-vp-text-3 bg-vp-text-3/10",
-  encerrada: "text-vp-urgent border-vp-urgent bg-vp-urgent/10",
-  agendada: "text-vp-accent border-vp-accent bg-vp-accent/10",
+  ACTIVE: "text-vp-ok border-vp-ok bg-vp-ok/10",
+  PAUSED: "text-vp-text-3 border-vp-text-3 bg-vp-text-3/10",
+  EXPIRED: "text-vp-urgent border-vp-urgent bg-vp-urgent/10",
+  ARCHIVED: "text-vp-accent border-vp-accent bg-vp-accent/10",
 };
 
 const today = () => new Date();
@@ -19,7 +19,7 @@ export default async function AdminAdsPage() {
     orderBy: { startsAt: "desc" },
   });
 
-  const active = campaigns.filter((c) => c.status === "ativa");
+  const active = campaigns.filter((c) => c.status === "ACTIVE");
   const totalImpressions = campaigns.reduce((s, c) => s + c.impressions, 0);
   const totalClicks = campaigns.reduce((s, c) => s + c.clicks, 0);
   const globalCTR = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : "0,00";
@@ -149,7 +149,7 @@ export default async function AdminAdsPage() {
                   <tr key={c.id} className="hover:bg-vp-surface/30 transition-colors">
                     <td className="px-4 py-3">
                       <div className="font-semibold text-[13px] truncate max-w-[180px]">{c.name}</div>
-                      {isExpired && c.status === "ativa" && (
+                      {isExpired && c.status === "ACTIVE" && (
                         <div className="text-[10px] text-vp-urgent mt-0.5">⚠ Expirada</div>
                       )}
                     </td>
@@ -170,12 +170,12 @@ export default async function AdminAdsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1.5 flex-wrap">
-                        {c.status === "ativa" ? (
-                          <form action={updateCampaignStatus.bind(null, c.id, "pausada")}>
+                        {c.status === "ACTIVE" ? (
+                          <form action={updateCampaignStatus.bind(null, c.id, "PAUSED")}>
                             <button type="submit" className="vp-btn text-[10px] py-0.5 px-2">Pausar</button>
                           </form>
-                        ) : c.status === "pausada" ? (
-                          <form action={updateCampaignStatus.bind(null, c.id, "ativa")}>
+                        ) : c.status === "PAUSED" ? (
+                          <form action={updateCampaignStatus.bind(null, c.id, "ACTIVE")}>
                             <button type="submit" className="vp-btn text-[10px] py-0.5 px-2 text-vp-ok border-vp-ok hover:bg-vp-ok/10">Ativar</button>
                           </form>
                         ) : null}
