@@ -1,6 +1,8 @@
 import React from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import Link from 'next/link';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +20,30 @@ function AdminTopbar() {
   );
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+
+  // Se não estiver logado, redireciona para login (redundante com middleware, mas seguro)
+  if (!session?.user) {
+    redirect('/login');
+  }
+
+  // Verifica o papel (role) do usuário
+  const userRole = (session.user as { role?: string })?.role;
+  const allowedRoles = [
+    "SUPER_ADMIN",
+    "EDITOR_CHIEF", 
+    "SECTION_EDITOR",
+    "REPORTER",
+    "COLUMNIST",
+    "MODERATOR",
+    "FINANCE",
+  ];
+
+  if (!userRole || !allowedRoles.includes(userRole)) {
+    redirect('/');
+  }
+
   return (
     <div className="w-full min-h-[100dvh] grid grid-cols-[232px_1fr] bg-[#111110] text-vp-text font-sans">
       <AdminSidebar />

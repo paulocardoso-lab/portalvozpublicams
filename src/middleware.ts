@@ -1,5 +1,10 @@
-import { auth } from "@/auth"
+import NextAuth from "next-auth"
+import authConfig from "./auth.config"
 import { NextResponse } from "next/server"
+
+// IMPORTANT: Do NOT import { auth } from "@/auth" here.
+// It will pull in Prisma and break the Edge Function size limit on Vercel.
+const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth
@@ -8,26 +13,12 @@ export default auth((req) => {
     req.nextUrl.pathname.startsWith("/login") ||
     req.nextUrl.pathname.startsWith("/signup")
 
+  // Se estiver tentando acessar admin e não estiver logado, manda pro login
   if (isOnAdmin && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.nextUrl))
   }
 
-  if (isOnAdmin && isLoggedIn) {
-    const userRole = (req.auth?.user as { role?: string })?.role
-    const allowedRoles = [
-      "SUPER_ADMIN",
-      "EDITOR_CHIEF", 
-      "SECTION_EDITOR",
-      "REPORTER",
-      "COLUMNIST",
-      "MODERATOR",
-      "FINANCE",
-    ]
-    if (!userRole || !allowedRoles.includes(userRole)) {
-      return NextResponse.redirect(new URL("/", req.nextUrl))
-    }
-  }
-
+  // Se estiver logado e tentar ir pro login/signup, manda pra admin
   if (isOnAuth && isLoggedIn) {
     return NextResponse.redirect(new URL("/admin", req.nextUrl))
   }
