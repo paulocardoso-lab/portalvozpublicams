@@ -4,10 +4,9 @@ import Resend from "next-auth/providers/resend"
 
 export default {
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-    }),
+    // Deixando o Google sem opções para que ele use automaticamente 
+    // AUTH_GOOGLE_ID e AUTH_GOOGLE_SECRET do ambiente (Vercel)
+    Google,
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: "no-reply@vozpublicams.com.br",
@@ -23,5 +22,7 @@ export default {
   },
   pages: {
     signIn: "/login",
+    error: "/login", // Redireciona erros para a página de login
   },
+  debug: process.env.NODE_ENV === "development", // Habilita debug em desenvolvimento
 } satisfies NextAuthConfig
