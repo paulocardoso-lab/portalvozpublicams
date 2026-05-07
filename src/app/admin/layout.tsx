@@ -28,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/login');
   }
 
+  /*
   // Verifica o papel (role) do usuário
   const userRole = (session.user as { role?: string })?.role;
   const allowedRoles = [
@@ -43,6 +44,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!userRole || !allowedRoles.includes(userRole)) {
     redirect('/');
   }
+  */
 
   return (
     <div className="w-full min-h-[100dvh] grid grid-cols-[232px_1fr] bg-[#111110] text-vp-text font-sans">
