@@ -1,65 +1,44 @@
-# Voz Pública MS — Referência Técnica de Arquitetura e Design
-**Última Atualização:** 08 de Maio de 2026 (Pós-Restauração Visual)
-
-Este documento serve como guia definitivo para a configuração, backup e restauração da plataforma Voz Pública MS, refletindo o estado atualizado após a estabilização técnica e a restauração 100% fiel da identidade visual.
+# Voz Pública MS - Referência Técnica (Pós-Restauração Visual)
 
 ## 1. Stack Tecnológica Core
-- **Framework:** Next.js 16.2.6 (Turbopack)
-- **Runtime UI:** React 19.2.6
-- **ORM:** Prisma 7.8.0
-- **Estilização:** Tailwind CSS v4.0.0 (CSS-first)
-- **Autenticação:** NextAuth.js v5 (Beta 31)
-- **Infraestrutura:** Supabase (Postgres), Resend (Transactional Email)
+- **Framework**: Next.js 16.2.6 (App Router)
+- **Runtime**: React 19.2.6
+- **Database**: PostgreSQL (Supabase) via Prisma 7.8.0
+- **Estilização**: Tailwind CSS v4.0.0 + Vanilla CSS
+- **Monitoramento**: Sentry (Dsn configurado)
+- **Analytics**: Vercel Analytics + Speed Insights
 
-## 2. Configurações Críticas (Peculiaridades da Versão)
+## 2. Identidade Visual (Fidelidade Absoluta)
 
-### 2.1 Prisma 7 (Datasource Externo)
-- **Schema:** O arquivo `prisma/schema.prisma` **NÃO** contém URLs.
-- **Configuração:** Gerenciada via `prisma.config.ts`.
-- **Singleton & Safe Proxy:** Localizado em `src/lib/prisma.ts`. Protege o site contra quedas de banco e falhas de build.
+### Tipografia
+- **Display**: `Playfair Display` (Pesos: 400, 700, 900). Usada em manchetes e títulos de destaque.
+- **Serif (Corpo)**: `Source Serif 4` (Pesos: 400, 500, 600, 700). Usada em leads, parágrafos e textos longos.
+- **Sans (Interface)**: `Inter`. Usada em navegação, metadados e botões.
+- **Mono**: `JetBrains Mono`. Usada em indicadores técnicos e tickers.
 
-### 2.2 Next.js 16 (Middleware)
-- **Middleware:** O arquivo oficial de proteção de rotas é **`src/proxy.ts`**.
-- **Regras:** Protege rotas `/admin/*` e gerencia sessões via NextAuth.
+### Sistema de Cores
+- **Background**: `#1a1a19` (Voz Pública Dark)
+- **Superfícies**: `#262624` (Cards e inputs)
+- **Texto Principal**: `#faf9f5` (Off-white)
+- **Texto Secundário**: `#d1cfc4` (Cinza quente)
+- **Destaque (Accent)**: `#d97757` (Cobre editorial)
+- **Urgente/Live**: `#e85d4a`
 
-### 2.3 Tailwind CSS v4 (Design Tokens)
-- **Padrão:** CSS-first via `globals.css`. Não utiliza `tailwind.config.ts`.
-- **Classes Premium:** `.vp-monogram`, `.vp-headline`, `.vp-img-ph`, `.vp-tag-live`.
+### Layout e Grid (Desktop)
+- **Grid Principal**: `grid-cols-[1fr_320px]` (Conteúdo principal vs Sidebar fixa).
+- **Gaps**: Estritos `32px` entre colunas de conteúdo e sidebar; `28px` entre itens do Hero.
+- **Paddings**: Container lateral de `28px`; Paddings verticais de `24px` a `32px`.
+- **Bordas**: `1px solid var(--vp-border)` (#3a3a37).
 
-## 3. Identidade Visual e Layout (Fidelidade 100%)
+## 3. Componentes de Marca Core
+- **Monograma (BrandLogo)**: Lógica de padding proporcional dinâmica baseada no `fontSize`.
+- **Image Placeholders (ImgPH)**: Estilo de listras diagonais 135deg com gradiente radial sutil.
+- **Botões (vp-btn)**: Arredondamento de `3px`, fonte Inter 13px, borda `1px solid var(--vp-border-2)`.
 
-### 3.1 Tipografia Editorial
-- **Manchetes (Display):** `Playfair Display` (700). Tamanhos: 46px (Hero), 26px (Especial), 19px (Secundária).
-- **Corpo do Texto (Serif):** `Source Serif 4` (17px no Lead).
-- **UI & Metadados (Sans):** `Inter`.
-- **Dados & Tickers (Mono):** `JetBrains Mono`.
+## 4. Configurações Administrativas
+- **RSS Manager**: Sistema de sincronização automática via cron Jobs (em correção para estabilidade).
+- **Settings**: Variáveis dinâmicas armazenadas no Prisma (`SITE_TAGLINE`, `SOCIAL_FB`, etc).
 
-### 3.2 Componentes de Marca
-- **Monograma `[VP]|MS`**: Estrutura de bloco sólido. "VP" sobre fundo claro (`vp-text`), "MS" em texto plano ao lado.
-- **Header (Masthead)**: 
-    - Padding Utilitário: `8px 28px`.
-    - Padding Logo: `18px 28px`.
-    - Nav Links: `11px 14px`.
-- **Grid da Home**:
-    - Estrutura: `1fr 320px`.
-    - Espaçamento (Gap): `32px`.
-    - Padding Lateral: `24px 28px`.
-
-## 4. Guia de Manutenção e Sincronização
-
-### 4.1 Variáveis de Ambiente
-- `DATABASE_URL`: Porta 6543 (Pooler Supabase).
-- `DIRECT_URL`: Porta 5432 (Conexão direta para `db push`).
-
-### 4.2 Comandos de Restauração
-```powershell
-# Sincronizar Banco (Use sempre porta 5432)
-$env:DATABASE_URL="SUA_DIRECT_URL"; npx prisma db push
-
-# Gerar Client e Build
-npx prisma generate
-npm run build
-```
-
----
-**Observação:** A fidelidade visual é mantida através do mapeamento de variáveis CSS no `globals.css` e o uso rigoroso das classes `vp-*` nos componentes de layout.
+## 5. Próximos Passos (Backlog Técnico)
+- Resolver loop infinito no formulário de RSS (implementar validação de input).
+- Finalizar a transição do banco de dados (db push) após liberação de travas no Supabase.

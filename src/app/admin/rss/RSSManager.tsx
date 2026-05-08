@@ -19,15 +19,29 @@ export function RSSManager({ sections }: RSSManagerProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    const result = await createRSSFeed(formData);
-    setLoading(false);
     
-    if (result.success) {
-      setIsOpen(false);
-      setFormData({ ...formData, name: '', url: '' });
-    } else {
-      alert(result.error);
+    // Validação básica de URL
+    const urlPattern = /^https?:\/\/.+/i;
+    if (!urlPattern.test(formData.url)) {
+      alert('Por favor, insira uma URL de feed RSS válida (começando com http:// ou https://)');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await createRSSFeed(formData);
+      setLoading(false);
+      
+      if (result.success) {
+        setIsOpen(false);
+        setFormData({ ...formData, name: '', url: '' });
+      } else {
+        alert(result.error || 'Erro desconhecido ao salvar fonte RSS.');
+      }
+    } catch (err) {
+      setLoading(false);
+      console.error('RSS Submit Error:', err);
+      alert('Ocorreu um erro de rede ou o servidor demorou muito para responder. Tente novamente.');
     }
   }
 

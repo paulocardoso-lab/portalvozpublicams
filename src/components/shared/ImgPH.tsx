@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function ImgPH({ label, ratio, height, width, style }: { label?: string, ratio?: string, height?: number | string, width?: number | string, style?: React.CSSProperties }) {
+export function ImgPH({ label, ratio, height, width, style, className = '' }: { label?: string, ratio?: string, height?: number | string, width?: number | string, style?: React.CSSProperties, className?: string }) {
   const s = {
     width: width ?? '100%',
     height: height,
@@ -8,7 +8,7 @@ export function ImgPH({ label, ratio, height, width, style }: { label?: string, 
     ...style,
   };
   return (
-    <div className="vp-img-ph" style={s}>
+    <div className={`vp-img-ph ${className}`} style={s}>
       <span style={{ opacity: 0.7 }}>{label || 'FOTO'}</span>
     </div>
   );

@@ -18,63 +18,86 @@
   --color-vp-live: #e85d4a;
   --color-vp-ok: #7aa37a;
 
-  /* Typography Mapping — Fiel ao design editorial */
-  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
-  --font-display: var(--font-playfair), "Playfair Display", serif;
-  --font-sans: var(--font-inter), "Inter", sans-serif;
-  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
-  --font-outfit: var(--font-outfit), sans-serif;
+  /* Typography Mapping — Rigorosamente fiel ao design original */
+  --font-serif: var(--font-source-serif), "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --font-display: var(--font-playfair), "Playfair Display", "Source Serif 4", Georgia, serif;
+  --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 @layer base {
-  body {
-    @apply bg-vp-bg text-vp-text font-serif antialiased selection:bg-vp-accent selection:text-vp-bg;
-    font-feature-settings: "rlig" 1, "calt" 1;
+  html, body {
+    @apply bg-vp-bg text-vp-text antialiased;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
   }
 
-  h1, h2, h3 {
+  h1, h2, h3, h4 {
     @apply font-display font-bold leading-[1.1] tracking-[-0.01em] text-vp-text;
+    margin: 0;
     text-wrap: balance;
   }
 
   a {
-    @apply transition-colors duration-200;
+    @apply transition-colors duration-150 no-underline text-inherit;
   }
+  a:hover {
+    @apply text-vp-accent;
+  }
+
+  * { box-sizing: border-box; }
 }
 
 @layer components {
-  /* Botões Premium (Cores invertidas no primário para legibilidade clássica) */
+  /* VP | MS monogram */
+  .vp-monogram {
+    @apply inline-flex items-stretch font-display font-bold border-[1.5px] border-vp-text select-none no-underline leading-none;
+  }
+  .vp-monogram .m-l {
+    @apply bg-vp-text text-vp-bg tracking-[0.02em];
+    /* Padding proporcional calculado na shared.jsx */
+  }
+  .vp-monogram .m-r {
+    @apply text-vp-text font-sans font-semibold flex items-center;
+    /* Padding proporcional e font-size menor */
+  }
+
+  /* Utility Classes de Tipografia */
+  .eyebrow {
+    @apply font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-vp-accent;
+  }
+  .meta {
+    @apply font-sans text-[12px] text-vp-text-3 tracking-[0.02em];
+  }
+  .byline {
+    @apply font-sans text-[12px] text-vp-text-3;
+  }
+
+  /* Headlines Interativos */
+  .vp-headline {
+    @apply font-display font-bold leading-[1.1] text-vp-text transition-colors duration-150 cursor-pointer;
+  }
+  .vp-headline:hover {
+    @apply text-vp-accent;
+  }
+
+  /* Botões Premium */
   .vp-btn {
-    @apply font-sans text-[13px] font-semibold px-[14px] py-[8px] rounded-[3px] border border-vp-border-2 transition-all duration-150 cursor-pointer no-underline inline-flex items-center justify-center text-vp-text;
+    @apply font-sans text-[13px] font-semibold px-[14px] py-[8px] rounded-[3px] border border-vp-border-2 transition-all duration-150 cursor-pointer inline-flex items-center justify-center text-vp-text;
   }
   .vp-btn:hover {
     @apply bg-vp-surface-2 border-vp-text-3;
   }
   .vp-btn-primary {
-    @apply bg-vp-accent border-vp-accent text-[#1a1a19] shadow-sm;
+    @apply bg-vp-accent border-vp-accent text-[#1a1a19];
   }
   .vp-btn-primary:hover {
     @apply bg-vp-accent-hover border-vp-accent-hover text-[#1a1a19];
   }
 
-  /* Inputs Editoriais */
-  .vp-input {
-    @apply bg-vp-bg border border-vp-border text-vp-text font-sans text-[13px] px-[10px] py-[8px] rounded-[4px] outline-none focus:border-vp-accent transition-colors w-full;
-  }
-
-  /* Monograma Icônico VP|MS - Proporção exata da referência */
-  .vp-monogram {
-    @apply inline-flex items-stretch font-display font-bold border-[1.5px] border-vp-text select-none no-underline leading-none;
-  }
-  .vp-monogram .m-l {
-    @apply bg-vp-text text-vp-bg px-[0.4em] pt-[0.25em] pb-[0.22em] tracking-[0.02em];
-  }
-  .vp-monogram .m-r {
-    @apply text-vp-text font-sans font-semibold px-[0.4em] pt-[0.35em] pb-[0.2em] flex items-center;
-    font-size: 0.55em;
-  }
-
-  /* Placeholders de Imagem Estilizados */
+  /* Image Placeholders */
   .vp-img-ph {
     @apply flex items-center justify-center font-mono text-[10px] uppercase tracking-[0.15em] text-vp-text-3 relative overflow-hidden;
     background:
@@ -88,16 +111,7 @@
     pointer-events: none;
   }
 
-  /* Elementos de Texto Editorial */
-  .eyebrow {
-    @apply font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-vp-accent;
-  }
-
-  .meta {
-    @apply font-sans text-[12px] text-vp-text-3 tracking-[0.02em];
-  }
-
-  /* Tags e Badges */
+  /* Tags */
   .vp-tag {
     @apply font-sans text-[10px] font-bold uppercase tracking-[0.14em] px-[7px] py-[3px] rounded-[2px] inline-block;
   }
@@ -109,24 +123,12 @@
     @apply bg-vp-accent text-[#1a1a19];
   }
 
-  /* Headlines Interativos */
-  .vp-headline {
-    @apply font-display font-bold leading-[1.1] text-vp-text transition-colors duration-150 cursor-pointer no-underline;
-  }
-  .vp-headline:hover {
-    @apply text-vp-accent;
-  }
-
-  /* Réguas e Separadores */
+  /* Réguas */
   .rule { @apply h-[1px] bg-vp-border w-full; }
   .rule-2 { @apply h-[2px] bg-vp-text w-full; }
   .rule-accent { @apply h-[2px] bg-vp-accent w-full; }
 
-  /* Custom Scrollbars */
-  .vp-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-vp-border-2) transparent;
-  }
+  /* Scrollbars */
   .vp-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
   .vp-scroll::-webkit-scrollbar-track { background: transparent; }
   .vp-scroll::-webkit-scrollbar-thumb { background: var(--color-vp-border-2); border-radius: 3px; }

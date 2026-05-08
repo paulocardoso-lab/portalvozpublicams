@@ -1,4 +1,4 @@
-import { Inter, Playfair_Display, Source_Serif_4, JetBrains_Mono, Outfit } from "next/font/google";
+import { Inter, Playfair_Display, Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
 import React from 'react';
@@ -11,21 +11,18 @@ const inter = Inter({
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
+  weight: ["400", "700", "900"],
 });
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   variable: "--font-source-serif",
+  weight: ["400", "500", "600", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
-});
-
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
 });
 
 export const dynamic = 'force-dynamic';
@@ -42,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className={`${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} ${outfit.variable} bg-vp-bg text-vp-text antialiased min-h-screen`}>
+      <body className={`${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} bg-vp-bg text-vp-text antialiased min-h-screen`}>
         {children}
       </body>
     </html>
