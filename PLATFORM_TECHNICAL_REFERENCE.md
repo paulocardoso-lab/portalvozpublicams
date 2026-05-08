@@ -1,7 +1,7 @@
-# Voz Pública MS — Referência Técnica de Arquitetura e Restauração
-**Última Atualização:** 08 de Maio de 2026
+# Voz Pública MS — Referência Técnica de Arquitetura e Design
+**Última Atualização:** 08 de Maio de 2026 (Pós-Restauração Visual)
 
-Este documento serve como guia definitivo para a configuração, backup e restauração da plataforma Voz Pública MS, refletindo o estado atualizado após a migração para a stack moderna (Next 16 / Prisma 7 / Tailwind 4).
+Este documento serve como guia definitivo para a configuração, backup e restauração da plataforma Voz Pública MS, refletindo o estado atualizado após a estabilização técnica e a restauração 100% fiel da identidade visual.
 
 ## 1. Stack Tecnológica Core
 - **Framework:** Next.js 16.2.6 (Turbopack)
@@ -13,61 +13,53 @@ Este documento serve como guia definitivo para a configuração, backup e restau
 
 ## 2. Configurações Críticas (Peculiaridades da Versão)
 
-### 2.1 Prisma 7 (Breaking Changes)
-- **Schema:** O arquivo `prisma/schema.prisma` **NÃO** deve conter as propriedades `url` ou `directUrl` no bloco `datasource`.
-- **Configuração Central:** Toda a conectividade é gerenciada pelo arquivo `prisma.config.ts` na raiz.
-- **Singleton & Safe Proxy:** Localizado em `src/lib/prisma.ts`. Implementa um Proxy que evita falhas críticas (TypeErrors) durante o build ou em caso de queda do banco, retornando fallbacks seguros (arrays vazios).
+### 2.1 Prisma 7 (Datasource Externo)
+- **Schema:** O arquivo `prisma/schema.prisma` **NÃO** contém URLs.
+- **Configuração:** Gerenciada via `prisma.config.ts`.
+- **Singleton & Safe Proxy:** Localizado em `src/lib/prisma.ts`. Protege o site contra quedas de banco e falhas de build.
 
-### 2.2 Next.js 16 (Middleware -> Proxy)
-- **Convenção:** O arquivo de middleware foi renomeado de `middleware.ts` para **`src/proxy.ts`**.
-- **Função:** A função exportada deve se chamar `proxy(req: NextRequest)`. Sem isso, o roteamento protegido de admin falhará.
+### 2.2 Next.js 16 (Middleware)
+- **Middleware:** O arquivo oficial de proteção de rotas é **`src/proxy.ts`**.
+- **Regras:** Protege rotas `/admin/*` e gerencia sessões via NextAuth.
 
-### 2.3 Tailwind CSS v4
-- **Configuração:** Não utiliza `tailwind.config.ts`. Toda a configuração de temas e tokens está dentro do `src/app/globals.css` usando a diretiva `@theme`.
-- **Fontes:** As fontes Source Serif 4 e Playfair Display são carregadas via `next/font` no `layout.tsx` e mapeadas como variáveis CSS.
+### 2.3 Tailwind CSS v4 (Design Tokens)
+- **Padrão:** CSS-first via `globals.css`. Não utiliza `tailwind.config.ts`.
+- **Classes Premium:** `.vp-monogram`, `.vp-headline`, `.vp-img-ph`, `.vp-tag-live`.
 
-## 3. Guia de Restauração e Sincronização
+## 3. Identidade Visual e Layout (Fidelidade 100%)
 
-### 3.1 Variáveis de Ambiente Obrigatórias
-```env
-DATABASE_URL= (Porta 6543 para transações)
-DIRECT_URL= (Porta 5432 para migrações/push)
-NEXTAUTH_URL= (URL base do site)
-AUTH_SECRET= (Chave de criptografia de sessão)
-RESEND_API_KEY= (Envio de e-mails)
-```
+### 3.1 Tipografia Editorial
+- **Manchetes (Display):** `Playfair Display` (700). Tamanhos: 46px (Hero), 26px (Especial), 19px (Secundária).
+- **Corpo do Texto (Serif):** `Source Serif 4` (17px no Lead).
+- **UI & Metadados (Sans):** `Inter`.
+- **Dados & Tickers (Mono):** `JetBrains Mono`.
 
-### 3.2 Procedimento de Sincronização de Banco (Prisma)
-Devido ao uso do Pooler do Supabase, o comando padrão de sincronização falha em portas de transação. Use sempre a porta direta:
+### 3.2 Componentes de Marca
+- **Monograma `[VP]|MS`**: Estrutura de bloco sólido. "VP" sobre fundo claro (`vp-text`), "MS" em texto plano ao lado.
+- **Header (Masthead)**: 
+    - Padding Utilitário: `8px 28px`.
+    - Padding Logo: `18px 28px`.
+    - Nav Links: `11px 14px`.
+- **Grid da Home**:
+    - Estrutura: `1fr 320px`.
+    - Espaçamento (Gap): `32px`.
+    - Padding Lateral: `24px 28px`.
+
+## 4. Guia de Manutenção e Sincronização
+
+### 4.1 Variáveis de Ambiente
+- `DATABASE_URL`: Porta 6543 (Pooler Supabase).
+- `DIRECT_URL`: Porta 5432 (Conexão direta para `db push`).
+
+### 4.2 Comandos de Restauração
 ```powershell
-# Exemplo de comando seguro para sincronização:
-$env:DATABASE_URL="SUA_DIRECT_URL_AQUI"; npx prisma db push
-```
+# Sincronizar Banco (Use sempre porta 5432)
+$env:DATABASE_URL="SUA_DIRECT_URL"; npx prisma db push
 
-### 3.3 Build de Produção
-O pipeline de build está otimizado para ignorar erros de banco temporários:
-```bash
+# Gerar Client e Build
+npx prisma generate
 npm run build
-# Ordem de execução: prisma generate -> next build
 ```
-
-## 4. Identidade Visual (Design Tokens)
-- **Cores Principais:**
-  - Background: `#1a1a19` (`--vp-bg`)
-  - Accent (Laranja): `#d97757` (`--vp-accent`)
-  - Texto: `#faf9f5` (`--vp-text`)
-- **Tipografia:**
-  - Display (Títulos): `Playfair Display`
-  - Body (Texto): `Source Serif 4`
-  - UI/Metadados: `Inter`
-  - Monospaced: `JetBrains Mono`
-
-## 5. Estrutura de Pastas Estratégica
-- `src/app/(public)`: Rotas abertas ao público.
-- `src/app/(auth)`: Fluxo de login e perfil.
-- `src/app/admin`: Painel administrativo protegido.
-- `src/proxy.ts`: Lógica de proteção de rotas (Middleware).
-- `src/lib/prisma.ts`: Cliente Prisma resiliente.
 
 ---
-**Observação de Manutenção:** Ao atualizar dependências, sempre verifique se o Prisma 7 e o Tailwind 4 não introduziram novas quebras de sintaxe no arquivo `globals.css` e no `schema.prisma`.
+**Observação:** A fidelidade visual é mantida através do mapeamento de variáveis CSS no `globals.css` e o uso rigoroso das classes `vp-*` nos componentes de layout.
