@@ -39,9 +39,9 @@ export async function SiteHeader() {
   
   return (
     <header className="hidden md:block border-b border-vp-border bg-vp-bg sticky top-0 z-50">
-      {/* Top utility bar */}
-      <div className="flex items-center justify-between px-7 py-2 border-b border-vp-border font-sans text-[11px] text-vp-text-3">
-        <div className="flex gap-4.5 items-center">
+      {/* Top utility bar — Padding e gap exatos da referência */}
+      <div className="flex items-center justify-between px-7 py-2 border-b border-vp-border font-sans text-[11px] text-vp-text-3" style={{ padding: '8px 28px' }}>
+        <div className="flex gap-4.5 items-center" style={{ gap: '18px' }}>
           <span className="tracking-[0.08em] uppercase">{formattedDate}</span>
           <span className="text-vp-text-4">·</span>
           <HeaderTicker initialData={initialTickerData} />
@@ -58,9 +58,9 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      {/* Logo row */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-4.5 gap-5">
-        <div className="flex items-center gap-3.5">
+      {/* Logo row — Grid e paddings exatos da referência */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-5" style={{ padding: '18px 28px', gap: '20px' }}>
+        <div className="flex items-center gap-3.5" style={{ gap: '14px' }}>
           <Link href="/menu" className="bg-transparent border-none text-vp-text cursor-pointer font-sans text-[12px] flex items-center gap-2 hover:text-vp-accent no-underline">
             <span className="inline-block w-4 h-[11px] relative">
               <span className="absolute left-0 right-0 top-0 h-[1.5px] bg-current" />
@@ -98,10 +98,10 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex gap-0 px-5 border-t border-vp-border overflow-x-auto font-sans">
+      {/* Nav — Padding e fonte exatos da referência */}
+      <nav className="flex gap-0 border-t border-vp-border overflow-x-auto font-sans" style={{ padding: '0 20px' }}>
         {dbSections.map((s, i) => (
-          <Link key={s.id} href={`/editoria/${s.slug}`} className={`px-3.5 py-2.5 text-[12px] font-bold tracking-[0.04em] uppercase whitespace-nowrap cursor-pointer border-b-2 hover:text-vp-accent hover:border-vp-accent no-underline ${i === 2 ? 'text-vp-accent border-vp-accent' : 'text-vp-text-2 border-transparent'}`}>
+          <Link key={s.id} href={`/editoria/${s.slug}`} className={`text-[12px] font-bold tracking-[0.04em] uppercase whitespace-nowrap cursor-pointer border-b-2 hover:text-vp-accent hover:border-vp-accent no-underline ${i === 2 ? 'text-vp-accent border-vp-accent' : 'text-vp-text-2 border-transparent'}`} style={{ padding: '11px 14px' }}>
             {s.name}
           </Link>
         ))}

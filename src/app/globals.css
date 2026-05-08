@@ -62,15 +62,16 @@
     @apply bg-vp-bg border border-vp-border text-vp-text font-sans text-[13px] px-[10px] py-[8px] rounded-[4px] outline-none focus:border-vp-accent transition-colors w-full;
   }
 
-  /* Monograma Icônico VP|MS */
+  /* Monograma Icônico VP|MS - Proporção exata da referência */
   .vp-monogram {
-    @apply inline-flex items-stretch font-display font-bold border-[1.5px] border-vp-text select-none no-underline;
+    @apply inline-flex items-stretch font-display font-bold border-[1.5px] border-vp-text select-none no-underline leading-none;
   }
   .vp-monogram .m-l {
-    @apply bg-vp-text text-vp-bg px-[9px] pt-[6px] pb-[5px] text-[18px] tracking-[0.02em];
+    @apply bg-vp-text text-vp-bg px-[0.4em] pt-[0.25em] pb-[0.22em] tracking-[0.02em];
   }
   .vp-monogram .m-r {
-    @apply text-vp-text font-sans font-semibold text-[13px] px-[9px] pt-[8px] pb-[5px] flex items-center;
+    @apply text-vp-text font-sans font-semibold px-[0.4em] pt-[0.35em] pb-[0.2em] flex items-center;
+    font-size: 0.55em;
   }
 
   /* Placeholders de Imagem Estilizados */

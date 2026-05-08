@@ -74,8 +74,8 @@ export function DesktopHome({
         <AdSlot id="home-leaderboard" className="h-[90px]" fallbackText="728 × 90 — LEADERBOARD" />
       </div>
 
-      {/* Main grid */}
-      <div className="grid grid-cols-[1fr_320px] gap-8 px-7 py-6 max-w-[1440px] mx-auto w-full">
+      {/* Main grid — Layout exato da referência */}
+      <div className="grid grid-cols-[1fr_320px] max-w-[1440px] mx-auto w-full" style={{ gap: '32px', padding: '24px 28px' }}>
         {/* Left / main column */}
         <div>
           {/* Hero */}
@@ -83,11 +83,11 @@ export function DesktopHome({
             {hero ? (
               <Link href={`/${hero.slug}`} className="grid grid-cols-[1.1fr_1fr] gap-7 no-underline">
                 <div>
-                  <span className="eyebrow text-[10px]">{hero.eyebrow || hero.section?.name || 'Geral'}</span>
-                  <h1 className="font-display text-[46px] leading-[1.05] mt-2.5 mb-3.5 tracking-[-0.01em] hover:text-vp-accent transition-colors">
+                  <span className="eyebrow" style={{ fontSize: '11px' }}>{hero.eyebrow || hero.section?.name || 'Geral'}</span>
+                  <h1 className="vp-headline" style={{ fontSize: '46px', marginTop: '10px', marginBottom: '14px' }}>
                     {hero.title}
                   </h1>
-                  <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-4 text-pretty">
+                  <p className="font-serif text-vp-text-2 leading-[1.5] mb-4 text-pretty" style={{ fontSize: '17px' }}>
                     {hero.lead}
                   </p>
                   <div className="byline text-[11px]">
@@ -138,9 +138,9 @@ export function DesktopHome({
                   ) : (
                     <ImgPH label={x.eyebrow || x.section.name} height={150} style={{ marginBottom: 12 }} />
                   )}
-                  <span className="eyebrow text-[10px]">{x.eyebrow || x.section?.name || 'Geral'}</span>
-                  <h3 className="font-display text-[19px] leading-[1.15] mt-1.5 mb-2 hover:text-vp-accent cursor-pointer transition-colors">{x.title}</h3>
-                  <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] text-pretty line-clamp-3">{x.lead}</p>
+                  <span className="eyebrow" style={{ fontSize: '10px' }}>{x.eyebrow || x.section?.name || 'Geral'}</span>
+                  <h3 className="vp-headline" style={{ fontSize: '19px', marginTop: '6px', marginBottom: '8px' }}>{x.title}</h3>
+                  <p className="font-serif text-vp-text-2 leading-[1.45] text-pretty line-clamp-3" style={{ fontSize: '14px' }}>{x.lead}</p>
                 </Link>
                 <div className="byline text-[11px] mt-2.5">
                   {x.publishedAt && !isNaN(new Date(x.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(x.publishedAt)) : 'Recente'} · {x.readTimeMin || 4} min de leitura
@@ -155,10 +155,10 @@ export function DesktopHome({
           {/* Pantanal / investigação em destaque */}
           {featuredSeries && (
             <section className="py-7 border-b border-vp-border">
-              <div className="flex items-baseline gap-4 mb-4.5">
-                <h2 className="font-display text-[24px]">Especial · {featuredSeries.name}</h2>
-                <div className="flex-1 h-[1px] bg-vp-border" />
-                <Link href="/especiais" className="text-[11px] text-vp-accent tracking-[0.1em] uppercase cursor-pointer hover:underline no-underline">Ver tudo →</Link>
+              <div className="flex items-baseline gap-4 mb-4.5" style={{ marginBottom: '18px' }}>
+                <h2 className="font-display" style={{ fontSize: '24px' }}>Especial · {featuredSeries.name}</h2>
+                <div className="rule flex-1" />
+                <Link href="/especiais" className="meta" style={{ color: 'var(--vp-accent)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Ver tudo →</Link>
               </div>
 
               <div className="grid grid-cols-2 gap-7">
@@ -177,11 +177,11 @@ export function DesktopHome({
                       ) : (
                         <ImgPH label={`série · ${featuredSeries.name}`} height={260} style={{ marginBottom: 14 }} />
                       )}
-                      <span className="eyebrow text-[10px]">Parte 1 de {featuredSeries.totalParts}</span>
-                      <h3 className="font-display text-[26px] leading-[1.15] mt-2 mb-2.5 hover:text-vp-accent cursor-pointer">
+                      <span className="eyebrow">Parte 1 de {featuredSeries.totalParts}</span>
+                      <h3 className="vp-headline" style={{ fontSize: '26px', marginTop: '8px', marginBottom: '10px' }}>
                         {featuredSeries.articles[0].title}
                       </h3>
-                      <p className="font-serif text-[15px] text-vp-text-2 leading-[1.5] text-pretty">
+                      <p className="font-serif text-vp-text-2 leading-[1.5] text-pretty" style={{ fontSize: '15px' }}>
                         {featuredSeries.articles[0].lead}
                       </p>
                     </Link>
