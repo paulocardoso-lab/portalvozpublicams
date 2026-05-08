@@ -3,6 +3,7 @@ import { Article, User, Section } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
+import Image from 'next/image';
 
 type ArticleWithRelations = Article & {
   authors: User[];
@@ -54,7 +55,14 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
 
           <div className="flex items-center gap-4.5 pt-4.5 border-y border-vp-border pb-3.5 mb-7">
             {article.authors[0]?.avatar ? (
-              <img src={article.authors[0].avatar} alt="" className="w-[44px] h-[44px] rounded-full object-cover" />
+              <div className="relative w-[44px] h-[44px] overflow-hidden rounded-full shrink-0">
+                <Image 
+                  src={article.authors[0].avatar} 
+                  alt="" 
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <ImgPH label="" width={44} height={44} style={{ borderRadius: '50%' }} />
             )}
@@ -70,17 +78,20 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
           </div>
 
           {article.heroImage ? (
-            <img 
-              src={article.heroImage} 
-              alt={article.title} 
-              className="w-full h-auto object-cover border border-vp-border"
-              style={{ marginBottom: 14, maxHeight: '600px' }}
-            />
+            <div className="relative w-full aspect-[16/9] mb-7 overflow-hidden rounded-sm group">
+              <Image 
+                src={article.heroImage} 
+                alt={article.title} 
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                priority
+              />
+            </div>
           ) : (
             <ImgPH label={article.eyebrow || 'capa'} height={460} style={{ marginBottom: 14 }} />
           )}
           {article.heroCaption && (
-            <div className="meta font-serif italic text-[13px] mb-7 text-vp-text-3">
+            <div className="meta font-serif italic text-[13px] mb-7 text-vp-text-3 border-l-2 border-vp-accent pl-3">
               {article.heroCaption}
             </div>
           )}

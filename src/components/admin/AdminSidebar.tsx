@@ -18,6 +18,7 @@ export function AdminSidebar() {
     { id: 'kanban',    label: 'Fila editorial', icon: '▦', href: '/admin/kanban' },
     { id: 'alerts',    label: 'Faixa ao vivo (Alertas)', icon: '⚠', href: '/admin/alerts' },
     { id: 'agenda',    label: 'Agenda pública', icon: '⌚', href: '/admin/agenda' },
+    { id: 'rss',       label: 'Automação RSS', icon: '∞', href: '/admin/rss' },
     { id: 'market',    label: 'Indicadores', icon: '∿', href: '/admin/metrics/market' },
     { id: 'denuncias', label: 'Denúncias', icon: '⚐', href: '/admin/denuncias' },
     { id: 'comments',  label: 'Comentários', icon: '◉', badge: 12, href: '/admin/comments' },

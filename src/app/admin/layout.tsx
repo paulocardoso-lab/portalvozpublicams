@@ -19,7 +19,7 @@ function AdminTopbar() {
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await requireAdmin();
+  await requireAdmin();
 
   return (
     <div className="w-full min-h-[100dvh] grid grid-cols-[232px_1fr] bg-[#111110] text-vp-text font-sans">

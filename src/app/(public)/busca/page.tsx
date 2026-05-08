@@ -1,6 +1,7 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default async function SearchPage({ 
   searchParams 
@@ -49,13 +50,13 @@ export default async function SearchPage({
         )}
 
         {results.map(article => (
-          <article key={article.id} className="group border-b border-vp-border pb-8 last:border-0">
+          <article key={article.id} className="group border-b border-vp-border pb-8 last:border-0 grid md:grid-cols-[1fr_180px] gap-8">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 text-[11px] font-bold text-vp-accent uppercase tracking-wider">
                 {article.section?.name}
               </div>
               <Link href={`/${article.slug}`} className="no-underline">
-                <h2 className="font-display text-[24px] leading-tight text-vp-text group-hover:text-vp-accent transition-colors">
+                <h2 className="font-display text-[26px] leading-tight text-vp-text group-hover:text-vp-accent transition-colors">
                   {article.title}
                 </h2>
               </Link>
@@ -66,6 +67,18 @@ export default async function SearchPage({
                 {article.authors.map(a => a.name).join(', ')} • {article.publishedAt?.toLocaleDateString('pt-BR')}
               </div>
             </div>
+            {article.heroImage && (
+              <Link href={`/${article.slug}`} className="hidden md:block">
+                <div className="relative w-full aspect-[4/3] overflow-hidden rounded-sm">
+                  <Image 
+                    src={article.heroImage} 
+                    alt={article.title} 
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+              </Link>
+            )}
           </article>
         ))}
       </div>

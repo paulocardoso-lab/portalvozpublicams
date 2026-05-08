@@ -7,23 +7,43 @@ import { CampaignStatus } from "@prisma/client";
 
 export async function createCampaign(formData: FormData) {
   await requireAdmin();
-  const startsAt = new Date(String(formData.get("startsAt")));
-  const endsAt = new Date(String(formData.get("endsAt")));
+  
+  try {
+    const rawStartsAt = formData.get("startsAt");
+    const rawEndsAt = formData.get("endsAt");
 
-  await prisma.campaign.create({
-    data: {
-      name: String(formData.get("name")),
-      client: String(formData.get("client")),
-      slot: String(formData.get("slot")),
-      creative: String(formData.get("creative") ?? ""),
-      impressions: 0,
-      clicks: 0,
-      startsAt,
-      endsAt,
-      status: "ACTIVE",
-    },
-  });
-  revalidatePath("/admin/ads");
+    if (!rawStartsAt || !rawEndsAt) {
+      throw new Error("Datas de início e fim são obrigatórias.");
+    }
+
+    const startsAt = new Date(String(rawStartsAt));
+    const endsAt = new Date(String(rawEndsAt));
+
+    if (isNaN(startsAt.getTime()) || isNaN(endsAt.getTime())) {
+      throw new Error("Formato de data inválido.");
+    }
+
+    await prisma.campaign.create({
+      data: {
+        name: String(formData.get("name") || "Sem nome"),
+        client: String(formData.get("client") || "Anônimo"),
+        slot: String(formData.get("slot")),
+        creative: String(formData.get("creative") ?? ""),
+        impressions: 0,
+        clicks: 0,
+        startsAt,
+        endsAt,
+        status: "ACTIVE",
+      },
+    });
+
+    revalidatePath("/admin/ads");
+  } catch (error) {
+    console.error("Erro ao criar campanha:", error);
+    // Em Server Actions vinculadas diretamente a 'action', erros devem ser tratados
+    // preferencialmente via useActionState ou lançados para o error boundary.
+    throw error; 
+  }
 }
 
 export async function updateCampaignStatus(id: string, status: CampaignStatus, _formData?: FormData) {

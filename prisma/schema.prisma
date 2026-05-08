@@ -47,6 +47,7 @@ model User {
   email         String    @unique
   slug          String?   @unique
   name          String
+  cpf           String?   @unique
   avatar        String?
   image         String?
   emailVerified DateTime?
@@ -149,6 +150,7 @@ model Section {
   showInMenu  Boolean   @default(false)
   menuOrder   Int       @default(0)
   articles    Article[]
+  rssFeeds    RSSFeed[]
 }
 
 model Series {
@@ -316,6 +318,7 @@ model AuditLog {
   target    String?
   ip        String?
   status    String
+  details   Json?
   createdAt DateTime @default(now())
 
   @@index([createdAt])
@@ -392,4 +395,34 @@ model Alert {
   isActive  Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+}
+
+model SiteMetric {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @default(now())
+  views     Int      @default(0)
+  visitors  Int      @default(0)
+}
+
+model RSSFeed {
+  id              String    @id @default(cuid())
+  name            String
+  url             String    @unique
+  targetSectionId String
+  targetSection   Section   @relation(fields: [targetSectionId], references: [id])
+  autoPublish     Boolean   @default(false)
+  lastSync        DateTime?
+  isActive        Boolean   @default(true)
+  logs            RSSLog[]
+  createdAt       DateTime  @default(now())
+}
+
+model RSSLog {
+  id          String   @id @default(cuid())
+  feedId      String
+  feed        RSSFeed  @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  articleId   String?  @unique
+  status      String   // SUCCESS, FAILED, SKIPPED
+  message     String?
+  createdAt   DateTime @default(now())
 }

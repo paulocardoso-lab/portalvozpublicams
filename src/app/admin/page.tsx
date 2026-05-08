@@ -51,12 +51,34 @@ export default async function AdminDashboardPage() {
       take: 5,
     }),
     prisma.newsletterSubscriber.count(),
-    prisma.comment.count({ where: { status: 'PENDING' } })
+    prisma.comment.count({ where: { status: 'PENDING' } }),
+    prisma.siteMetric.findMany({
+      orderBy: { date: 'asc' },
+      take: 30,
+    })
   ]);
 
-  const [publishedCount, reviewCount, draftCount, userCount, newTipsCount, topArticles, recentActivity, newsletterCount, pendingComments] = stats;
+  const [
+    publishedCount, 
+    reviewCount, 
+    draftCount, 
+    userCount, 
+    newTipsCount,
+    topArticles,
+    recentActivity, 
+    newsletterCount, 
+    pendingComments,
+    metrics
+  ] = stats as [number, number, number, number, number, any[], any[], number, number, any[]];
 
-  const traffic = [32,28,36,40,38,44,52,48,60,58,66,72,68,82,90,88,94,102,98,110,116,122,118,132];
+  // Use real metrics or fallback to simulated if none
+  const traffic = metrics.length > 0 ? metrics.map(m => m.views) : [32,28,36,40,38,44,52,48,60,58,66,72,68,82,90,88,94,102,98,110,116,122,118,132];
+  const lastMetric = metrics[metrics.length - 1];
+  const prevMetric = metrics[metrics.length - 2];
+  
+  const viewDelta = lastMetric && prevMetric 
+    ? `${lastMetric.views >= prevMetric.views ? '+' : ''}${(((lastMetric.views - prevMetric.views) / (prevMetric.views || 1)) * 100).toFixed(0)}%`
+    : undefined;
   
   return (
     <div className="max-w-[1200px]">
@@ -72,7 +94,7 @@ export default async function AdminDashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-4.5">
         <Stat label="Matérias Publicadas" value={publishedCount.toString()} delta="+2" sub="esta semana" />
-        <Stat label="Total de Leitores" value={userCount.toString()} delta="+8%" sub="vs. mês anterior" />
+        <Stat label="Total de Leitores" value={userCount.toString()} delta={viewDelta} sub="vs. anterior" />
         <Stat label="Inscritos News" value={newsletterCount.toString()} sub="assinantes" />
         <Stat label="Comentários" value={pendingComments.toString()} delta={pendingComments > 0 ? 'Moderar' : undefined} sub="aguardando" />
       </div>

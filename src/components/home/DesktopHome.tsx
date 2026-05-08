@@ -6,6 +6,7 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { AdSlot } from '@/components/shared/AdSlot';
 import { NewsletterCounter } from '@/components/shared/NewsletterCounter';
 import { NewsletterSection } from '@/components/sections/NewsletterSection';
+import Image from 'next/image';
 
 import { Article, User, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
 
@@ -98,7 +99,19 @@ export function DesktopHome({
                   </div>
                 </div>
                 <div>
-                  <ImgPH label={hero.eyebrow || 'capa'} height={380} />
+                  {hero.heroImage ? (
+                    <div className="relative w-full h-[380px] overflow-hidden rounded-sm">
+                      <Image 
+                        src={hero.heroImage} 
+                        alt={hero.title} 
+                        fill
+                        className="object-cover transition-transform duration-700 hover:scale-105"
+                        priority
+                      />
+                    </div>
+                  ) : (
+                    <ImgPH label={hero.eyebrow || 'capa'} height={380} />
+                  )}
                   {hero.heroCaption && <div className="meta mt-2 italic text-[11px]">{hero.heroCaption}</div>}
                 </div>
               </Link>
@@ -112,7 +125,18 @@ export function DesktopHome({
             {secondary.map((x, i) => (
               <article key={x.id}>
                 <Link href={`/${x.slug}`} className="no-underline">
-                  <ImgPH label={x.eyebrow || x.section.name} height={150} style={{ marginBottom: 12 }} />
+                  {x.heroImage ? (
+                    <div className="relative w-full h-[150px] overflow-hidden rounded-sm mb-3">
+                      <Image 
+                        src={x.heroImage} 
+                        alt={x.title} 
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <ImgPH label={x.eyebrow || x.section.name} height={150} style={{ marginBottom: 12 }} />
+                  )}
                   <span className="eyebrow text-[10px]">{x.eyebrow || x.section.name}</span>
                   <h3 className="font-display text-[19px] leading-[1.15] mt-1.5 mb-2 hover:text-vp-accent cursor-pointer transition-colors">{x.title}</h3>
                   <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] text-pretty line-clamp-3">{x.lead}</p>
@@ -140,7 +164,18 @@ export function DesktopHome({
                 {featuredSeries.articles.length > 0 ? (
                   <article>
                     <Link href={`/${featuredSeries.articles[0].slug}`} className="no-underline">
-                      <ImgPH label={`série · ${featuredSeries.name}`} height={260} style={{ marginBottom: 14 }} />
+                      {featuredSeries.articles[0].heroImage ? (
+                        <div className="relative w-full h-[260px] overflow-hidden rounded-sm mb-3.5">
+                          <Image 
+                            src={featuredSeries.articles[0].heroImage} 
+                            alt={featuredSeries.articles[0].title} 
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <ImgPH label={`série · ${featuredSeries.name}`} height={260} style={{ marginBottom: 14 }} />
+                      )}
                       <span className="eyebrow text-[10px]">Parte 1 de {featuredSeries.totalParts}</span>
                       <h3 className="font-display text-[26px] leading-[1.15] mt-2 mb-2.5 hover:text-vp-accent cursor-pointer">
                         {featuredSeries.articles[0].title}
@@ -158,7 +193,18 @@ export function DesktopHome({
                   {featuredSeries.articles.slice(1).map((art: Article, i: number) => (
                     <article key={art.id} className={`pb-3.5 ${i < featuredSeries.articles.length - 2 ? 'border-b border-vp-border' : ''}`}>
                       <Link href={`/${art.slug}`} className="grid grid-cols-[70px_1fr] gap-3.5 no-underline">
-                        <ImgPH label="" height={70} width={70} style={{ aspectRatio: '1/1' }} />
+                        {art.heroImage ? (
+                          <div className="relative w-[70px] h-[70px] overflow-hidden rounded-sm shrink-0">
+                            <Image 
+                              src={art.heroImage} 
+                              alt={art.title} 
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <ImgPH label="" height={70} width={70} style={{ aspectRatio: '1/1' }} />
+                        )}
                         <div>
                           <h4 className="font-display text-[15px] leading-[1.2] mb-1.5 hover:text-vp-accent cursor-pointer">{art.title}</h4>
                           <div className="byline text-[11px]">Série Especial · {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : 'Recente'}</div>
@@ -216,7 +262,14 @@ export function DesktopHome({
               {columnists.map((c) => (
                 <article key={c.id} className="grid grid-cols-[52px_1fr] gap-3">
                   {c.avatar ? (
-                    <img src={c.avatar} alt={c.name} className="w-[52px] h-[52px] rounded-full object-cover border border-vp-border" />
+                    <div className="relative w-[52px] h-[52px] overflow-hidden rounded-full shrink-0">
+                      <Image 
+                        src={c.avatar} 
+                        alt={c.name} 
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <ImgPH label="" width={52} height={52} style={{ borderRadius: '50%' }} />
                   )}
@@ -255,7 +308,14 @@ export function DesktopHome({
               {activePodcast ? (
                 <>
                   {activePodcast.coverImage ? (
-                    <img src={activePodcast.coverImage} alt={activePodcast.title} className="w-full h-[200px] object-cover rounded-[2px] mb-3.5 border border-vp-border" />
+                    <div className="relative w-full h-[200px] overflow-hidden rounded-[2px] mb-3.5 border border-vp-border">
+                      <Image 
+                        src={activePodcast.coverImage} 
+                        alt={activePodcast.title} 
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <ImgPH label="capa do episódio" height={200} style={{ marginBottom: 14 }} />
                   )}

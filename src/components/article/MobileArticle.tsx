@@ -3,6 +3,7 @@
 import React from 'react';
 import { Article, User, Section } from '@prisma/client';
 import { ImgPH } from '@/components/shared/ImgPH';
+import Image from 'next/image';
 
 type ArticleWithRelations = Article & {
   authors: User[];
@@ -47,7 +48,14 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
 
           <div className="flex items-center gap-3 py-3 border-y border-vp-border mb-[18px]">
             {article.authors[0]?.avatar ? (
-              <img src={article.authors[0].avatar} alt="" className="w-[36px] h-[36px] rounded-full object-cover" />
+              <div className="relative w-[36px] h-[36px] overflow-hidden rounded-full shrink-0">
+                <Image 
+                  src={article.authors[0].avatar} 
+                  alt="" 
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <ImgPH label="" width={36} height={36} style={{ borderRadius: '50%' }} />
             )}
@@ -63,12 +71,15 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
           </div>
 
           {article.heroImage ? (
-            <img 
-              src={article.heroImage} 
-              alt={article.title} 
-              className="w-full h-auto object-cover border border-vp-border"
-              style={{ marginBottom: 8 }}
-            />
+            <div className="relative w-full aspect-[16/9] mb-2 overflow-hidden rounded-sm">
+              <Image 
+                src={article.heroImage} 
+                alt={article.title} 
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
           ) : (
             <ImgPH label={article.eyebrow || 'capa'} height={220} style={{ marginBottom: 8 }} />
           )}

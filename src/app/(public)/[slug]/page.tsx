@@ -4,6 +4,9 @@ import { MobileArticle } from '@/components/article/MobileArticle';
 import { DesktopArticle } from '@/components/article/DesktopArticle';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { ViewLogger } from '@/components/shared/ViewLogger';
+import { CommentSection } from '@/components/article/CommentSection';
+import { auth } from '@/auth';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
@@ -52,28 +55,70 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     include: {
       authors: true,
       section: true,
+      comments: {
+        where: { status: 'APPROVED' },
+        include: { user: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' }
+      }
     }
   });
+
+  if (!article) notFound();
+
+  const session = await auth();
 
   if (!article || article.status !== 'PUBLISHED') {
     notFound();
   }
 
-  // Incrementar visualizações (background-ish)
-  // Nota: Em produção usaríamos um padrão mais robusto, 
-  // mas para o MVP vamos atualizar direto.
-  await prisma.article.update({
-    where: { id: article.id },
-    data: { views: { increment: 1 } }
-  });
+  // Incremento de views agora é feito via client-side para não bloquear o LCP
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    'headline': article.title,
+    'description': article.lead,
+    'image': article.heroImage ? [article.heroImage] : [],
+    'datePublished': article.publishedAt?.toISOString(),
+    'dateModified': article.updatedAt?.toISOString(),
+    'author': article.authors.map(a => ({
+      '@type': 'Person',
+      'name': a.name,
+      'url': `https://vozpublica.com.br/autor/${a.slug || a.id}`
+    })),
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'Voz Pública MS',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': 'https://vozpublica.com.br/logo.png'
+      }
+    },
+    'mainEntityOfPage': {
+      '@type': 'WebPage',
+      '@id': `https://vozpublica.com.br/${article.slug}`
+    }
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ViewLogger articleId={article.id} />
       <div className="md:hidden">
         <MobileArticle article={article} />
       </div>
       <div className="hidden md:block">
         <DesktopArticle article={article} />
+      </div>
+      <div className="max-w-[1200px] mx-auto px-4 pb-20">
+        <CommentSection 
+          articleId={article.id} 
+          comments={article.comments} 
+          isLoggedIn={!!session} 
+        />
       </div>
     </>
   );

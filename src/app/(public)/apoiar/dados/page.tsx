@@ -31,29 +31,29 @@ export default function DonateDataPage() {
 
           <form className="grid gap-3.5">
             <div>
-              <label className="eyebrow block mb-1.5 text-[10px]">Nome completo</label>
-              <input className="vp-input w-full" defaultValue="Marina Ribeiro Alves" />
+              <label htmlFor="full-name" className="eyebrow block mb-1.5 text-[10px]">Nome completo</label>
+              <input id="full-name" name="name" className="vp-input w-full" defaultValue="Marina Ribeiro Alves" required />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5 text-[10px]">E-mail</label>
-              <input className="vp-input w-full" type="email" defaultValue="marina@email.com" />
+              <label htmlFor="email" className="eyebrow block mb-1.5 text-[10px]">E-mail</label>
+              <input id="email" name="email" className="vp-input w-full" type="email" defaultValue="marina@email.com" required />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5 text-[10px]">CPF</label>
-              <input className="vp-input w-full font-mono text-[13px]" defaultValue="000.000.000-00" />
+              <label htmlFor="cpf" className="eyebrow block mb-1.5 text-[10px]">CPF</label>
+              <input id="cpf" name="cpf" className="vp-input w-full font-mono text-[13px]" defaultValue="000.000.000-00" required />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5 text-[10px]">Celular</label>
-              <input className="vp-input w-full font-mono text-[13px]" defaultValue="(67) 99999-9999" />
+              <label htmlFor="phone" className="eyebrow block mb-1.5 text-[10px]">Celular</label>
+              <input id="phone" name="phone" className="vp-input w-full font-mono text-[13px]" defaultValue="(67) 99999-9999" required />
             </div>
             <div className="grid grid-cols-[1fr_100px] gap-2.5">
               <div>
-                <label className="eyebrow block mb-1.5 text-[10px]">Cidade</label>
-                <input className="vp-input w-full" defaultValue="Campo Grande" />
+                <label htmlFor="city" className="eyebrow block mb-1.5 text-[10px]">Cidade</label>
+                <input id="city" name="city" className="vp-input w-full" defaultValue="Campo Grande" />
               </div>
               <div>
-                <label className="eyebrow block mb-1.5 text-[10px]">UF</label>
-                <input className="vp-input w-full" defaultValue="MS" />
+                <label htmlFor="uf" className="eyebrow block mb-1.5 text-[10px]">UF</label>
+                <input id="uf" name="uf" className="vp-input w-full" defaultValue="MS" />
               </div>
             </div>
 

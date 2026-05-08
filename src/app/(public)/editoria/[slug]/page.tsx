@@ -2,9 +2,10 @@ import React from 'react';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
-import { ImgPH } from '@/components/shared/ImgPH';
-import { MobileMasthead } from '@/components/layout/MobileMasthead';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
+import { MobileMasthead } from '@/components/layout/MobileMasthead';
+import { ImgPH } from '@/components/shared/ImgPH';
+import Image from 'next/image';
 
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
@@ -67,7 +68,19 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
           {featured ? (
             <article className="grid md:grid-cols-2 grid-cols-1 gap-7 pb-7 border-b border-vp-border">
               <Link href={`/${featured.slug}`} className="block">
-                <ImgPH label={featured.eyebrow || section.name} height={340} />
+                {featured.heroImage ? (
+                  <div className="relative w-full h-[340px] overflow-hidden rounded-sm group">
+                    <Image 
+                      src={featured.heroImage} 
+                      alt={featured.title} 
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      priority
+                    />
+                  </div>
+                ) : (
+                  <ImgPH label={featured.eyebrow || section.name} height={340} />
+                )}
               </Link>
               <div>
                 <span className="eyebrow text-[10px]">{featured.eyebrow || 'Reportagem'}</span>
@@ -94,7 +107,18 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
           {list.map((x) => (
             <article key={x.id} className="grid md:grid-cols-[200px_1fr_auto] grid-cols-[1fr] gap-5 py-5 border-b border-vp-border md:items-start">
               <Link href={`/${x.slug}`}>
-                <ImgPH label={x.eyebrow || section.name} height={130} />
+                {x.heroImage ? (
+                  <div className="relative w-full h-[130px] overflow-hidden rounded-sm">
+                    <Image 
+                      src={x.heroImage} 
+                      alt={x.title} 
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <ImgPH label={x.eyebrow || section.name} height={130} />
+                )}
               </Link>
               <div>
                 <span className="eyebrow text-[10px]">{x.eyebrow || 'Reportagem'}</span>

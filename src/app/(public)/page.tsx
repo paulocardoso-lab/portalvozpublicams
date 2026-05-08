@@ -3,7 +3,7 @@ import { MobileHome } from '@/components/home/MobileHome';
 import { DesktopHome } from '@/components/home/DesktopHome';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300; // Revalida a cada 5 minutos
 
 export default async function Home() {
   // Buscar matérias recentes para a Home
@@ -42,19 +42,19 @@ export default async function Home() {
     }),
     prisma.article.findMany({
       where: { status: 'PUBLISHED', section: { slug: 'politica' } },
-      include: { authors: true },
+      include: { authors: true, section: true },
       orderBy: { publishedAt: 'desc' },
       take: 3
     }),
     prisma.article.findMany({
       where: { status: 'PUBLISHED', section: { slug: 'economia' } },
-      include: { authors: true },
+      include: { authors: true, section: true },
       orderBy: { publishedAt: 'desc' },
       take: 3
     }),
     prisma.article.findMany({
       where: { status: 'PUBLISHED', section: { slug: 'cidades' } },
-      include: { authors: true },
+      include: { authors: true, section: true },
       orderBy: { publishedAt: 'desc' },
       take: 3
     }),
@@ -91,24 +91,24 @@ export default async function Home() {
       <div className="md:hidden">
         <MobileHome 
           articles={articles} 
-          activeAlert={activeAlert as any} 
-          featuredSeries={featuredSeries as any}
-          activePodcast={activePodcast as any}
+          activeAlert={activeAlert} 
+          featuredSeries={featuredSeries}
+          activePodcast={activePodcast}
         />
       </div>
       <div className="hidden md:block">
         <DesktopHome 
           articles={articles} 
-          newsletterCount={newsletterCount as number} 
-          agendaEvents={agendaEvents as any[]} 
-          columnists={columnists as any[]}
-          mostRead={mostRead as any[]}
-          politica={politica as any[]}
-          economia={economia as any[]}
-          cidades={cidades as any[]}
-          activeAlert={activeAlert as any}
-          featuredSeries={featuredSeries as any}
-          activePodcast={activePodcast as any}
+          newsletterCount={newsletterCount} 
+          agendaEvents={agendaEvents} 
+          columnists={columnists}
+          mostRead={mostRead}
+          politica={politica}
+          economia={economia}
+          cidades={cidades}
+          activeAlert={activeAlert}
+          featuredSeries={featuredSeries}
+          activePodcast={activePodcast}
         />
       </div>
     </>

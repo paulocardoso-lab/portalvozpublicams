@@ -4,6 +4,7 @@ import { MobileMasthead } from '@/components/layout/MobileMasthead';
 import { MobileEditoriaScroller } from '@/components/home/MobileEditoriaScroller';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import { ImgPH } from '@/components/shared/ImgPH';
+import Image from 'next/image';
 
 import { Article, User, Section, Alert, Series, PodcastEpisode } from '@prisma/client';
 
@@ -52,7 +53,19 @@ export function MobileHome({
         {hero ? (
           <Link href={`/${hero.slug}`} className="block no-underline">
             <article className="px-4 py-[18px] border-b border-vp-border">
-              <ImgPH label={hero.eyebrow || hero.section.name} height={200} style={{ marginBottom: 12 }} />
+              {hero.heroImage ? (
+                <div className="relative w-full h-[200px] overflow-hidden rounded-sm mb-3">
+                  <Image 
+                    src={hero.heroImage} 
+                    alt={hero.title} 
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              ) : (
+                <ImgPH label={hero.eyebrow || hero.section.name} height={200} style={{ marginBottom: 12 }} />
+              )}
               <span className="eyebrow text-[10px]">{hero.eyebrow || hero.section.name}</span>
               <h1 className="font-display text-[24px] leading-[1.1] my-2 tracking-[-0.01em]">
                 {hero.title}
@@ -91,7 +104,18 @@ export function MobileHome({
                   {x.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(x.publishedAt)) : 'Recente'} · {x.readTimeMin || 4} min
                 </div>
               </div>
-              <ImgPH label="" height={80} />
+              {x.heroImage ? (
+                <div className="relative w-[90px] h-[80px] overflow-hidden rounded-sm shrink-0">
+                  <Image 
+                    src={x.heroImage} 
+                    alt={x.title} 
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <ImgPH label="" height={80} />
+              )}
             </article>
           </Link>
         ))}
@@ -112,7 +136,18 @@ export function MobileHome({
             {featuredSeries.articles.length > 0 && (
               <Link href={`/${featuredSeries.articles[0].slug}`} className="block no-underline">
                 <article className="px-4 pb-4 border-b border-vp-border">
-                  <ImgPH label={`série · ${featuredSeries.name}`} height={170} style={{ marginBottom: 10 }} />
+                  {featuredSeries.articles[0].heroImage ? (
+                    <div className="relative w-full h-[170px] overflow-hidden rounded-sm mb-2.5">
+                      <Image 
+                        src={featuredSeries.articles[0].heroImage} 
+                        alt={featuredSeries.articles[0].title} 
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <ImgPH label={`série · ${featuredSeries.name}`} height={170} style={{ marginBottom: 10 }} />
+                  )}
                   <span className="eyebrow text-[10px]">Parte 1 de {featuredSeries.totalParts}</span>
                   <h3 className="font-display text-[19px] leading-[1.15] my-1.5">{featuredSeries.articles[0].title}</h3>
                   <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5] line-clamp-2">{featuredSeries.articles[0].lead}</p>
@@ -132,7 +167,14 @@ export function MobileHome({
             <Link href={activePodcast.embedUrl || '#'} target="_blank" className="block px-4 pb-4 no-underline">
               <div className="flex gap-4 items-center">
                 {activePodcast.coverImage ? (
-                  <img src={activePodcast.coverImage} alt="Capa" className="w-14 h-14 object-cover rounded-[2px]" />
+                  <div className="relative w-14 h-14 overflow-hidden rounded-[2px] shrink-0">
+                    <Image 
+                      src={activePodcast.coverImage} 
+                      alt="Capa" 
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="w-14 h-14 bg-vp-bg border border-vp-border flex items-center justify-center text-[8px] text-vp-text-3">CAPA</div>
                 )}
