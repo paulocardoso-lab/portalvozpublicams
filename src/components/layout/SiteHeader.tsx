@@ -79,7 +79,7 @@ export async function SiteHeader() {
 
         <Link href="/" className="flex flex-col items-center gap-[4px] no-underline group">
           <BrandLogo size="lg" className="transition-transform group-hover:scale-[1.02]" />
-          <div className="font-serif italic text-[13px] text-vp-text-2 tracking-[0.02em]">
+          <div className="font-sans font-bold text-[11px] uppercase tracking-[0.15em] text-vp-text-3 mt-1">
             {settings['SITE_TAGLINE'] || 'Jornalismo independente de Mato Grosso do Sul'}
           </div>
         </Link>

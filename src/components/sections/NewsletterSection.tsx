@@ -24,7 +24,7 @@ export function NewsletterSection() {
     <section className="bg-vp-surface border-y border-vp-border py-[64px] px-[28px] my-[48px]">
       <div className="max-w-[1440px] mx-auto grid md:grid-cols-[1.5fr_1fr] items-center gap-[48px]">
         <div>
-          <h2 className="vp-headline text-[48px] mb-[16px]">
+          <h2 className="vp-headline text-[48px] font-black mb-[16px] leading-[1.1]">
             A verdade direto no <span className="italic text-vp-accent">seu e-mail.</span>
           </h2>
           <p className="text-vp-text-2 font-serif text-[18px] leading-[1.5] max-w-[500px]">

@@ -70,18 +70,18 @@ export function DesktopHome({
       <div className="grid grid-cols-[1fr_320px] gap-[32px] px-[28px] py-[24px]">
         {/* Left / main column */}
         <div className="flex flex-col">
-          {/* Hero — 1.1fr 1fr, gap 28 */}
-          <section className="grid grid-cols-[1.1fr_1fr] gap-[28px] pb-[28px] border-b border-vp-border">
+          {/* Hero — 1.2fr 1fr, gap 32 */}
+          <section className="grid grid-cols-[1.2fr_1fr] gap-[32px] pb-[32px] border-b border-vp-border">
             {hero ? (
               <>
                 <div>
                   <span className="eyebrow">{hero.eyebrow || hero.section?.name || 'Exclusivo'}</span>
                   <Link href={`/${hero.slug}`} className="no-underline">
-                    <h1 className="vp-headline text-[46px] mt-[10px] mb-[14px]">
+                    <h1 className="vp-headline text-[48px] font-black mt-[12px] mb-[16px] leading-[1.05]">
                       {hero.title}
                     </h1>
                   </Link>
-                  <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-[16px]">
+                  <p className="font-serif text-[18px] text-vp-text-2 leading-[1.5] mb-[18px]">
                     {hero.lead}
                   </p>
                   <div className="byline">
@@ -95,13 +95,13 @@ export function DesktopHome({
                 </div>
                 <div>
                   {hero.heroImage ? (
-                    <div className="relative w-full h-[380px] overflow-hidden rounded-sm">
+                    <div className="relative w-full h-[400px] overflow-hidden rounded-sm">
                       <SafeImage src={hero.heroImage} alt={hero.title} fill className="object-cover" />
                     </div>
                   ) : (
-                    <ImgPH label="capa" height={380} />
+                    <ImgPH label="capa" height={400} />
                   )}
-                  <div className="meta mt-[8px] italic">{hero.heroCaption || 'Foto: Voz Pública'}</div>
+                  <div className="meta mt-[10px] italic">{hero.heroCaption || 'Foto: Voz Pública'}</div>
                 </div>
               </>
             ) : (
@@ -114,18 +114,20 @@ export function DesktopHome({
             {secondary.map((x) => (
               <article key={x.id}>
                 {x.heroImage ? (
-                  <div className="relative w-full h-[150px] overflow-hidden rounded-sm mb-[12px]">
+                  <div className="relative w-full h-[160px] overflow-hidden rounded-sm mb-[14px]">
                     <SafeImage src={x.heroImage} alt={x.title} fill className="object-cover" />
                   </div>
                 ) : (
-                  <ImgPH label={x.section?.name || 'Cidades'} height={150} className="mb-[12px]" />
+                  <ImgPH label={x.section?.name || 'Cidades'} height={160} className="mb-[14px]" />
                 )}
                 <span className="eyebrow text-[10px]">{x.eyebrow || x.section?.name}</span>
                 <Link href={`/${x.slug}`} className="no-underline">
-                  <h3 className="vp-headline text-[19px] mt-[6px] mb-[8px]">{x.title}</h3>
+                  <h3 className="vp-headline text-[20px] font-black mt-[8px] mb-[10px] leading-[1.2]">
+                    {x.title}
+                  </h3>
                 </Link>
-                <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] line-clamp-3">{x.lead}</p>
-                <div className="byline mt-[10px]">Há 2h · 4 min de leitura</div>
+                <p className="font-serif text-[15px] text-vp-text-2 leading-[1.45] line-clamp-3">{x.lead}</p>
+                <div className="byline mt-[12px]">Há 2h · 4 min de leitura</div>
               </article>
             ))}
           </section>
@@ -231,17 +233,25 @@ export function DesktopHome({
           {/* Bottom row — Mais lidas + Podcast */}
           <section className="grid grid-cols-2 gap-[36px] py-[28px]">
             <div>
-              <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold mb-[16px]">Mais lidas da semana</h3>
-              <ol className="list-none p-0 m-0 grid gap-[14px]">
-                {mostRead.slice(0, 5).map((art, i) => (
-                  <li key={art.id} className={`grid grid-cols-[36px_1fr] gap-[14px] pb-[12px] ${i < 4 ? 'border-b border-vp-border' : ''}`}>
-                    <span className="font-display text-[28px] font-bold text-vp-accent leading-none">{i+1}</span>
-                    <Link href={`/${art.slug}`} className="no-underline">
-                      <h4 className="vp-headline text-[15px]">{art.title}</h4>
-                    </Link>
-                  </li>
+              <h3 className="font-sans text-[12px] uppercase tracking-[0.14em] font-black mb-[24px] flex items-center gap-[12px]">
+                <span className="w-[12px] h-[1px] bg-vp-accent" />
+                Mais lidas hoje
+              </h3>
+              <div className="grid gap-[20px]">
+                {mostRead.slice(0, 5).map((h, i) => (
+                  <Link key={h.id} href={`/${h.slug}`} className="no-underline group">
+                    <div className="grid grid-cols-[36px_1fr] gap-[16px] items-start">
+                      <span className="font-display text-[32px] font-black text-vp-border-2 group-hover:text-vp-accent transition-colors leading-none">{i + 1}</span>
+                      <div>
+                        <h4 className="font-display text-[15px] font-bold leading-[1.3] group-hover:underline">
+                          {h.title}
+                        </h4>
+                        <div className="byline text-[10px] mt-[4px]">{(h as any).section?.name}</div>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
-              </ol>
+              </div>
             </div>
             <div>
               <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold mb-[16px]">Podcast · Voz Alta</h3>

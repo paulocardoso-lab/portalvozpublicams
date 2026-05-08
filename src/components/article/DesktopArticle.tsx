@@ -30,7 +30,7 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
         )}
       </div>
 
-      <article className="grid grid-cols-[200px_1fr_260px] gap-9 px-12 py-9 max-w-[1400px] mx-auto w-full">
+      <article className="grid grid-cols-[200px_minmax(0,680px)_260px] justify-center gap-12 px-12 py-9 mx-auto w-full">
         {/* Left — sticky share */}
         <aside className="sticky top-[160px] self-start grid gap-4">
           <div className="meta tracking-[0.1em] uppercase text-[10px] mb-1">Compartilhar</div>

@@ -133,21 +133,23 @@
     @apply font-serif text-[19px] leading-[1.65] text-vp-text;
   }
   .article-body p {
-    @apply mb-5;
+    @apply mb-6 text-pretty;
   }
-  .article-body h2 {
-    @apply font-display text-[32px] mt-8 mb-4;
-  }
-  .article-body h3 {
-    @apply font-display text-[24px] mt-6 mb-3;
+  /* Capitular Automática (Drop Cap) */
+  .article-body p:first-of-type::first-letter {
+    @apply font-display float-left text-[78px] font-black leading-[0.85] pr-[12px] pt-[8px] text-vp-accent;
+    font-family: var(--font-playfair), serif;
   }
   
-  .drop-cap {
-    @apply font-display float-left text-[78px] leading-[0.85] pr-[10px] pt-[6px] text-vp-accent;
+  .article-body h2 {
+    @apply font-display text-[32px] font-black mt-10 mb-5 leading-[1.1];
   }
-
+  .article-body h3 {
+    @apply font-display text-[24px] font-bold mt-8 mb-4 leading-[1.2];
+  }
+  
   .article-body blockquote {
-    @apply border-l-[3px] border-vp-accent pl-6 my-8 font-display text-[28px] leading-[1.25] italic text-vp-text;
+    @apply border-l-[3px] border-vp-accent pl-6 my-10 font-display text-[30px] font-medium leading-[1.2] italic text-vp-text;
   }
   .article-body blockquote footer {
     @apply font-sans text-[12px] not-italic text-vp-text-3 mt-3 tracking-[0.04em] uppercase;

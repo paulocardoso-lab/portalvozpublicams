@@ -21,12 +21,14 @@ export function HeaderTicker({ initialData }: HeaderTickerProps) {
   const { market, weather } = data || initialData;
 
   return (
-    <>
-      <span>Campo Grande {weather.temp}°C</span>
-      <span className="text-vp-text-4">·</span>
-      <span className="font-mono text-vp-text-3">
-        USD {market.usd} &nbsp; BOI {market.boi} &nbsp; SOJA {market.soja}
+    <div className="flex gap-[12px] items-center">
+      <span className="font-mono text-vp-text-3 tracking-tighter uppercase">
+        <span className="text-vp-text-4">USD</span> {market.usd}
+        <span className="mx-2 text-vp-text-4">|</span>
+        <span className="text-vp-text-4">BOI</span> {market.boi}
+        <span className="mx-2 text-vp-text-4">|</span>
+        <span className="text-vp-text-4">SOJA</span> {market.soja}
       </span>
-    </>
+    </div>
   );
 }

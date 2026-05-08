@@ -79,6 +79,7 @@ export async function Home() {
       }),
       prisma.article.findMany({
         where: { status: 'PUBLISHED' },
+        include: { section: true },
         orderBy: { views: 'desc' },
         take: 5,
       })
