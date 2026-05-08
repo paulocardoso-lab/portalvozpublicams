@@ -128,6 +128,45 @@
   .rule-2 { @apply h-[2px] bg-vp-text w-full; }
   .rule-accent { @apply h-[2px] bg-vp-accent w-full; }
 
+  /* Article Body Typography */
+  .article-body {
+    @apply font-serif text-[19px] leading-[1.65] text-vp-text;
+  }
+  .article-body p {
+    @apply mb-5;
+  }
+  .article-body h2 {
+    @apply font-display text-[32px] mt-8 mb-4;
+  }
+  .article-body h3 {
+    @apply font-display text-[24px] mt-6 mb-3;
+  }
+  
+  .drop-cap {
+    @apply font-display float-left text-[78px] leading-[0.85] pr-[10px] pt-[6px] text-vp-accent;
+  }
+
+  .article-body blockquote {
+    @apply border-l-[3px] border-vp-accent pl-6 my-8 font-display text-[28px] leading-[1.25] italic text-vp-text;
+  }
+  .article-body blockquote footer {
+    @apply font-sans text-[12px] not-italic text-vp-text-3 mt-3 tracking-[0.04em] uppercase;
+  }
+
+  /* Data Callout Grid */
+  .data-callout {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-vp-border border border-vp-border my-7;
+  }
+  .data-callout-item {
+    @apply bg-vp-surface p-5;
+  }
+  .data-callout-number {
+    @apply font-display text-[36px] text-vp-accent leading-none mb-1.5;
+  }
+  .data-callout-label {
+    @apply font-sans text-[12px] text-vp-text-2 leading-[1.4];
+  }
+
   /* Scrollbars */
   .vp-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
   .vp-scroll::-webkit-scrollbar-track { background: transparent; }

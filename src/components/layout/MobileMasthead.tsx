@@ -3,6 +3,11 @@ import Link from 'next/link';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
 export function MobileMasthead({ title }: { title?: string }) {
+  const now = new Date();
+  const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const formatted = `${days[now.getDay()]} · ${now.getDate()} ${months[now.getMonth()]}`;
+
   return (
     <div className="sticky top-0 z-50 bg-vp-bg border-b border-vp-border">
       <div className="flex items-center px-4 py-3 gap-3">
@@ -26,8 +31,8 @@ export function MobileMasthead({ title }: { title?: string }) {
       </div>
       {/* Edition strip */}
       <div className="px-4 py-[6px] border-t border-vp-border font-sans text-[10px] text-vp-text-3 flex justify-between tracking-[0.06em] uppercase">
-        <span>Quarta · 22 abr</span>
-        <span className="mono">USD 5,12 · BOI 302,40</span>
+        <span>{formatted}</span>
+        <span className="font-mono">USD 5,12 · BOI 302,40</span>
       </div>
     </div>
   );

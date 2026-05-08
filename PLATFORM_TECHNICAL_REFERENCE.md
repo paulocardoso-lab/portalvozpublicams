@@ -1,30 +1,44 @@
-# Voz Pública MS - Referência Técnica (Pós-Restauração Visual)
+# Voz Pública MS — Referência Técnica do Design Restaurado
 
-## 1. Stack Tecnológica Core
-- **Framework**: Next.js 16.2.6 (App Router)
-- **Runtime**: React 19.2.6
-- **Database**: PostgreSQL (Supabase) via Prisma 7.8.0
-- **Estilização**: Tailwind CSS v4.0.0 + Vanilla CSS
-- **Monitoramento**: Sentry (Dsn configurado)
-- **Analytics**: Vercel Analytics + Speed Insights
+## Identidade Visual Core
+- **Modo Padrão**: Dark Mode Absoluto (`bg: #1a1a19`, `text: #faf9f5`)
+- **Estética**: Editorial Clássico / Jornalismo Investigativo Premium.
+- **Bordas**: Radius 0px a 4px (Editorial reto).
 
-## 2. Identidade Visual (Fidelidade Absoluta)
+## Tipografia (Google Fonts)
+1. **Playfair Display** (Display/Headlines)
+   - Pesos: 400, 600, 700, 900 + Italic.
+   - Uso: Manchetes, Drop Caps, Blockquotes.
+2. **Source Serif 4** (Corpo/Serif)
+   - Pesos: 300, 400, 600, 700 + Italic.
+   - Uso: Texto de matérias, Leads.
+3. **Inter** (UI/Sans)
+   - Pesos: 400, 500, 600, 700.
+   - Uso: Meta-dados, Botões, Navegação, Eyebrows.
+4. **JetBrains Mono** (Dados)
+   - Pesos: 400, 500.
+   - Uso: Mercado financeiro, Agendas, Timestamps.
 
-### Tipografia
-- **Display**: `Playfair Display` (Pesos: 400, 700, 900). Usada em manchetes e títulos de destaque.
-- **Serif (Corpo)**: `Source Serif 4` (Pesos: 400, 500, 600, 700). Usada em leads, parágrafos e textos longos.
-- **Sans (Interface)**: `Inter`. Usada em navegação, metadados e botões.
-- **Mono**: `JetBrains Mono`. Usada em indicadores técnicos e tickers.
+## Sistema de Design (Tokens CSS)
+- **Cores Principais**:
+  - `accent`: #d97757 (Terracota editorial)
+  - `bg`: #1a1a19
+  - `surface`: #262624
+  - `border`: #3a3a37
+- **Grid Editorial (Desktop)**:
+  - Home: 1fr 320px (Main + Sidebar), Gap 32px.
+  - Artigo: 200px 1fr 260px (Share + Body + Sidebar), Gap 36px.
+  - Padding Lateral: 28px.
 
-### Sistema de Cores
-- **Background**: `#1a1a19` (Voz Pública Dark)
-- **Superfícies**: `#262624` (Cards e inputs)
-- **Texto Principal**: `#faf9f5` (Off-white)
-- **Texto Secundário**: `#d1cfc4` (Cinza quente)
-- **Destaque (Accent)**: `#d97757` (Cobre editorial)
-- **Urgente/Live**: `#e85d4a`
+## Componentes Core Restaurados
+1. **Masthead**: Estrutura em 3 níveis (Utilidade, Logo/Tagline, Nav) com comportamento sticky.
+2. **BrandLogo**: Monograma VP|MS calculado proporcionalmente (25% padding na esquerda, 55% font-size na direita).
+3. **Article Body**: Suporte a Drop Caps (78px Playfair), Blockquotes editoriais com borda accent, e Data Callouts.
+4. **Mobile Experience**: Menu em lista Playfair 17px com chevrons, Editoria Scroller e Tab Bar persistente.
 
-### Layout e Grid (Desktop)
+## Verificação de Fidelidade
+- **Fonte da Verdade**: `\_design\_reference/`
+- **Validação**: Todas as telas devem seguir o grid de múltiplos de 4px e o contraste AAA para legibilidade em dark mode.
 - **Grid Principal**: `grid-cols-[1fr_320px]` (Conteúdo principal vs Sidebar fixa).
 - **Gaps**: Estritos `32px` entre colunas de conteúdo e sidebar; `28px` entre itens do Hero.
 - **Paddings**: Container lateral de `28px`; Paddings verticais de `24px` a `32px`.
