@@ -1,92 +1,117 @@
+"use client";
+
 import React from 'react';
-import { SiteHeader } from '@/components/layout/SiteHeader';
-import { SiteFooter } from '@/components/layout/SiteFooter';
 import Link from 'next/link';
+import { FunnelLayout } from '@/components/subscription/FunnelLayout';
 
 export default function DonatePayPage() {
+  const [method, setMethod] = React.useState<'pix' | 'card' | 'boleto'>('pix');
+
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-vp-bg w-full">
-      <div className="hidden md:block"><SiteHeader /></div>
+    <FunnelLayout step={3} title="Pagamento">
+      {/* Method Tabs */}
+      <div className="grid grid-cols-3 border-b border-vp-border bg-vp-surface">
+        {(['pix', 'card', 'boleto'] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMethod(m)}
+            className={`py-4 font-sans text-[11px] font-black uppercase tracking-widest transition-all border-b-2 ${
+              method === m 
+                ? 'text-vp-accent border-vp-accent bg-vp-bg' 
+                : 'text-vp-text-3 border-transparent hover:text-vp-text'
+            }`}
+          >
+            {m === 'pix' ? 'PIX' : m === 'card' ? 'Cartão' : 'Boleto'}
+          </button>
+        ))}
+      </div>
 
-      <div className="flex-1 flex flex-col max-w-[600px] mx-auto w-full md:py-10 bg-vp-bg md:border-x border-vp-border">
-        {/* Mobile Header */}
-        <div className="flex items-center px-4 py-3 border-b border-vp-border gap-3 md:hidden">
-          <Link href="/apoiar/dados" className="bg-transparent border-none text-vp-text text-[18px] p-0 cursor-pointer text-decoration-none">‹</Link>
-          <span className="font-sans text-[11px] text-vp-text-3 uppercase tracking-[0.1em] flex-1 text-center">Pagamento · 3 de 3</span>
-          <span className="w-[18px]" />
-        </div>
-
-        {/* Step indicator */}
-        <div className="grid grid-cols-3 gap-1 px-4 py-2.5">
-          {[1,2,3].map(n => (
-            <div key={n} className="h-[3px] bg-vp-accent" />
-          ))}
-        </div>
-
-        <div className="flex-1 overflow-y-auto vp-scroll">
-          {/* Method tabs */}
-          <div className="grid grid-cols-3 px-4 border-b border-vp-border">
-            {[['PIX',true],['Cartão',false],['Boleto',false]].map(([t,a],i) => (
-              <button key={i} className={`bg-transparent py-3.5 font-sans text-[12px] font-semibold uppercase tracking-[0.06em] cursor-pointer border-b-2 ${a ? 'text-vp-text border-vp-accent' : 'text-vp-text-3 border-transparent hover:text-vp-text-2'}`}>
-                {t}
-              </button>
-            ))}
+      <div className="px-5 py-8 lg:px-10">
+        {/* Summary Card */}
+        <div className="bg-vp-surface border border-vp-border p-5 mb-8">
+          <div className="flex justify-between mb-2">
+            <span className="text-[12px] text-vp-text-3 uppercase tracking-wider">Assinatura Mensal</span>
+            <span className="font-bold">Plano Apoiador</span>
           </div>
+          <div className="flex justify-between items-baseline pt-4 border-t border-vp-border mt-4">
+            <span className="font-sans text-[13px] font-bold text-vp-text uppercase tracking-widest">Total hoje</span>
+            <span className="font-display text-[32px] text-vp-accent font-black">R$ 39,00</span>
+          </div>
+        </div>
 
-          <div className="px-4.5 py-5">
-            {/* Summary */}
-            <div className="bg-vp-surface border border-vp-border p-4 mb-4">
-              <div className="flex justify-between mb-2">
-                <span className="text-[12px] text-vp-text-3">Plano Apoiador</span>
-                <strong className="text-[14px]">R$ 39,00</strong>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span className="text-[12px] text-vp-text-3">Recorrência</span>
-                <span className="text-[12px]">Mensal</span>
-              </div>
-              <div className="border-t border-vp-border pt-2 flex justify-between items-baseline mt-1">
-                <span className="text-[13px] font-semibold">Total hoje</span>
-                <span className="font-display text-[22px] text-vp-accent font-bold">R$ 39,00</span>
-              </div>
-            </div>
-
-            {/* QR PIX */}
-            <div className="bg-white p-6 flex justify-center mb-3.5 border border-vp-border">
+        {method === 'pix' && (
+          <div className="flex flex-col items-center">
+            {/* Fake QR Code */}
+            <div className="bg-white p-6 rounded-sm mb-6 shadow-xl">
               <div className="w-[200px] h-[200px] relative bg-white">
                 <div className="absolute inset-0 opacity-90" style={{ backgroundImage: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%)', backgroundSize: '14px 14px' }} />
-                <div className="absolute top-0 left-0 w-[50px] h-[50px] border-[8px] border-black bg-white flex items-center justify-center"><div className="w-4 h-4 bg-black" /></div>
-                <div className="absolute top-0 right-0 w-[50px] h-[50px] border-[8px] border-black bg-white flex items-center justify-center"><div className="w-4 h-4 bg-black" /></div>
-                <div className="absolute bottom-0 left-0 w-[50px] h-[50px] border-[8px] border-black bg-white flex items-center justify-center"><div className="w-4 h-4 bg-black" /></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 bg-vp-accent flex items-center justify-center text-white font-display text-[16px] font-bold">
+                <div className="absolute top-0 left-0 w-12 h-12 border-[6px] border-black bg-white flex items-center justify-center">
+                   <div className="w-4 h-4 bg-black" />
+                </div>
+                <div className="absolute top-0 right-0 w-12 h-12 border-[6px] border-black bg-white flex items-center justify-center">
+                   <div className="w-4 h-4 bg-black" />
+                </div>
+                <div className="absolute bottom-0 left-0 w-12 h-12 border-[6px] border-black bg-white flex items-center justify-center">
+                   <div className="w-4 h-4 bg-black" />
+                </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-vp-accent text-white font-display font-black text-[18px] px-2 py-1">
                   VP
                 </div>
               </div>
             </div>
 
-            <div className="text-center mb-3.5">
-              <div className="font-sans text-[11px] text-vp-text-3 uppercase tracking-[0.1em] mb-1">Aponte a câmera do banco</div>
-              <div className="text-[12px] text-vp-text-2">ou copie o código abaixo</div>
+            <div className="text-center mb-6">
+              <p className="eyebrow text-[10px] text-vp-text-3 mb-1">Escaneie o código com seu banco</p>
+              <p className="font-serif text-[14px] text-vp-text-2 italic">A liberação do acesso é imediata via PIX.</p>
             </div>
 
-            <div className="bg-vp-surface border border-vp-border p-3 font-mono text-[10px] break-all text-vp-text-2 mb-2">
-              00020126580014br.gov.bcb.pix0136f8e2a4d1-9c0b-4f5a-8b89-a3b4c5d6e7f8520400005303986540539.005802BR5915Voz Publica MS6012Campo Grande62070503***63041A2B
+            <div className="w-full">
+              <div className="bg-vp-surface border border-vp-border p-4 font-mono text-[10px] break-all text-vp-text-3 mb-4 rounded-sm">
+                00020126580014br.gov.bcb.pix0136f8e2a4d1-9c0b-4f5a-8b1e-7d2e4a5f6a7b520400005303986540539.005802BR5913Voz Publica MS6009Campo Grande62070503***6304E2A1
+              </div>
+              <button className="vp-btn w-full py-3.5 font-bold uppercase tracking-widest text-[12px] flex items-center justify-center gap-2">
+                <span>📋</span> Copiar código PIX
+              </button>
+            </div>
+
+            <div className="mt-10 flex items-center gap-4 text-vp-text-4">
+              <div className="w-2 h-2 rounded-full bg-vp-accent animate-pulse" />
+              <span className="font-sans text-[11px] uppercase tracking-widest font-bold">Aguardando confirmação do pagamento...</span>
             </div>
             
-            <Link href="/apoiar/sucesso" className="vp-btn w-full text-[12px] py-3 bg-vp-surface hover:border-vp-accent text-center no-underline block">
-              Copiar código PIX
+            {/* Button to simulate success */}
+            <Link href="/apoiar/sucesso" className="mt-8 text-[11px] text-vp-text-4 hover:text-vp-accent transition-colors underline">
+              Simular confirmação (apenas desenvolvimento)
             </Link>
-
-            <div className="mt-4.5 p-3 border border-vp-border flex items-center gap-2.5">
-              <div className="w-2 h-2 rounded-full bg-vp-text-3 shrink-0 animate-pulse" />
-              <span className="text-[11px] text-vp-text-2 leading-[1.4]">
-                Aguardando confirmação… Você será redirecionado assim que o pagamento for compensado.
-              </span>
-            </div>
           </div>
-        </div>
-      </div>
+        )}
 
-      <div className="hidden md:block"><SiteFooter /></div>
-    </div>
+        {method === 'card' && (
+          <div className="space-y-6">
+             <div>
+              <label className="eyebrow block mb-2 text-[10px]">Número do cartão</label>
+              <input className="vp-input w-full font-mono" placeholder="0000 0000 0000 0000" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="eyebrow block mb-2 text-[10px]">Validade</label>
+                <input className="vp-input w-full font-mono" placeholder="MM/AA" />
+              </div>
+              <div>
+                <label className="eyebrow block mb-2 text-[10px]">CVC</label>
+                <input className="vp-input w-full font-mono" placeholder="123" />
+              </div>
+            </div>
+            <div>
+              <label className="eyebrow block mb-2 text-[10px]">Nome no cartão</label>
+              <input className="vp-input w-full" placeholder="COMO ESTÁ NO CARTÃO" />
+            </div>
+            <button className="vp-btn vp-btn-primary w-full py-4 font-bold uppercase tracking-widest text-[13px] mt-4">
+              Finalizar assinatura segura
+            </button>
+          </div>
+        )}
+      </div>
+    </FunnelLayout>
   );
 }

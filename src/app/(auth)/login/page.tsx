@@ -4,8 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { signIn } from "next-auth/react";
 import { BrandLogo } from '@/components/shared/BrandLogo';
+import { Eyebrow } from '@/components/shared/Eyebrow';
 
-export default function MobileLogin() {
+export default function LoginPage() {
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [message, setMessage] = React.useState<{type: 'success' | 'error', text: string} | null>(null);
@@ -20,12 +21,12 @@ export default function MobileLogin() {
     try {
       const result = await signIn("resend", { 
         email, 
-        callbackUrl: "/admin",
-        redirect: false // Evita o redirecionamento automático para podermos mostrar a mensagem
+        callbackUrl: "/eu",
+        redirect: false 
       });
 
       if (result?.error) {
-        setMessage({ type: 'error', text: 'Erro ao enviar e-mail. Verifique a configuração do Resend.' });
+        setMessage({ type: 'error', text: 'Erro ao enviar e-mail. Verifique a configuração do serviço.' });
       } else {
         setMessage({ type: 'success', text: 'Link enviado! Verifique sua caixa de entrada.' });
       }
@@ -37,73 +38,88 @@ export default function MobileLogin() {
   };
 
   const handleOAuthLogin = (provider: "google") => {
-    signIn(provider, { callbackUrl: "/admin" });
+    signIn(provider, { callbackUrl: "/eu" });
   };
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-vp-bg max-w-[480px] mx-auto border-x border-vp-border">
-      <div className="flex items-center px-4 py-3 justify-between">
-        <Link href="/" className="bg-transparent border-none text-vp-text text-[20px] cursor-pointer hover:text-vp-accent no-underline">×</Link>
-        <Link href="/" className="no-underline">
-          <BrandLogo size="md" />
+    <div className="flex flex-col min-h-screen bg-vp-bg w-full">
+      {/* Auth Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b border-vp-border">
+        <Link href="/">
+           <BrandLogo size="md" />
         </Link>
-        <span className="w-[18px]" />
+        <Link href="/" className="text-[24px] text-vp-text-3 hover:text-vp-text transition-colors">×</Link>
       </div>
 
-      <div className="flex-1 px-5 py-5 pb-6 flex flex-col">
-        <div className="mb-7">
-          <span className="eyebrow text-[10px]">Bem-vindo de volta</span>
-          <h1 className="font-display text-[32px] leading-[1.05] my-2 tracking-[-0.015em]">Entre na sua conta</h1>
-          <p className="font-serif text-[14px] text-vp-text-2">Para acessar o painel administrativo e gerenciar o portal.</p>
-        </div>
+      <main className="flex-1 flex flex-col items-center justify-center p-6 bg-vp-bg">
+        <div className="max-w-[440px] w-full bg-vp-bg lg:border lg:border-vp-border lg:shadow-2xl">
+          <div className="p-6 lg:p-10">
+            <div className="mb-8 text-center lg:text-left">
+              <Eyebrow className="text-[10px]">Bem-vindo de volta</Eyebrow>
+              <h1 className="font-display text-[32px] lg:text-[38px] leading-[1.05] my-3 tracking-tight font-black">
+                Entre na sua conta.
+              </h1>
+              <p className="font-serif text-[15px] text-vp-text-2 leading-relaxed">
+                Para comentar, salvar matérias e gerenciar seu apoio ao jornalismo independente.
+              </p>
+            </div>
 
-        {message && (
-          <div className={`mb-6 p-4 rounded text-[13px] border ${message.type === 'success' ? 'bg-vp-ok/10 border-vp-ok text-vp-ok' : 'bg-vp-accent/10 border-vp-accent text-vp-accent'}`}>
-            {message.text}
+            {message && (
+              <div className={`mb-8 p-4 border text-[13px] font-bold leading-tight ${
+                message.type === 'success' ? 'bg-vp-ok/10 border-vp-ok text-vp-ok' : 'bg-vp-urgent/10 border-vp-urgent text-vp-urgent'
+              }`}>
+                {message.text}
+              </div>
+            )}
+
+            <form onSubmit={handleEmailLogin} className="space-y-4">
+              <div>
+                <label className="eyebrow block mb-2 text-[10px]">E-mail</label>
+                <input 
+                  className="vp-input w-full py-3.5 px-4" 
+                  type="email" 
+                  placeholder="seu@email.com.br" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                className="vp-btn vp-btn-primary w-full py-4 text-[13px] font-black uppercase tracking-widest disabled:opacity-50"
+              >
+                {isLoading ? 'Enviando...' : 'Receber link de acesso →'}
+              </button>
+            </form>
+
+            <div className="flex items-center gap-4 my-8">
+              <div className="flex-1 h-[1px] bg-vp-border" />
+              <span className="text-[10px] text-vp-text-4 uppercase tracking-[0.2em] font-black">ou</span>
+              <div className="flex-1 h-[1px] bg-vp-border" />
+            </div>
+
+            <div className="grid gap-3">
+              <button 
+                onClick={() => handleOAuthLogin("google")}
+                className="vp-btn w-full py-3.5 text-[12px] font-bold flex items-center justify-center gap-3 hover:bg-vp-surface transition-all"
+              >
+                <span>G</span> Continuar com Google
+              </button>
+            </div>
+
+            <div className="mt-10 pt-6 border-t border-vp-border text-center text-[13px] text-vp-text-3">
+              Ainda não tem conta? <Link href="/signup" className="text-vp-accent font-bold hover:underline ml-1">Cadastre-se grátis</Link>
+            </div>
           </div>
-        )}
-
-        <form onSubmit={handleEmailLogin} className="grid gap-3 mb-[18px]">
-          <div>
-            <label className="eyebrow block mb-1.5 text-[10px]">E-mail</label>
-            <input 
-              className="vp-input w-full" 
-              type="email" 
-              placeholder="seu@email.com.br" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-              required
-            />
-          </div>
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            className="vp-btn vp-btn-primary w-full p-3.5 text-[13px] disabled:opacity-50"
-          >
-            {isLoading ? 'Enviando...' : 'Receber link de acesso'}
-          </button>
-        </form>
-
-        <div className="flex items-center gap-2.5 my-1.5 mb-4">
-          <div className="flex-1 h-[1px] bg-vp-border" />
-          <span className="text-[10px] text-vp-text-3 uppercase tracking-[0.1em]">ou</span>
-          <div className="flex-1 h-[1px] bg-vp-border" />
         </div>
+      </main>
 
-        <div className="grid gap-2">
-          <button 
-            onClick={() => handleOAuthLogin("google")}
-            className="vp-btn p-3 text-[12px] justify-center w-full flex items-center gap-2"
-          >
-            Continuar com Google
-          </button>
-        </div>
-
-        <div className="mt-auto text-center pt-6 text-[13px] text-vp-text-2">
-          Dificuldades no acesso? <Link href="/" className="text-vp-accent font-semibold no-underline">Fale com o suporte</Link>
-        </div>
-      </div>
+      <footer className="p-8 text-center text-[10px] text-vp-text-4 font-mono uppercase tracking-widest bg-vp-bg border-t border-vp-border">
+        Voz Pública MS · 2026
+      </footer>
     </div>
   );
 }
+

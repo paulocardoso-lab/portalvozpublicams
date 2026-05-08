@@ -1,38 +1,41 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
+import { BrandLogo } from '@/components/shared/BrandLogo';
 
 export default function DonateSuccessPage() {
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-vp-bg w-full items-center justify-center p-6 text-center">
-      <div className="max-w-[400px] w-full flex flex-col items-center">
-        
-        <div className="w-[84px] h-[84px] rounded-full bg-vp-accent flex items-center justify-center mb-6 font-display text-[44px] font-bold text-[#1a1a19]">
-          ✓
-        </div>
+    <div className="flex flex-col min-h-screen bg-vp-bg w-full items-center justify-center p-6 text-center">
+      <div className="w-[100px] h-[100px] rounded-full bg-vp-accent flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(217,119,87,0.3)]">
+        <span className="text-vp-bg text-[56px] font-black leading-none">✓</span>
+      </div>
 
-        <span className="eyebrow text-[10px] mb-2.5">Bem-vinda à redação</span>
-        
-        <h1 className="font-display text-[32px] leading-[1.1] tracking-[-0.015em] mb-3.5">
-          Obrigado, Marina.
-        </h1>
-        
-        <p className="font-serif text-[15px] leading-[1.55] text-vp-text-2 mb-7 max-w-[320px]">
-          Você é uma das <strong className="text-vp-accent">4.813 pessoas</strong> que sustentam um jornalismo sem donos em Mato Grosso do Sul.
+      <span className="eyebrow text-[11px] mb-4 text-vp-accent tracking-[0.2em] font-black uppercase">
+        Bem-vinda à Redação
+      </span>
+      
+      <h1 className="font-display text-[42px] lg:text-[56px] leading-[1.05] mb-6 tracking-tight font-black max-w-[600px]">
+        Obrigado por sustentar o Voz Pública.
+      </h1>
+      
+      <p className="font-serif text-[18px] lg:text-[21px] text-vp-text-2 leading-relaxed mb-10 max-w-[540px]">
+        Você agora faz parte do grupo de pessoas que garante um jornalismo sem donos e sem rabo preso em Mato Grosso do Sul.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[480px]">
+        <Link href="/" className="vp-btn vp-btn-primary py-4 font-bold uppercase tracking-widest text-[13px] no-underline inline-block">
+          Ir para a Home →
+        </Link>
+        <button className="vp-btn py-4 font-bold uppercase tracking-widest text-[13px] hover:bg-vp-surface transition-colors">
+          Compartilhar apoio
+        </button>
+      </div>
+
+      <div className="mt-12 pt-8 border-t border-vp-border w-full max-w-[400px]">
+        <p className="font-mono text-[11px] text-vp-text-4 uppercase tracking-widest">
+          Recibo enviado para marina@email.com · Transação #VP-9821
         </p>
-
-        <div className="w-full max-w-[320px] grid gap-2">
-          <Link href="/" className="vp-btn vp-btn-primary py-3.5 text-[13px] no-underline text-center w-full block">
-            Ler matérias exclusivas →
-          </Link>
-          <button className="vp-btn py-3.5 text-[12px] bg-transparent border border-vp-border hover:border-vp-accent w-full transition-colors justify-center cursor-pointer">
-            Compartilhar nas redes
-          </button>
-        </div>
-
-        <div className="mt-8 text-[11px] text-vp-text-3 font-mono">
-          Recibo enviado para marina@email.com
-        </div>
-
       </div>
     </div>
   );

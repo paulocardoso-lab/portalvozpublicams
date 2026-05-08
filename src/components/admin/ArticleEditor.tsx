@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Article, ArticleVersion, Section, User, Role } from '@prisma/client';
 
-import { saveArticle, restoreVersion } from '@/app/admin/posts/actions';
+import { saveArticle, restoreVersion } from '@/app/(admin)/admin/posts/actions';
 import { TiptapEditor } from './TiptapEditor';
 interface ArticleEditorProps {
   article?: Article & { 

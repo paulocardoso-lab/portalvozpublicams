@@ -11,11 +11,19 @@ export function proxy(req: NextRequest) {
   const isOnAuth =
     req.nextUrl.pathname.startsWith("/login") ||
     req.nextUrl.pathname.startsWith("/signup")
+  const isOnUserArea = req.nextUrl.pathname.startsWith("/eu")
 
+  // Protect Admin
   if (isOnAdmin && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.nextUrl))
   }
 
+  // Protect User Area
+  if (isOnUserArea && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl))
+  }
+
+  // Redirect if already logged in
   if (isOnAuth && isLoggedIn) {
     return NextResponse.redirect(new URL("/admin", req.nextUrl))
   }
@@ -24,5 +32,6 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login", "/signup", "/me/:path*"],
+  matcher: ["/admin/:path*", "/login", "/signup", "/eu/:path*"],
 }
+

@@ -1,11 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
-import { BrandLogo } from '@/components/shared/BrandLogo';
+import { Monogram } from '@/components/shared/Monogram';
 import { HeaderTicker } from './HeaderTicker';
 import { getMarketData, getWeatherData } from '@/lib/external-data';
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 
+/**
+ * SiteHeader (Masthead) — Cabeçalho principal do portal.
+ * Rigorosamente fiel ao design clássico editorial.
+ */
 export async function SiteHeader() {
   const now = new Date();
   const formattedDate = new Intl.DateTimeFormat('pt-BR', {
@@ -39,7 +43,7 @@ export async function SiteHeader() {
   
   return (
     <header className="hidden md:block border-b border-vp-border bg-vp-bg sticky top-0 z-50">
-      {/* Top utility bar — Padding e gap exatos da referência */}
+      {/* 1. Top utility bar */}
       <div className="flex items-center justify-between px-[28px] py-[8px] border-b border-vp-border font-sans text-[11px] text-vp-text-3">
         <div className="flex gap-[18px] items-center">
           <span className="tracking-[0.08em] uppercase">{formattedDate}</span>
@@ -48,22 +52,22 @@ export async function SiteHeader() {
           <span className="text-vp-text-4">·</span>
           <HeaderTicker initialData={initialTickerData} />
         </div>
-        <div className="flex gap-[16px] items-center">
+        <div className="flex gap-[16px] items-center font-semibold">
           <Link href="/newsletter" className="hover:text-vp-accent transition-colors">Newsletter</Link>
           <Link href="/podcasts" className="hover:text-vp-accent transition-colors">Podcast</Link>
           <Link href="/denuncia" className="hover:text-vp-accent transition-colors">Envie sua denúncia</Link>
           <span className="text-vp-text-4">·</span>
           <Link href="/login" className="hover:text-vp-accent transition-colors">Entrar</Link>
           <Link href="/apoiar">
-            <button className="vp-btn vp-btn-primary px-[12px] py-[5px] text-[11px]">Assine</button>
+            <button className="vp-btn vp-btn-primary px-[12px] py-[5px] text-[11px] font-bold">Assine</button>
           </Link>
         </div>
       </div>
 
-      {/* Logo row — Grid e paddings exatos da referência */}
+      {/* 2. Logo row */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-center px-[28px] py-[18px] gap-[20px]">
         <div className="flex items-center gap-[14px]">
-          <Link href="/menu" className="text-vp-text font-sans text-[12px] font-semibold flex items-center gap-[8px] hover:text-vp-accent">
+          <Link href="/menu" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-[8px] hover:text-vp-accent transition-colors">
             <span className="inline-block w-[16px] h-[11px] relative">
               <span className="absolute left-0 right-0 top-0 h-[1.5px] bg-current" />
               <span className="absolute left-0 right-0 top-[5px] h-[1.5px] bg-current" />
@@ -71,21 +75,21 @@ export async function SiteHeader() {
             </span>
             MENU
           </Link>
-          <Link href="/busca" className="text-vp-text font-sans text-[12px] font-semibold flex items-center gap-[6px] hover:text-vp-accent">
+          <Link href="/busca" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-[6px] hover:text-vp-accent transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             BUSCAR
           </Link>
         </div>
 
         <Link href="/" className="flex flex-col items-center gap-[4px] no-underline group">
-          <BrandLogo size="lg" className="transition-transform group-hover:scale-[1.02]" />
-          <div className="font-sans font-bold text-[11px] uppercase tracking-[0.15em] text-vp-text-3 mt-1">
+          <Monogram size="lg" className="transition-transform group-hover:scale-[1.02]" />
+          <div className="font-serif italic text-[13px] text-vp-text-2 tracking-[0.02em] mt-1">
             {settings['SITE_TAGLINE'] || 'Jornalismo independente de Mato Grosso do Sul'}
           </div>
         </Link>
 
         <div className="flex gap-[12px] justify-end items-center font-sans text-[11px] text-vp-text-3">
-          <span className="uppercase tracking-[0.08em]">Siga</span>
+          <span className="uppercase tracking-[0.08em] font-semibold">Siga</span>
           {[
             { k: 'FB', url: settings['SOCIAL_FB'] },
             { k: 'IG', url: settings['SOCIAL_IG'] },
@@ -100,13 +104,13 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      {/* Nav — Padding e fonte exatos da referência */}
+      {/* 3. Nav Row */}
       <nav className="flex border-t border-vp-border overflow-x-auto px-[20px] scrollbar-hide">
         {dbSections.map((s, i) => (
           <Link 
             key={s.id} 
             href={`/editoria/${s.slug}`} 
-            className={`text-[12px] font-semibold tracking-[0.04em] uppercase whitespace-nowrap py-[11px] px-[14px] border-b-2 transition-all font-sans ${i === 0 ? 'text-vp-accent border-vp-accent' : 'text-vp-text-2 border-transparent hover:text-vp-text hover:border-vp-border-2'}`}
+            className={`text-[12px] font-bold tracking-[0.04em] uppercase whitespace-nowrap py-[11px] px-[14px] border-b-2 transition-all font-sans ${i === 0 ? 'text-vp-accent border-vp-accent' : 'text-vp-text-2 border-transparent hover:text-vp-text hover:border-vp-border-2'}`}
           >
             {s.name}
           </Link>
@@ -115,3 +119,4 @@ export async function SiteHeader() {
     </header>
   );
 }
+

@@ -122,7 +122,7 @@ export async function Home() {
           articles={articles}
           activeAlert={activeAlert}
           featuredSeries={featuredSeries as any}
-          activePodcast={activePodcast}
+          mostRead={mostRead}
         />
       </div>
     </main>

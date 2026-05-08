@@ -1,8 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 import Link from 'next/link';
-import { BrandLogo } from '@/components/shared/BrandLogo';
+import { Monogram } from '@/components/shared/Monogram';
 
+/**
+ * SiteFooter — Rodapé principal do portal.
+ * Rigorosamente fiel ao design clássico editorial.
+ */
 export async function SiteFooter() {
   let settings: Record<string, string> = {};
   let dbSections: any[] = [];
@@ -26,22 +30,22 @@ export async function SiteFooter() {
     <footer className="hidden md:block border-t-2 border-vp-text bg-vp-bg font-sans text-[12px] text-vp-text-3 px-[28px] pt-[32px] pb-[24px]">
       <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-[28px] mb-[28px]">
         <div>
-          <BrandLogo size="md" className="mb-[12px]" />
+          <Monogram size="md" className="mb-[12px]" />
           <p className="leading-[1.6] text-vp-text-2 font-serif text-[14px] mt-[12px]">
-            {settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência.'}
+            {settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
           </p>
           <div className="mt-[14px] flex gap-[8px]">
             <Link href="/apoiar" className="no-underline">
-              <button className="vp-btn vp-btn-primary text-[11px]">Faça uma doação</button>
+              <button className="vp-btn vp-btn-primary text-[11px] font-bold">Faça uma doação</button>
             </Link>
             <Link href="/newsletter" className="no-underline">
-              <button className="vp-btn text-[11px]">Assine a newsletter</button>
+              <button className="vp-btn text-[11px] font-bold">Assine a newsletter</button>
             </Link>
           </div>
         </div>
         
         <div>
-          <h4 className="text-[11px] uppercase tracking-[0.1em] text-vp-text mb-[10px]">Editorias</h4>
+          <h4 className="text-[11px] font-bold uppercase tracking-[0.1em] text-vp-text mb-[10px]">Editorias</h4>
           <ul className="list-none p-0 m-0 grid gap-[6px]">
             {dbSections.map(s => (
               <li key={s.id}>
@@ -54,7 +58,7 @@ export async function SiteFooter() {
         </div>
         
         <div>
-          <h4 className="text-[11px] uppercase tracking-[0.1em] text-vp-text mb-[10px]">Institucional</h4>
+          <h4 className="text-[11px] font-bold uppercase tracking-[0.1em] text-vp-text mb-[10px]">Institucional</h4>
           <ul className="list-none p-0 m-0 grid gap-[6px]">
             {['Quem somos','Princípios editoriais','Política de correções','Contato','Anuncie','Trabalhe conosco'].map(x => (
               <li key={x}><a className="hover:text-vp-accent transition-colors cursor-pointer">{x}</a></li>
@@ -63,9 +67,9 @@ export async function SiteFooter() {
         </div>
         
         <div>
-          <h4 className="text-[11px] uppercase tracking-[0.1em] text-vp-text mb-[10px]">Envie sua denúncia</h4>
+          <h4 className="text-[11px] font-bold uppercase tracking-[0.1em] text-vp-text mb-[10px]">Envie sua denúncia</h4>
           <p className="leading-[1.5] mb-[10px]">Canal criptografado para whistleblowers. Protegemos suas fontes.</p>
-          <a className="text-vp-accent font-semibold hover:text-vp-accent-hover transition-colors cursor-pointer">
+          <a className="text-vp-accent font-bold hover:text-vp-accent-hover transition-colors cursor-pointer">
             {settings['CONTACT_EMAIL'] || 'denuncia@vozpublicams.com.br'} →
           </a>
         </div>
@@ -73,8 +77,9 @@ export async function SiteFooter() {
       
       <div className="border-t border-vp-border flex justify-between text-[11px] pt-[16px]">
         <span>© 2026 Voz Pública MS · Campo Grande, MS · CNPJ 00.000.000/0001-00</span>
-        <span className="font-mono text-vp-text-4">vozpublicams.com.br</span>
+        <span className="font-mono text-vp-text-4 uppercase">vozpublicams.com.br</span>
       </div>
     </footer>
   );
 }
+

@@ -1,9 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Article, User, Section } from '@prisma/client';
 import { ImgPH } from '@/components/shared/ImgPH';
-import Image from 'next/image';
+import { Eyebrow } from '@/components/shared/Eyebrow';
+import { Headline } from '@/components/shared/Headline';
 import { SafeImage } from '@/components/shared/SafeImage';
 
 type ArticleWithRelations = Article & {
@@ -11,85 +12,107 @@ type ArticleWithRelations = Article & {
   section: Section;
 };
 
+/**
+ * MobileArticle — Página de visualização de matéria para mobile.
+ * Implementa drop-cap editorial, barra de leitura e controles de texto.
+ */
 export function MobileArticle({ article }: { article: ArticleWithRelations }) {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (window.scrollY / totalHeight) * 100;
+      setScrollProgress(progress);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   if (!article) return null;
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-vp-bg max-w-[480px] mx-auto border-x border-vp-border relative">
-      {/* Top minimal bar with progress */}
+    <div className="flex flex-col min-h-screen bg-vp-bg md:hidden">
+      {/* 1. Top minimal bar with progress */}
       <div className="sticky top-0 z-50 bg-vp-bg border-b border-vp-border">
         <div className="flex items-center px-4 py-3 gap-3">
           <button 
             aria-label="Voltar" 
-            className="bg-transparent border-none text-vp-text p-0 cursor-pointer hover:text-vp-accent"
+            className="text-vp-text p-0 transition-colors hover:text-vp-accent"
             onClick={() => window.history.back()}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 6l-6 6 6 6"/></svg>
           </button>
-          <span className="eyebrow flex-1 text-[9px] truncate">{article.section?.name || 'Geral'} {article.eyebrow && `· ${article.eyebrow}`}</span>
-          <button aria-label="Ajustar texto" className="bg-transparent border-none text-vp-text text-[16px] p-0 cursor-pointer hover:text-vp-accent">Aa</button>
-          <button aria-label="Salvar" className="bg-transparent border-none text-vp-text p-0 cursor-pointer hover:text-vp-accent">
+          <div className="flex-1 overflow-hidden">
+            <Eyebrow className="text-[9px] truncate block">
+              {article.section?.name || 'Geral'} {article.eyebrow && `· ${article.eyebrow}`}
+            </Eyebrow>
+          </div>
+          <button aria-label="Ajustar tamanho do texto" className="text-vp-text text-[16px] font-serif p-0 hover:text-vp-accent">Aa</button>
+          <button className="text-vp-text p-0 hover:text-vp-accent">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h12v18l-6-4-6 4z"/></svg>
           </button>
         </div>
         <div className="h-[2px] bg-vp-border w-full">
-          <div className="w-[34%] h-full bg-vp-accent transition-all duration-300" />
+          <div 
+            className="h-full bg-vp-accent transition-all duration-150" 
+            style={{ width: `${scrollProgress}%` }}
+          />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto vp-scroll">
-        <article className="px-[18px] pt-[18px] pb-6">
-          <span className="eyebrow text-[10px]">{article.eyebrow || article.section?.name || 'Geral'} · {article.readTimeMin || 5} min de leitura</span>
-          <h1 className="font-display text-[30px] leading-[1.05] my-2.5 tracking-[-0.015em] text-balance">
+      <main className="flex-1 pb-16">
+        <article className="px-[18px] pt-6">
+          <Eyebrow className="text-[10px] mb-2.5">
+            {article.eyebrow || article.section?.name || 'Geral'} · {article.readTimeMin || 5} min de leitura
+          </Eyebrow>
+          
+          <Headline as="h1" size="article" hoverAccent={false} className="!text-[30px] !leading-[1.1] mb-3.5">
             {article.title}
-          </h1>
-          <p className="font-serif italic text-[16px] text-vp-text-2 leading-[1.45] mb-4 text-pretty">
+          </Headline>
+          
+          <p className="font-serif italic text-[16px] text-vp-text-2 leading-[1.45] mb-4">
             {article.lead}
           </p>
 
           <div className="flex items-center gap-3 py-3 border-y border-vp-border mb-[18px]">
-            {article.authors[0]?.avatar ? (
-              <div className="relative w-[36px] h-[36px] overflow-hidden rounded-full shrink-0">
-                <SafeImage 
-                  src={article.authors[0].avatar} 
-                  alt="" 
-                  fill
-                  className="object-cover"
-                />
+            {article.authors?.[0]?.avatar ? (
+              <div className="relative w-9 h-9 overflow-hidden rounded-full shrink-0">
+                <SafeImage src={article.authors[0].avatar} alt="" fill className="object-cover" />
               </div>
             ) : (
-              <ImgPH label="" width={36} height={36} style={{ borderRadius: '50%' }} />
+              <ImgPH label="" width={36} height={36} className="rounded-full" />
             )}
             <div className="flex-1">
-              <div className="font-sans text-[12px] font-semibold">{article.authors?.length > 0 ? article.authors.map(a => a.name).join(' e ') : 'Redação'}</div>
-              <div className="byline text-[11px]">
-                {article.publishedAt && !isNaN(new Date(article.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(article.publishedAt)) : 'Recente'}
+              <div className="font-sans text-[12px] font-bold text-vp-text">
+                {article.authors?.length > 0 ? article.authors.map(a => a.name).join(' e ') : 'Redação'}
+              </div>
+              <div className="font-sans text-[11px] text-vp-text-3">
+                {article.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(article.publishedAt)) : 'Recente'}
               </div>
             </div>
-            <button aria-label="Compartilhar" className="bg-transparent border-none text-vp-text-3 p-0 cursor-pointer hover:text-vp-accent">
+            <button aria-label="Compartilhar matéria" className="text-vp-text-3 p-0 hover:text-vp-accent">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
             </button>
           </div>
 
-          {article.heroImage ? (
-            <div className="relative w-full aspect-[16/9] mb-2 overflow-hidden rounded-sm">
-              <SafeImage 
-                src={article.heroImage} 
-                alt={article.title} 
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          ) : (
-            <ImgPH label={article.eyebrow || 'capa'} height={220} style={{ marginBottom: 8 }} />
-          )}
-          {article.heroCaption && (
-            <div className="meta italic mb-[22px] text-[11px]">{article.heroCaption}</div>
-          )}
+          <div className="mb-8">
+            {article.heroImage ? (
+              <div className="relative w-full aspect-[16/10] mb-2 overflow-hidden rounded-[2px]">
+                <SafeImage src={article.heroImage} alt={article.title} fill className="object-cover" priority />
+              </div>
+            ) : (
+              <ImgPH label="foto" height={220} className="mb-2" />
+            )}
+            {article.heroCaption && (
+              <p className="font-serif italic text-[11px] text-vp-text-3 leading-relaxed">
+                {article.heroCaption}
+              </p>
+            )}
+          </div>
 
           <div 
-            className="font-serif text-[17px] leading-[1.65] text-vp-text article-body"
+            className="font-serif text-[17px] leading-[1.65] text-vp-text vp-article-content"
             dangerouslySetInnerHTML={{ 
               __html: typeof article.body === 'string' 
                 ? article.body 
@@ -98,21 +121,35 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
           />
         </article>
 
-        {/* Comments preview */}
-        <div className="p-5 border-t border-vp-border bg-vp-surface">
-          <h3 className="font-display text-[17px] mb-2.5">Comentários · {article.views > 10 ? '47' : '0'}</h3>
-          <button className="vp-btn w-full text-[12px]">Ver e participar</button>
-        </div>
-      </div>
+        {/* 2. Comments preview */}
+        <section className="px-4 py-8 border-t border-vp-border bg-vp-surface mt-8">
+          <Headline as="h3" size="h3" hoverAccent={false} className="!text-[18px] mb-4">
+            Comentários · 47
+          </Headline>
+          <button className="vp-btn w-full text-[12px] font-bold py-3">
+            Ver e participar da conversa
+          </button>
+        </section>
+      </main>
 
-      {/* Sticky bottom action bar */}
-      <div className="border-t border-vp-border bg-vp-bg grid grid-cols-4 py-2 sticky bottom-0 z-50">
-        {[['▲', article.views > 100 ? '128' : '0'],['↗','Compart.'],['❝','Citar'],['⌃','+']].map(([i,l],idx) => (
-          <button key={idx} className="bg-transparent border-none text-vp-text-2 flex flex-col items-center gap-[2px] p-1 font-sans text-[10px] cursor-pointer hover:text-vp-text">
-            <span className="text-[14px]">{i}</span><span>{l}</span>
+      {/* 3. Sticky bottom action bar */}
+      <nav className="fixed bottom-0 left-0 right-0 border-t border-vp-border bg-vp-bg grid grid-cols-4 py-2 z-50">
+        {[
+          { i: '▲', l: '128' },
+          { i: '↗', l: 'Compart.' },
+          { i: '❝', l: 'Citar' },
+          { i: '⌃', l: '+' }
+        ].map((btn, idx) => (
+          <button 
+            key={idx} 
+            className="text-vp-text-2 flex flex-col items-center gap-[2px] p-1 font-sans text-[10px] font-bold hover:text-vp-accent transition-colors"
+          >
+            <span className="text-[16px] leading-none">{btn.i}</span>
+            <span className="uppercase tracking-wider">{btn.l}</span>
           </button>
         ))}
-      </div>
+      </nav>
     </div>
   );
 }
+

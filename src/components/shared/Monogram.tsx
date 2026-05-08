@@ -1,31 +1,43 @@
 import React from 'react';
 
-export function Monogram({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const height = size === 'lg' ? 40 : size === 'sm' ? 24 : 32;
-  const fontSize = size === 'lg' ? 24 : size === 'sm' ? 14 : 18;
-  const barHeight = size === 'lg' ? 24 : size === 'sm' ? 14 : 18;
+interface MonogramProps {
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number;
+  className?: string;
+}
+
+/**
+ * VP | MS Monogram — Componente central da identidade visual.
+ * Proporções rigorosamente fiéis ao design original.
+ */
+export function Monogram({ size = 'md', className = '' }: MonogramProps) {
+  const fs = typeof size === 'number' 
+    ? size 
+    : size === 'lg' ? 28 : size === 'sm' ? 14 : size === 'xl' ? 56 : 20;
 
   return (
     <div 
-      className="flex items-center gap-2 select-none" 
-      style={{ height: `${height}px` }}
+      className={`vp-monogram ${className}`} 
+      style={{ fontSize: fs }}
     >
       <span 
-        className="font-display font-bold text-vp-text" 
-        style={{ fontSize: `${fontSize}px`, lineHeight: 1 }}
+        className="m-l" 
+        style={{ 
+          padding: `${fs * 0.25}px ${fs * 0.4}px ${fs * 0.22}px`, 
+          fontSize: fs 
+        }}
       >
         VP
       </span>
-      <div 
-        className="w-[2px] bg-vp-accent" 
-        style={{ height: `${barHeight}px` }} 
-      />
       <span 
-        className="font-sans font-semibold text-vp-text tracking-tight" 
-        style={{ fontSize: `${fontSize * 0.85}px`, lineHeight: 1 }}
+        className="m-r" 
+        style={{ 
+          padding: `${fs * 0.35}px ${fs * 0.4}px ${fs * 0.2}px`, 
+          fontSize: fs * 0.55 
+        }}
       >
         MS
       </span>
     </div>
   );
 }
+

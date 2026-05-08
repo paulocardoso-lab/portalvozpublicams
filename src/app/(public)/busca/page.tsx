@@ -1,5 +1,8 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
+import { DesktopSearch } from '@/components/search/DesktopSearch';
+import { MobileMasthead } from '@/components/layout/MobileMasthead';
+import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -23,65 +26,62 @@ export default async function SearchPage({
       authors: true,
     },
     orderBy: { publishedAt: 'desc' },
-    take: 20,
+    take: 30,
   }) : [];
 
   return (
-    <main className="max-w-[800px] mx-auto px-6 py-12 min-h-[60vh]">
-      <div className="mb-12 border-b border-vp-border pb-8">
-        <h1 className="font-display text-[42px] mb-6 tracking-tight">Buscar no Voz Pública</h1>
-        <form action="/busca" method="GET" className="flex gap-2">
-          <input 
-            name="q" 
-            defaultValue={q}
-            placeholder="Digite palavras-chave..." 
-            className="vp-input text-[18px] py-3 px-4 flex-1"
-            autoFocus
-          />
-          <button type="submit" className="vp-btn vp-btn-primary px-8 text-[14px]">
-            BUSCAR
-          </button>
-        </form>
+    <>
+      {/* Desktop Version */}
+      <div className="hidden lg:block">
+        <DesktopSearch query={q || ''} results={results as any} />
       </div>
 
-      <div className="space-y-10">
-        {q && results.length === 0 && (
-          <p className="text-vp-text-3 italic">Nenhum resultado encontrado para &quot;{q}&quot;.</p>
-        )}
+      {/* Mobile Version */}
+      <div className="lg:hidden flex flex-col min-h-screen bg-vp-bg w-full">
+        <MobileMasthead />
+        
+        <div className="px-4 py-8 border-b border-vp-border">
+          <h1 className="font-display text-[32px] mb-4">Busca</h1>
+          <form action="/busca" method="GET" className="flex gap-2">
+            <input 
+              name="q" 
+              defaultValue={q}
+              placeholder="Pesquisar..." 
+              className="vp-input text-[16px] py-2.5 px-4 flex-1"
+            />
+            <button type="submit" className="vp-btn vp-btn-primary px-5 text-[12px] font-bold">
+              IR
+            </button>
+          </form>
+        </div>
 
-        {results.map(article => (
-          <article key={article.id} className="group border-b border-vp-border pb-8 last:border-0 grid md:grid-cols-[1fr_180px] gap-8">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-[11px] font-bold text-vp-accent uppercase tracking-wider">
+        <div className="px-4 py-6 flex flex-col gap-6 pb-24">
+          {q && results.length === 0 && (
+            <p className="text-vp-text-3 italic text-center py-10">
+              Nenhum resultado para &quot;{q}&quot;
+            </p>
+          )}
+
+          {results.map(article => (
+            <article key={article.id} className="pb-6 border-b border-vp-border">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-vp-accent uppercase tracking-wider mb-1">
                 {article.section?.name}
               </div>
-              <Link href={`/${article.slug}`} className="no-underline">
-                <h2 className="font-display text-[26px] leading-tight text-vp-text group-hover:text-vp-accent transition-colors">
+              <Link href={`/materia/${article.slug}`}>
+                <h2 className="font-display text-[22px] leading-tight mb-2">
                   {article.title}
                 </h2>
               </Link>
-              <p className="text-vp-text-2 text-[15px] leading-relaxed line-clamp-2">
+              <p className="font-serif text-[14px] text-vp-text-2 line-clamp-2">
                 {article.lead}
               </p>
-              <div className="text-[11px] text-vp-text-3 font-sans">
-                {article.authors.map(a => a.name).join(', ')} • {article.publishedAt?.toLocaleDateString('pt-BR')}
-              </div>
-            </div>
-            {article.heroImage && (
-              <Link href={`/${article.slug}`} className="hidden md:block">
-                <div className="relative w-full aspect-[4/3] overflow-hidden rounded-sm">
-                  <Image 
-                    src={article.heroImage} 
-                    alt={article.title} 
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-              </Link>
-            )}
-          </article>
-        ))}
+            </article>
+          ))}
+        </div>
+
+        <MobileTabBar active="search" />
       </div>
-    </main>
+    </>
   );
 }
+
