@@ -1,29 +1,39 @@
 import { PrismaClient } from "@prisma/client"
+import { Pool } from "pg"
+import { PrismaPg } from "@prisma/adapter-pg"
 
 const prismaClientSingleton = () => {
-  // Se estivermos em build ou sem URL de banco, retornamos um objeto vazio
-  // para evitar que o Next.js trave a compilação de páginas estáticas
+  // Verificação de segurança para Build e Ambiente sem DB
   if (process.env.NEXT_PHASE === 'phase-production-build' || !process.env.DATABASE_URL) {
-    return {} as PrismaClient;
+    const createSafeProxy = (path: string = ''): any => {
+      const proxy = new Proxy(() => {}, {
+        get: (target, prop) => {
+          if (prop === 'then' || prop === 'catch' || prop === 'finally' || typeof prop === 'symbol') return undefined;
+          return createSafeProxy(`${path}.${String(prop)}`);
+        },
+        apply: (target, thisArg, args) => {
+          if (path.toLowerCase().includes('many') || path.toLowerCase().includes('find')) return Promise.resolve([]);
+          return Promise.resolve(null);
+        }
+      });
+      return proxy;
+    };
+    return createSafeProxy('prisma') as PrismaClient;
   }
-  return new PrismaClient()
-}
+  
+  // No Prisma 7, é necessário configurar explicitamente o adaptador ou a URL no construtor
+  // quando ela não está presente no schema.prisma
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
+};
 
-declare const globalThis: {
-  prisma: ReturnType<typeof prismaClientSingleton> | undefined;
-} & typeof global;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-export const prisma = new Proxy({} as PrismaClient, {
-  get(target, prop, receiver) {
-    if (!globalThis.prisma || Object.keys(globalThis.prisma).length === 0) {
-      globalThis.prisma = prismaClientSingleton()
-    }
-    const value = Reflect.get(globalThis.prisma, prop, receiver)
-    if (typeof value === 'function') {
-      return value.bind(globalThis.prisma)
-    }
-    return value
-  }
-})
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
-export default prisma
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+export default prisma;

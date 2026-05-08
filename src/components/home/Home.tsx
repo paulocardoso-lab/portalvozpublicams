@@ -4,96 +4,102 @@ import { DesktopHome } from './DesktopHome';
 import { MobileHome } from './MobileHome';
 
 export async function Home() {
-  // Fetch data for both views
-  const articles = await prisma.article.findMany({
-    where: { status: 'PUBLISHED' },
-    include: {
-      authors: true,
-      section: true,
-    },
-    orderBy: { publishedAt: 'desc' },
-    take: 10,
-  });
+  let articles: any[] = [];
+  let columnists: any[] = [];
+  let activeAlert: any = null;
+  let featuredSeries: any = null;
+  let activePodcast: any = null;
+  let agendaEvents: any[] = [];
+  let politica: any[] = [];
+  let economia: any[] = [];
+  let cidades: any[] = [];
+  let mostRead: any[] = [];
+  const newsletterCount = 1240;
 
-  const columnists = await prisma.user.findMany({
-    where: { 
-      role: { in: ['COLUMNIST', 'REPORTER'] },
-      status: 'ACTIVE'
-    },
-    include: {
-      articles: {
+  try {
+    const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
+    const todayEnd = new Date(new Date().setHours(23, 59, 59, 999));
+
+    const [
+      fetchedArticles,
+      fetchedColumnists,
+      fetchedAlert,
+      fetchedSeries,
+      fetchedPodcast,
+      fetchedAgenda,
+      fetchedPolitica,
+      fetchedEconomia,
+      fetchedCidades,
+      fetchedMostRead
+    ] = await Promise.all([
+      prisma.article.findMany({
         where: { status: 'PUBLISHED' },
+        include: { authors: true, section: true },
         orderBy: { publishedAt: 'desc' },
-        take: 1,
-      }
-    },
-    take: 4,
-  });
-
-  const activeAlert = await prisma.alert.findFirst({
-    where: { isActive: true },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  const featuredSeries = await prisma.series.findFirst({
-    include: {
-      articles: {
-        where: { status: 'PUBLISHED' },
-        orderBy: { publishedAt: 'desc' },
+        take: 10,
+      }),
+      prisma.user.findMany({
+        where: { role: { in: ['COLUMNIST', 'REPORTER'] }, status: 'ACTIVE' },
+        include: { articles: { where: { status: 'PUBLISHED' }, orderBy: { publishedAt: 'desc' }, take: 1 } },
         take: 4,
-      }
-    }
-  });
+      }),
+      prisma.alert.findFirst({
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.series.findFirst({
+        include: { articles: { where: { status: 'PUBLISHED' }, orderBy: { publishedAt: 'desc' }, take: 4 } }
+      }),
+      prisma.podcastEpisode.findFirst({
+        where: { isActive: true },
+        orderBy: { publishedAt: 'desc' },
+      }),
+      prisma.agendaEvent.findMany({
+        where: { date: { gte: todayStart, lt: todayEnd } },
+        orderBy: { time: 'asc' },
+        take: 5,
+      }),
+      prisma.article.findMany({
+        where: { status: 'PUBLISHED', section: { slug: 'politica' } },
+        include: { authors: true, section: true },
+        orderBy: { publishedAt: 'desc' },
+        take: 3,
+      }),
+      prisma.article.findMany({
+        where: { status: 'PUBLISHED', section: { slug: 'economia' } },
+        include: { authors: true, section: true },
+        orderBy: { publishedAt: 'desc' },
+        take: 3,
+      }),
+      prisma.article.findMany({
+        where: { status: 'PUBLISHED', section: { slug: 'cidades' } },
+        include: { authors: true, section: true },
+        orderBy: { publishedAt: 'desc' },
+        take: 3,
+      }),
+      prisma.article.findMany({
+        where: { status: 'PUBLISHED' },
+        orderBy: { views: 'desc' },
+        take: 5,
+      })
+    ]);
 
-  const activePodcast = await prisma.podcastEpisode.findFirst({
-    where: { isActive: true },
-    orderBy: { publishedAt: 'desc' },
-  });
-
-  const agendaEvents = await prisma.agendaEvent.findMany({
-    where: {
-      date: {
-        gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        lt: new Date(new Date().setHours(23, 59, 59, 999)),
-      }
-    },
-    orderBy: { time: 'asc' },
-    take: 5,
-  });
-
-  const politica = await prisma.article.findMany({
-    where: { status: 'PUBLISHED', section: { slug: 'politica' } },
-    include: { authors: true, section: true },
-    orderBy: { publishedAt: 'desc' },
-    take: 3,
-  });
-
-  const economia = await prisma.article.findMany({
-    where: { status: 'PUBLISHED', section: { slug: 'economia' } },
-    include: { authors: true, section: true },
-    orderBy: { publishedAt: 'desc' },
-    take: 3,
-  });
-
-  const cidades = await prisma.article.findMany({
-    where: { status: 'PUBLISHED', section: { slug: 'cidades' } },
-    include: { authors: true, section: true },
-    orderBy: { publishedAt: 'desc' },
-    take: 3,
-  });
-
-  // Most read (simulated for now by views)
-  const mostRead = await prisma.article.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { views: 'desc' },
-    take: 5,
-  });
-
-  const newsletterCount = 1240; // Simulated static count
+    articles = fetchedArticles || [];
+    columnists = fetchedColumnists || [];
+    activeAlert = fetchedAlert;
+    featuredSeries = fetchedSeries;
+    activePodcast = fetchedPodcast;
+    agendaEvents = fetchedAgenda || [];
+    politica = fetchedPolitica || [];
+    economia = fetchedEconomia || [];
+    cidades = fetchedCidades || [];
+    mostRead = fetchedMostRead || [];
+  } catch (error) {
+    console.error('Home data fetch error:', error);
+  }
 
   return (
     <main className="w-full">
-      {/* Desktop View */}
       <div className="hidden lg:block">
         <DesktopHome 
           articles={articles}
@@ -110,7 +116,6 @@ export async function Home() {
         />
       </div>
 
-      {/* Mobile View */}
       <div className="block lg:hidden">
         <MobileHome 
           articles={articles}
