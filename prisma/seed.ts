@@ -51,11 +51,11 @@ async function main() {
   })
 
   const admin = await prisma.user.upsert({
-    where: { email: 'girassolinteligencia@gmail.com' },
+    where: { email: 'paulofernandogarciacardoso@gmail.com' },
     update: {},
     create: {
-      email: 'girassolinteligencia@gmail.com',
-      name: 'Girassol Admin',
+      email: 'paulofernandogarciacardoso@gmail.com',
+      name: 'Paulo Cardoso',
       role: 'SUPER_ADMIN',
       status: 'ACTIVE',
     },

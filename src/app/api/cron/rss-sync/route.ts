@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { syncFeed } from '@/lib/rss-engine';
 
+export const dynamic = 'force-dynamic';
+
 // Vercel Cron: https://vercel.com/docs/cron-jobs
 export async function GET(request: Request) {
   // Verificar token de segurança (configurar no Vercel)
@@ -11,6 +13,18 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Chave geral: Verifica se o RSS está habilitado nas configurações do site
+    const rssSetting = await prisma.siteSetting.findUnique({
+      where: { key: 'ENABLE_RSS' }
+    });
+
+    if (rssSetting?.value !== 'true') {
+      return NextResponse.json({ 
+        success: true, 
+        message: 'RSS sync is currently disabled globally.' 
+      });
+    }
+
     const activeFeeds = await prisma.rSSFeed.findMany({
       where: { isActive: true },
       select: { id: true }

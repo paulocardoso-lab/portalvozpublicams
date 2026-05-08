@@ -7,6 +7,7 @@ import { AdSlot } from '@/components/shared/AdSlot';
 import { NewsletterCounter } from '@/components/shared/NewsletterCounter';
 import { NewsletterSection } from '@/components/sections/NewsletterSection';
 import Image from 'next/image';
+import { SafeImage } from '@/components/shared/SafeImage';
 
 import { Article, User, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
 
@@ -60,7 +61,7 @@ export function DesktopHome({
           <span className="text-vp-text font-semibold hover:text-vp-accent transition-colors">
             {activeAlert.message}
           </span>
-          {activeAlert.updatedAt && (
+          {activeAlert.updatedAt && !isNaN(new Date(activeAlert.updatedAt).getTime()) && (
             <span className="text-vp-text-3 ml-auto shrink-0 hidden md:inline">
               atualizado às {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(activeAlert.updatedAt))}
             </span>
@@ -82,7 +83,7 @@ export function DesktopHome({
             {hero ? (
               <Link href={`/${hero.slug}`} className="grid grid-cols-[1.1fr_1fr] gap-7 no-underline">
                 <div>
-                  <span className="eyebrow text-[10px]">{hero.eyebrow || hero.section.name}</span>
+                  <span className="eyebrow text-[10px]">{hero.eyebrow || hero.section?.name || 'Geral'}</span>
                   <h1 className="font-display text-[46px] leading-[1.05] mt-2.5 mb-3.5 tracking-[-0.01em] hover:text-vp-accent transition-colors">
                     {hero.title}
                   </h1>
@@ -90,12 +91,12 @@ export function DesktopHome({
                     {hero.lead}
                   </p>
                   <div className="byline text-[11px]">
-                    Por {hero.authors.map((a, i) => (
+                    Por {hero.authors?.length > 0 ? hero.authors.map((a, i) => (
                       <React.Fragment key={a.id}>
                         <strong className="text-vp-text">{a.name}</strong>
                         {i < hero.authors.length - 1 && ' e '}
                       </React.Fragment>
-                    ))} · {hero.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(hero.publishedAt)) : 'Recente'}
+                    )) : <strong className="text-vp-text">Redação</strong>} · {hero.publishedAt && !isNaN(new Date(hero.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(hero.publishedAt)) : 'Recente'}
                   </div>
                 </div>
                 <div>
@@ -127,7 +128,7 @@ export function DesktopHome({
                 <Link href={`/${x.slug}`} className="no-underline">
                   {x.heroImage ? (
                     <div className="relative w-full h-[150px] overflow-hidden rounded-sm mb-3">
-                      <Image 
+                      <SafeImage 
                         src={x.heroImage} 
                         alt={x.title} 
                         fill
@@ -137,12 +138,12 @@ export function DesktopHome({
                   ) : (
                     <ImgPH label={x.eyebrow || x.section.name} height={150} style={{ marginBottom: 12 }} />
                   )}
-                  <span className="eyebrow text-[10px]">{x.eyebrow || x.section.name}</span>
+                  <span className="eyebrow text-[10px]">{x.eyebrow || x.section?.name || 'Geral'}</span>
                   <h3 className="font-display text-[19px] leading-[1.15] mt-1.5 mb-2 hover:text-vp-accent cursor-pointer transition-colors">{x.title}</h3>
                   <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] text-pretty line-clamp-3">{x.lead}</p>
                 </Link>
                 <div className="byline text-[11px] mt-2.5">
-                  {x.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(x.publishedAt)) : 'Recente'} · {x.readTimeMin || 4} min de leitura
+                  {x.publishedAt && !isNaN(new Date(x.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(x.publishedAt)) : 'Recente'} · {x.readTimeMin || 4} min de leitura
                 </div>
               </article>
             ))}
@@ -166,7 +167,7 @@ export function DesktopHome({
                     <Link href={`/${featuredSeries.articles[0].slug}`} className="no-underline">
                       {featuredSeries.articles[0].heroImage ? (
                         <div className="relative w-full h-[260px] overflow-hidden rounded-sm mb-3.5">
-                          <Image 
+                          <SafeImage 
                             src={featuredSeries.articles[0].heroImage} 
                             alt={featuredSeries.articles[0].title} 
                             fill
@@ -195,7 +196,7 @@ export function DesktopHome({
                       <Link href={`/${art.slug}`} className="grid grid-cols-[70px_1fr] gap-3.5 no-underline">
                         {art.heroImage ? (
                           <div className="relative w-[70px] h-[70px] overflow-hidden rounded-sm shrink-0">
-                            <Image 
+                            <SafeImage 
                               src={art.heroImage} 
                               alt={art.title} 
                               fill
@@ -242,7 +243,7 @@ export function DesktopHome({
                         <h4 className="font-display text-[16px] leading-[1.2] mb-1.5 hover:text-vp-accent cursor-pointer text-balance">{art.title}</h4>
                       </Link>
                       <div className="byline text-[11px]">
-                        por {art.authors[0]?.name || 'Redação'} · {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : 'Recente'}
+                        por {art.authors?.[0]?.name || 'Redação'} · {art.publishedAt && !isNaN(new Date(art.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : 'Recente'}
                       </div>
                     </li>
                   ))}
@@ -263,7 +264,7 @@ export function DesktopHome({
                 <article key={c.id} className="grid grid-cols-[52px_1fr] gap-3">
                   {c.avatar ? (
                     <div className="relative w-[52px] h-[52px] overflow-hidden rounded-full shrink-0">
-                      <Image 
+                      <SafeImage 
                         src={c.avatar} 
                         alt={c.name} 
                         fill
@@ -309,7 +310,7 @@ export function DesktopHome({
                 <>
                   {activePodcast.coverImage ? (
                     <div className="relative w-full h-[200px] overflow-hidden rounded-[2px] mb-3.5 border border-vp-border">
-                      <Image 
+                      <SafeImage 
                         src={activePodcast.coverImage} 
                         alt={activePodcast.title} 
                         fill
@@ -321,7 +322,7 @@ export function DesktopHome({
                   )}
                   <div className="font-sans text-[11px] text-vp-text-3 tracking-[0.08em] uppercase">
                     {activePodcast.duration ? `${activePodcast.duration}` : 'Novo episódio'} 
-                    {activePodcast.publishedAt && ` · ${new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(activePodcast.publishedAt))}`}
+                    {activePodcast.publishedAt && !isNaN(new Date(activePodcast.publishedAt).getTime()) && ` · ${new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(activePodcast.publishedAt))}`}
                   </div>
                   <h4 className="font-display text-[22px] leading-[1.2] my-2 hover:text-vp-accent cursor-pointer line-clamp-2">
                     {activePodcast.title}

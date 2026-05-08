@@ -12,21 +12,30 @@ export async function SiteHeader() {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
-    year: 'numeric',
-    timeZone: 'America/Campo_Grande'
+    year: 'numeric'
   }).format(now);
 
-  const market = await getMarketData();
-  const weather = await getWeatherData();
+  let initialTickerData = { market: { usd: '5,12', boi: '353,80', soja: '122,51' }, weather: { temp: 28 } };
+  let settings: Record<string, string> = {};
+  let dbSections: any[] = [];
 
-  const initialTickerData = { market, weather };
+  try {
+    const [market, weather, siteSettings, sections] = await Promise.all([
+      getMarketData().catch(() => initialTickerData.market),
+      getWeatherData().catch(() => initialTickerData.weather),
+      getSiteSettings().catch(() => ({})),
+      prisma.section.findMany({
+        where: { showInMenu: true },
+        orderBy: { menuOrder: 'asc' }
+      }).catch(() => [])
+    ]);
 
-  const settings = await getSiteSettings();
-
-  const dbSections = await prisma.section.findMany({
-    where: { showInMenu: true },
-    orderBy: { menuOrder: 'asc' }
-  });
+    initialTickerData = { market, weather };
+    settings = siteSettings;
+    dbSections = sections;
+  } catch (error) {
+    console.error('Header data fetch error:', error);
+  }
   
   return (
     <header className="hidden md:block border-b border-vp-border bg-vp-bg sticky top-0 z-50">

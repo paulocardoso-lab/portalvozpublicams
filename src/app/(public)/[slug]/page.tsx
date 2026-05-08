@@ -100,6 +100,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     }
   };
 
+  // Serialização para componentes Client
+  const serializedArticle = JSON.parse(JSON.stringify(article));
+
   return (
     <>
       <script
@@ -108,7 +111,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       />
       <ViewLogger articleId={article.id} />
       <div className="md:hidden">
-        <MobileArticle article={article} />
+        <MobileArticle article={serializedArticle} />
       </div>
       <div className="hidden md:block">
         <DesktopArticle article={article} />
@@ -116,7 +119,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <div className="max-w-[1200px] mx-auto px-4 pb-20">
         <CommentSection 
           articleId={article.id} 
-          comments={article.comments} 
+          comments={serializedArticle.comments} 
           isLoggedIn={!!session} 
         />
       </div>

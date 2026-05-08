@@ -4,11 +4,17 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export async function getSiteSettings() {
-  const settings = await prisma.siteSetting.findMany();
-  return settings.reduce((acc, curr) => {
-    acc[curr.key] = curr.value;
-    return acc;
-  }, {} as Record<string, string>);
+  // try {
+  //   const settings = await prisma.siteSetting.findMany();
+  //   return settings.reduce((acc, curr) => {
+  //     acc[curr.key] = curr.value;
+  //     return acc;
+  //   }, {} as Record<string, string>);
+  // } catch (err) {
+  //   console.error('getSiteSettings failed:', err);
+  //   return {} as Record<string, string>;
+  // }
+  return {} as Record<string, string>;
 }
 
 export async function saveSiteSetting(key: string, value: string) {

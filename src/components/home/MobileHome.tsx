@@ -5,6 +5,7 @@ import { MobileEditoriaScroller } from '@/components/home/MobileEditoriaScroller
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import { ImgPH } from '@/components/shared/ImgPH';
 import Image from 'next/image';
+import { SafeImage } from '@/components/shared/SafeImage';
 
 import { Article, User, Section, Alert, Series, PodcastEpisode } from '@prisma/client';
 
@@ -55,7 +56,7 @@ export function MobileHome({
             <article className="px-4 py-[18px] border-b border-vp-border">
               {hero.heroImage ? (
                 <div className="relative w-full h-[200px] overflow-hidden rounded-sm mb-3">
-                  <Image 
+                  <SafeImage 
                     src={hero.heroImage} 
                     alt={hero.title} 
                     fill
@@ -64,9 +65,9 @@ export function MobileHome({
                   />
                 </div>
               ) : (
-                <ImgPH label={hero.eyebrow || hero.section.name} height={200} style={{ marginBottom: 12 }} />
+                <ImgPH label={hero.eyebrow || hero.section?.name || 'Geral'} height={200} style={{ marginBottom: 12 }} />
               )}
-              <span className="eyebrow text-[10px]">{hero.eyebrow || hero.section.name}</span>
+              <span className="eyebrow text-[10px]">{hero.eyebrow || hero.section?.name || 'Geral'}</span>
               <h1 className="font-display text-[24px] leading-[1.1] my-2 tracking-[-0.01em]">
                 {hero.title}
               </h1>
@@ -74,7 +75,7 @@ export function MobileHome({
                 {hero.lead}
               </p>
               <div className="byline">
-                {hero.authors.map(a => a.name).join(' e ')} · {hero.publishedAt ? new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(hero.publishedAt)) : 'Agora'}
+                {hero.authors?.length > 0 ? hero.authors.map(a => a.name).join(' e ') : 'Redação'} · {hero.publishedAt && !isNaN(new Date(hero.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(hero.publishedAt)) : 'Agora'}
               </div>
             </article>
           </Link>
@@ -98,15 +99,15 @@ export function MobileHome({
           <Link key={x.id} href={`/${x.slug}`} className="block no-underline">
             <article className="px-4 py-3.5 border-b border-vp-border grid grid-cols-[1fr_90px] gap-3">
               <div>
-                <span className="eyebrow text-[9px]">{x.eyebrow || x.section.name}</span>
+                <span className="eyebrow text-[9px]">{x.eyebrow || x.section?.name || 'Geral'}</span>
                 <h3 className="font-display text-[16px] leading-[1.2] my-1">{x.title}</h3>
                 <div className="byline text-[11px]">
-                  {x.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(x.publishedAt)) : 'Recente'} · {x.readTimeMin || 4} min
+                  {x.publishedAt && !isNaN(new Date(x.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(x.publishedAt)) : 'Recente'} · {x.readTimeMin || 4} min
                 </div>
               </div>
               {x.heroImage ? (
                 <div className="relative w-[90px] h-[80px] overflow-hidden rounded-sm shrink-0">
-                  <Image 
+                  <SafeImage 
                     src={x.heroImage} 
                     alt={x.title} 
                     fill
@@ -138,7 +139,7 @@ export function MobileHome({
                 <article className="px-4 pb-4 border-b border-vp-border">
                   {featuredSeries.articles[0].heroImage ? (
                     <div className="relative w-full h-[170px] overflow-hidden rounded-sm mb-2.5">
-                      <Image 
+                      <SafeImage 
                         src={featuredSeries.articles[0].heroImage} 
                         alt={featuredSeries.articles[0].title} 
                         fill
@@ -168,7 +169,7 @@ export function MobileHome({
               <div className="flex gap-4 items-center">
                 {activePodcast.coverImage ? (
                   <div className="relative w-14 h-14 overflow-hidden rounded-[2px] shrink-0">
-                    <Image 
+                    <SafeImage 
                       src={activePodcast.coverImage} 
                       alt="Capa" 
                       fill

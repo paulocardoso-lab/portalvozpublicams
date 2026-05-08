@@ -4,12 +4,23 @@ import Link from 'next/link';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
 export async function SiteFooter() {
-  const settings = await getSiteSettings();
-  const dbSections = await prisma.section.findMany({
-    where: { showInMenu: true },
-    orderBy: { menuOrder: 'asc' },
-    take: 8
-  });
+  let settings: Record<string, string> = {};
+  let dbSections: any[] = [];
+
+  try {
+    const [siteSettings, sections] = await Promise.all([
+      getSiteSettings().catch(() => ({})),
+      prisma.section.findMany({
+        where: { showInMenu: true },
+        orderBy: { menuOrder: 'asc' },
+        take: 8
+      }).catch(() => [])
+    ]);
+    settings = siteSettings;
+    dbSections = sections;
+  } catch (error) {
+    console.error('Footer data fetch error:', error);
+  }
 
   return (
     <footer className="hidden md:block border-t-2 border-vp-text bg-vp-bg px-7 pt-8 pb-6 font-sans text-[12px] text-vp-text-3">

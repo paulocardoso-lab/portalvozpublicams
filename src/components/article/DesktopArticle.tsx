@@ -4,6 +4,7 @@ import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
 import Image from 'next/image';
+import { SafeImage } from '@/components/shared/SafeImage';
 
 type ArticleWithRelations = Article & {
   authors: User[];
@@ -20,7 +21,7 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
       {/* Breadcrumb */}
       <div className="px-7 py-3.5 border-b border-vp-border font-sans text-[11px] text-vp-text-3 tracking-[0.06em] uppercase">
         <span className="cursor-pointer hover:underline">Editorias</span> <span className="mx-2 text-vp-text-4">/</span>
-        <span className="text-vp-accent cursor-pointer hover:underline">{article.section.name}</span>
+        <span className="text-vp-accent cursor-pointer hover:underline">{article.section?.name || 'Geral'}</span>
         {article.eyebrow && (
           <>
             <span className="mx-2 text-vp-text-4">/</span>
@@ -45,7 +46,7 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
 
         {/* Main — article body */}
         <div className="max-w-[680px]">
-          <span className="eyebrow text-[10px]">{article.eyebrow || article.section.name} · {article.readTimeMin || 5} min de leitura</span>
+          <span className="eyebrow text-[10px]">{article.eyebrow || article.section?.name || 'Geral'} · {article.readTimeMin || 5} min de leitura</span>
           <h1 className="font-display text-[52px] leading-[1.05] mt-3.5 mb-4.5 tracking-[-0.015em] text-balance">
             {article.title}
           </h1>
@@ -56,7 +57,7 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
           <div className="flex items-center gap-4.5 pt-4.5 border-y border-vp-border pb-3.5 mb-7">
             {article.authors[0]?.avatar ? (
               <div className="relative w-[44px] h-[44px] overflow-hidden rounded-full shrink-0">
-                <Image 
+                <SafeImage 
                   src={article.authors[0].avatar} 
                   alt="" 
                   fill
@@ -68,18 +69,18 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
             )}
             <div className="flex-1">
               <div className="font-sans text-[13px] text-vp-text font-semibold">
-                Por {article.authors.map(a => a.name).join(' e ')}
+                Por {article.authors?.length > 0 ? article.authors.map(a => a.name).join(' e ') : 'Redação'}
               </div>
               <div className="byline text-[11px] mt-0.5">
-                {article.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(article.publishedAt)) : 'Recente'}
-                {article.updatedAt && article.updatedAt > (article.publishedAt || new Date()) && ` · Atualizado ${new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(article.updatedAt))}`}
+                {article.publishedAt && !isNaN(new Date(article.publishedAt).getTime()) ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(article.publishedAt)) : 'Recente'}
+                {article.updatedAt && !isNaN(new Date(article.updatedAt).getTime()) && article.updatedAt > (article.publishedAt || new Date()) && ` · Atualizado ${new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(article.updatedAt))}`}
               </div>
             </div>
           </div>
 
           {article.heroImage ? (
             <div className="relative w-full aspect-[16/9] mb-7 overflow-hidden rounded-sm group">
-              <Image 
+              <SafeImage 
                 src={article.heroImage} 
                 alt={article.title} 
                 fill
