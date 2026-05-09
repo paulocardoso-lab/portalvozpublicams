@@ -27,7 +27,7 @@ export async function SiteFooter() {
   }
 
   return (
-    <footer className="hidden md:block border-t-2 border-vp-text bg-vp-bg font-sans text-[12px] text-vp-text-3 px-7 pt-8 pb-6">
+    <footer className="hidden md:block border-t-2 border-vp-text bg-vp-surface-2 font-sans text-[12px] text-vp-text-3 px-7 pt-8 pb-6">
       <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-7 mb-7">
         <div>
           <Monogram size="md" className="mb-3" />

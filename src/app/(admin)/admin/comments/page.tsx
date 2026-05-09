@@ -63,7 +63,7 @@ export default function AdminCommentsPage() {
       {/* List */}
       <div className="space-y-4">
         {filtered.length === 0 ? (
-          <div className="py-20 text-center border border-dashed border-vp-border rounded-lg">
+          <div className="py-20 text-center border border-dashed border-vp-border rounded">
              <p className="text-vp-text-4 italic font-serif">Nenhum comentário nesta fila.</p>
           </div>
         ) : (

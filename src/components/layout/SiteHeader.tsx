@@ -45,7 +45,7 @@ export async function SiteHeader() {
   }
   
   return (
-    <header className="hidden md:block border-b border-vp-border bg-vp-bg sticky top-0 z-50">
+    <header className="hidden md:block border-b border-vp-border bg-vp-bg/95 backdrop-blur sticky top-0 z-50">
       {/* 1. Top utility bar */}
       <div className="flex items-center justify-between px-7 py-2 border-b border-vp-border font-sans text-[11px] text-vp-text-3">
         <div className="flex gap-4.5 items-center">

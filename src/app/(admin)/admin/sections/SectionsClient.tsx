@@ -29,7 +29,7 @@ export default function SectionsClient({ initialSections }: { initialSections: S
   };
 
   return (
-    <div className="bg-vp-surface border border-vp-border rounded-lg overflow-hidden">
+    <div className="bg-vp-surface border border-vp-border rounded overflow-hidden">
       <table className="w-full text-left">
         <thead className="bg-[#111] border-b border-vp-border">
           <tr>

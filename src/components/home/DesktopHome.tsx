@@ -82,12 +82,12 @@ export function DesktopHome({
         {/* Left column */}
         <div className="flex flex-col">
           {/* Hero Section */}
-          <section className="grid grid-cols-[1.1fr_1fr] gap-7 pb-7 border-b border-vp-border">
+          <section className="grid grid-cols-[1.1fr_1fr] gap-8 pb-8 border-b border-vp-border">
             {hero && (
               <>
                 <div>
                   <Eyebrow className="mb-2">{hero.eyebrow || `${hero.section?.name} · Exclusivo`}</Eyebrow>
-                  <Headline as="h1" size="hero" href={`/${hero.slug}`} className="!text-[46px] mb-3.5 leading-[1.05]">
+                  <Headline as="h1" size="hero" href={`/${hero.slug}`} className="mb-3.5">
                     {hero.title}
                   </Headline>
                   <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-4">
@@ -114,7 +114,7 @@ export function DesktopHome({
           </section>
 
           {/* Secondary 3-up row */}
-          <section className="grid grid-cols-3 gap-6 py-7 border-b border-vp-border">
+          <section className="grid grid-cols-3 gap-8 py-8 border-b border-vp-border">
             {secondary.map((art, i) => (
               <article key={art.id}>
                 <div className="relative h-[150px] mb-3 overflow-hidden rounded-sm group">
@@ -124,8 +124,8 @@ export function DesktopHome({
                     <ImgPH label={art.section?.name} height={150} />
                   )}
                 </div>
-                <Eyebrow className="text-[10px] mb-1.5">{art.section?.name}</Eyebrow>
-                <Headline size="h3" href={`/${art.slug}`} className="!text-[19px] mb-2 leading-snug">
+                <Eyebrow className="mb-1.5">{art.section?.name}</Eyebrow>
+                <Headline size="h3" href={`/${art.slug}`} className="mb-2">
                   {art.title}
                 </Headline>
                 <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] line-clamp-3">
@@ -140,7 +140,7 @@ export function DesktopHome({
 
           {/* Pantanal Special */}
           {featuredSeries && (
-            <section className="py-7 border-b border-vp-border">
+            <section className="py-8 border-b border-vp-border">
               <div className="flex items-baseline gap-4 mb-4.5">
                 <h2 className="font-display text-[24px] font-bold text-vp-text">Especial · {featuredSeries.name}</h2>
                 <div className="h-[1px] bg-vp-border flex-1" />
@@ -149,7 +149,7 @@ export function DesktopHome({
                 </Link>
               </div>
 
-              <div className="grid grid-cols-2 gap-7">
+              <div className="grid grid-cols-2 gap-8">
                 <article>
                   <div className="relative h-[260px] mb-3.5 overflow-hidden rounded-sm">
                     {featuredSeries.articles[0]?.heroImage ? (
@@ -159,7 +159,7 @@ export function DesktopHome({
                     )}
                   </div>
                   <Eyebrow>Série Especial</Eyebrow>
-                  <Headline size="h2" href={`/${featuredSeries.articles[0]?.slug}`} className="!text-[26px] my-2 leading-[1.1]">
+                  <Headline size="h2" href={`/${featuredSeries.articles[0]?.slug}`} className="my-2">
                     {featuredSeries.articles[0]?.title}
                   </Headline>
                   <p className="font-serif text-[15px] text-vp-text-2 leading-[1.5]">
@@ -177,7 +177,7 @@ export function DesktopHome({
                         <ImgPH label="" width={70} height={70} className="rounded-sm" />
                       )}
                       <div>
-                        <Headline size="small" href={`/${art.slug}`} className="!text-[15px] mb-1.5 leading-tight">
+                        <Headline size="small" href={`/${art.slug}`} className="mb-1.5">
                           {art.title}
                         </Headline>
                         <div className="byline text-[10px]">
@@ -192,7 +192,7 @@ export function DesktopHome({
           )}
 
           {/* Topical Columns (Politics, Econ, Cities) */}
-          <section className="grid grid-cols-3 gap-6 py-7 border-b border-vp-border">
+          <section className="grid grid-cols-3 gap-8 py-8 border-b border-vp-border">
             {[
               { label: 'Política', data: politica },
               { label: 'Economia', data: economia },
@@ -208,7 +208,7 @@ export function DesktopHome({
                 <div className="flex flex-col gap-3.5">
                   {col.data.slice(0, 3).map((art, i) => (
                     <div key={art.id} className={`pb-3.5 ${i < 2 ? 'border-b border-vp-border' : ''}`}>
-                      <Headline size="small" href={`/${art.slug}`} className="!text-[16px] mb-1.5 leading-snug">
+                      <Headline size="small" href={`/${art.slug}`} className="mb-1.5">
                         {art.title}
                       </Headline>
                       <div className="byline text-[10px]">
@@ -222,7 +222,7 @@ export function DesktopHome({
           </section>
 
           {/* Opinion & Columnists */}
-          <section className="py-7 border-b border-vp-border">
+          <section className="py-8 border-b border-vp-border">
             <div className="flex items-baseline gap-4 mb-5">
               <h2 className="font-display text-[24px] font-bold text-vp-text">Opinião &amp; Colunistas</h2>
               <div className="h-[1px] bg-vp-border flex-1" />
@@ -241,7 +241,7 @@ export function DesktopHome({
                     <div className="font-sans text-[10px] text-vp-accent uppercase tracking-widest font-bold mb-1">
                       OPINIÃO
                     </div>
-                    <Headline size="small" href={`/${col.articles?.[0]?.slug}`} className="!text-[15px] italic mb-1 leading-tight">
+                    <Headline size="small" href={`/${col.articles?.[0]?.slug}`} className="italic mb-1">
                       “{col.articles?.[0]?.title}”
                     </Headline>
                     <div className="font-sans text-[11px] text-vp-text-2 font-bold">{col.name}</div>
@@ -252,16 +252,16 @@ export function DesktopHome({
           </section>
 
           {/* Most Read + Podcast */}
-          <section className="grid grid-cols-2 gap-9 py-7">
+          <section className="grid grid-cols-2 gap-12 py-8">
             <div>
               <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-4">
                 Mais lidas da semana
               </h3>
               <div className="flex flex-col gap-3.5">
                 {mostRead.slice(0, 5).map((art, i) => (
-                  <div key={art.id} className={`grid grid-cols-[36px_1fr] gap-3.5 pb-3 ${i < 4 ? 'border-b border-vp-border' : ''}`}>
+                  <div key={art.id} className={`grid grid-cols-[36px_1fr] gap-3.5 pb-3 ${i < 4 ? 'border-b-2 border-vp-text' : ''}`}>
                     <span className="font-display text-[28px] font-bold text-vp-accent leading-none">{i+1}</span>
-                    <Headline size="small" href={`/${art.slug}`} className="!text-[15px] leading-snug">
+                    <Headline size="small" href={`/${art.slug}`} className="leading-snug">
                       {art.title}
                     </Headline>
                   </div>
@@ -284,7 +284,7 @@ export function DesktopHome({
                   <div className="font-sans text-[11px] text-vp-text-3 uppercase tracking-widest mb-2">
                     Episódio {activePodcast.id.slice(-3)} · {activePodcast.duration || '38 min'}
                   </div>
-                  <Headline size="h3" href={`/podcast/${activePodcast.id}`} className="!text-[22px] mb-2 leading-tight">
+                  <Headline size="h3" href={`/podcast/${activePodcast.id}`} className="mb-2">
                     {activePodcast.title}
                   </Headline>
                   <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] mb-4">
@@ -311,7 +311,7 @@ export function DesktopHome({
         <aside className="flex flex-col gap-6">
           {/* Donation banner */}
           <div className="bg-vp-surface border border-vp-border p-5">
-            <Eyebrow className="mb-2 text-[10px]">Sem donos. Sem paywall.</Eyebrow>
+            <Eyebrow className="mb-2">Sem donos. Sem paywall.</Eyebrow>
             <h3 className="font-display text-[22px] font-bold text-vp-text mb-2.5 leading-[1.15]">
               Jornalismo de MS que você pode confiar.
             </h3>

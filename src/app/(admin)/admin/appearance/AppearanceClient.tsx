@@ -64,7 +64,7 @@ export function AppearanceClient({
 
       <div className="grid gap-6 max-w-3xl">
         {activeTab === 'home' && (
-          <div className="bg-vp-surface border border-vp-border p-6 rounded-lg">
+          <div className="bg-vp-surface border border-vp-border p-6 rounded">
             <h3 className="font-display text-[20px] mb-2">Série em Destaque</h3>
             <p className="font-serif text-[13px] text-vp-text-2 mb-6">
               Selecione a série que será exibida no bloco &quot;Especial&quot; da Home.
@@ -86,7 +86,7 @@ export function AppearanceClient({
 
         {activeTab === 'branding' && (
           <div className="grid gap-6">
-            <div className="bg-vp-surface border border-vp-border p-6 rounded-lg">
+            <div className="bg-vp-surface border border-vp-border p-6 rounded">
               <h3 className="font-display text-[20px] mb-4 text-vp-accent">Identidade</h3>
               <div className="grid gap-4">
                 <div>
@@ -110,7 +110,7 @@ export function AppearanceClient({
               </div>
             </div>
 
-            <div className="bg-vp-surface border border-vp-border p-6 rounded-lg">
+            <div className="bg-vp-surface border border-vp-border p-6 rounded">
               <h3 className="font-display text-[20px] mb-4 text-vp-accent">Redes Sociais</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -161,7 +161,7 @@ export function AppearanceClient({
               </div>
             </div>
 
-            <div className="bg-vp-surface border border-vp-border p-6 rounded-lg">
+            <div className="bg-vp-surface border border-vp-border p-6 rounded">
               <h3 className="font-display text-[20px] mb-4 text-vp-accent">Contato</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>

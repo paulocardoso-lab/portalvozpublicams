@@ -65,9 +65,9 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
             {article.eyebrow || article.section?.name} · {article.readTimeMin || 8} min de leitura
           </Eyebrow>
           
-          <h1 className="font-display text-[52px] leading-[1.05] mb-4.5 tracking-tight font-black text-vp-text">
+          <Headline as="h1" size="article" className="mb-4.5 font-black tracking-tight">
             {article.title}
-          </h1>
+          </Headline>
           
           <p className="font-serif text-[20px] italic text-vp-text-2 leading-[1.45] mb-6">
             {article.lead}
@@ -143,7 +143,7 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
                 'Pesquisadores deixam Embrapa Pantanal por cortes'
               ].map((h, i) => (
                 <div key={i} className={`pb-4 ${i < 2 ? 'border-b border-vp-border' : ''}`}>
-                  <Headline size="small" className="!text-[14px] leading-snug mb-1.5">{h}</Headline>
+                  <Headline size="small" className="leading-snug mb-1.5">{h}</Headline>
                   <div className="byline text-[10px]">há {i + 2} dias</div>
                 </div>
               ))}

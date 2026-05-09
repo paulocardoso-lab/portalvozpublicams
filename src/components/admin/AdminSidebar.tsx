@@ -34,7 +34,7 @@ export function AdminSidebar() {
   ];
 
   return (
-    <aside className="bg-[#0e0e0d] border-r border-vp-border py-4.5 flex flex-col gap-3.5 sticky top-0 h-[100dvh]">
+    <aside className="bg-vp-bg border-r border-vp-border py-4.5 flex flex-col gap-3.5 sticky top-0 h-[100dvh] w-[232px]">
       <div className="px-4.5 pb-4.5 border-b border-vp-border flex items-center gap-2.5">
         <Link href="/" className="no-underline">
           <BrandLogo size="md" />
@@ -46,7 +46,7 @@ export function AdminSidebar() {
         {nav.map(n => {
           const isActive = pathname === n.href || (n.href !== '/admin' && pathname.startsWith(n.href));
           return (
-            <Link key={n.id} href={n.href} className={`flex items-center gap-2.5 px-3 py-2 rounded-[4px] cursor-pointer no-underline ${isActive ? 'bg-vp-surface-2 text-vp-text border-l-2 border-vp-accent' : 'bg-transparent text-vp-text-2 border-l-2 border-transparent hover:bg-vp-surface transition-colors'}`}>
+            <Link key={n.id} href={n.href} className={`flex items-center gap-2.5 px-3 py-2 rounded cursor-pointer no-underline ${isActive ? 'bg-vp-surface-2 text-vp-text border-l-2 border-vp-accent' : 'bg-transparent text-vp-text-2 border-l-2 border-transparent hover:bg-vp-surface transition-colors'}`}>
               <span className={`w-4 text-center ${isActive ? 'text-vp-accent' : 'text-vp-text-3'}`}>{n.icon}</span>
               <span className={`flex-1 text-[13px] ${isActive ? 'font-semibold' : 'font-medium'}`}>{n.label}</span>
               {n.badge && <span className="bg-vp-accent text-[#1a1a19] text-[10px] font-bold px-1.5 py-0.5 rounded-[10px]">{n.badge}</span>}
@@ -55,7 +55,7 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      <div className="mt-auto border-t border-vp-border p-3.5 flex items-center gap-2.5 bg-[#0e0e0d]">
+      <div className="mt-auto border-t border-vp-border p-3.5 flex items-center gap-2.5 bg-vp-bg">
         <div className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0">
           <ImgPH label="" width={32} height={32} />
         </div>
