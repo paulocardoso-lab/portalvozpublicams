@@ -6,6 +6,7 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 
 export default async function AdminDashboardPage() {
+  console.log("--> EXECUTING ADMIN PAGE!");
   const session = await auth();
   const userName = session?.user?.name || session?.user?.email?.split('@')[0] || "Administrador";
   

@@ -1,37 +1,10 @@
 import type { NextAuthConfig } from "next-auth"
 import Google from "next-auth/providers/google"
-import Resend from "next-auth/providers/resend"
-
-import { magicLinkTemplate } from "./lib/email-templates"
-import { Resend as ResendClient } from "resend"
-
-const resendApiKey = process.env.RESEND_API_KEY;
-const resendClient = resendApiKey ? new ResendClient(resendApiKey) : null;
-
-const providers = [
-  Google,
-];
-
-if (resendApiKey && resendClient) {
-  providers.push(
-    Resend({
-      apiKey: resendApiKey,
-      from: "Voz Pública MS <onboarding@resend.dev>",
-      async sendVerificationRequest({ identifier, url }) {
-        await resendClient.emails.send({
-          from: "Voz Pública MS <onboarding@resend.dev>",
-          to: identifier,
-          subject: "Acesso ao Portal Voz Pública MS",
-          html: magicLinkTemplate(url),
-        })
-      },
-    }) as any
-  );
-}
+// O provedor Resend foi movido para auth.ts porque requer o PrismaAdapter (que não roda no Edge/Middleware)
 
 export default {
   providers: [
-    ...providers,
+    Google,
   ],
   callbacks: {
     jwt({ token, user }) {
