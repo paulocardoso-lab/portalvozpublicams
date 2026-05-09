@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { slot: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ slot: string }> }
 ) {
-  const slot = params.slot;
+  const { slot } = await params;
 
   try {
     // Buscar uma campanha ativa para este slot
