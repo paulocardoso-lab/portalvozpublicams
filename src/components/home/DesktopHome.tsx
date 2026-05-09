@@ -59,7 +59,7 @@ export function DesktopHome({
 
       {/* 1. Breaking/live strip */}
       {activeAlert && (
-        <div className="border-b border-vp-border bg-vp-surface px-[28px] py-[9px] flex items-center gap-[14px]">
+        <div className="border-b border-vp-border bg-vp-surface px-7 py-2 flex items-center gap-3.5">
           <Tag variant="live">AO VIVO</Tag>
           <span className="font-sans text-[12px] text-vp-text font-bold">
             {activeAlert.message}
@@ -71,18 +71,18 @@ export function DesktopHome({
       )}
 
       {/* 2. Top leaderboard ad */}
-      <div className="px-[28px] pt-4">
+      <div className="px-7 pt-4">
         <div className="vp-ad h-[90px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
           728 × 90 — LEADERBOARD
         </div>
       </div>
 
       {/* 3. Main grid */}
-      <div className="grid grid-cols-[1fr_320px] gap-[32px] px-[28px] py-[24px]">
+      <div className="grid grid-cols-[1fr_320px] gap-8 px-7 py-6">
         {/* Left column */}
         <div className="flex flex-col">
           {/* Hero Section */}
-          <section className="grid grid-cols-[1.1fr_1fr] gap-[28px] pb-[28px] border-b border-vp-border">
+          <section className="grid grid-cols-[1.1fr_1fr] gap-7 pb-7 border-b border-vp-border">
             {hero && (
               <>
                 <div>
@@ -114,7 +114,7 @@ export function DesktopHome({
           </section>
 
           {/* Secondary 3-up row */}
-          <section className="grid grid-cols-3 gap-[24px] py-[28px] border-b border-vp-border">
+          <section className="grid grid-cols-3 gap-6 py-7 border-b border-vp-border">
             {secondary.map((art, i) => (
               <article key={art.id}>
                 <div className="relative h-[150px] mb-3 overflow-hidden rounded-sm group">
@@ -140,8 +140,8 @@ export function DesktopHome({
 
           {/* Pantanal Special */}
           {featuredSeries && (
-            <section className="py-[28px] border-b border-vp-border">
-              <div className="flex items-baseline gap-[16px] mb-[18px]">
+            <section className="py-7 border-b border-vp-border">
+              <div className="flex items-baseline gap-4 mb-4.5">
                 <h2 className="font-display text-[24px] font-bold text-vp-text">Especial · {featuredSeries.name}</h2>
                 <div className="h-[1px] bg-vp-border flex-1" />
                 <Link href={`/especial/${featuredSeries.id}`} className="font-sans text-[11px] text-vp-accent font-bold uppercase tracking-widest no-underline hover:underline">
@@ -149,7 +149,7 @@ export function DesktopHome({
                 </Link>
               </div>
 
-              <div className="grid grid-cols-2 gap-[28px]">
+              <div className="grid grid-cols-2 gap-7">
                 <article>
                   <div className="relative h-[260px] mb-3.5 overflow-hidden rounded-sm">
                     {featuredSeries.articles[0]?.heroImage ? (
@@ -166,9 +166,9 @@ export function DesktopHome({
                     {featuredSeries.articles[0]?.lead}
                   </p>
                 </article>
-                <div className="grid gap-[18px]">
+                <div className="grid gap-4.5">
                   {featuredSeries.articles.slice(1, 5).map((art, i) => (
-                    <article key={art.id} className={`grid grid-cols-[70px_1fr] gap-[14px] pb-[14px] ${i < 3 ? 'border-b border-vp-border' : ''}`}>
+                    <article key={art.id} className={`grid grid-cols-[70px_1fr] gap-3.5 pb-3.5 ${i < 3 ? 'border-b border-vp-border' : ''}`}>
                       {art.heroImage ? (
                         <div className="relative w-[70px] h-[70px] rounded-sm overflow-hidden">
                           <SafeImage src={art.heroImage} alt="" fill className="object-cover" />
@@ -192,7 +192,7 @@ export function DesktopHome({
           )}
 
           {/* Topical Columns (Politics, Econ, Cities) */}
-          <section className="grid grid-cols-3 gap-[24px] py-[28px] border-b border-vp-border">
+          <section className="grid grid-cols-3 gap-6 py-7 border-b border-vp-border">
             {[
               { label: 'Política', data: politica },
               { label: 'Economia', data: economia },
@@ -222,8 +222,8 @@ export function DesktopHome({
           </section>
 
           {/* Opinion & Columnists */}
-          <section className="py-[28px] border-b border-vp-border">
-            <div className="flex items-baseline gap-[16px] mb-[20px]">
+          <section className="py-7 border-b border-vp-border">
+            <div className="flex items-baseline gap-4 mb-5">
               <h2 className="font-display text-[24px] font-bold text-vp-text">Opinião &amp; Colunistas</h2>
               <div className="h-[1px] bg-vp-border flex-1" />
             </div>
@@ -252,7 +252,7 @@ export function DesktopHome({
           </section>
 
           {/* Most Read + Podcast */}
-          <section className="grid grid-cols-2 gap-[36px] py-[28px]">
+          <section className="grid grid-cols-2 gap-9 py-7">
             <div>
               <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-4">
                 Mais lidas da semana

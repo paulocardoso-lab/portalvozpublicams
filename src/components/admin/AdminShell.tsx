@@ -22,12 +22,15 @@ const nav: NavItem[] = [
   { id: 'comments',  label: 'Comentários', icon: '◉', href: '/admin/comments', badge: 12 },
   { id: 'users',     label: 'Usuários & permissões', icon: '◎', href: '/admin/users' },
   { id: 'ads',       label: 'Banners & publicidade', icon: '▭', href: '/admin/ads' },
+  { id: 'rss',       label: 'Automação RSS', icon: '📡', href: '/admin/rss' },
+  { id: 'podcasts',  label: 'Podcasts', icon: '🎙', href: '/admin/podcasts' },
   { id: 'social',    label: 'Redes sociais', icon: '#', href: '/admin/social' },
   { id: 'metrics',   label: 'Métricas & tráfego', icon: '↗', href: '/admin/metrics' },
   { id: 'subscriptions', label: 'Assinaturas & doações', icon: '♥', href: '/admin/subscriptions' },
   { id: 'audit',     label: 'Logs de auditoria', icon: '⎆', href: '/admin/audit' },
   { id: 'settings',  label: 'Configurações', icon: '⚙', href: '/admin/settings' },
 ];
+
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

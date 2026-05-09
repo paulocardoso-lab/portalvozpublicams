@@ -5,27 +5,27 @@ import React from 'react';
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--vp-sans",
   weight: ["400", "500", "600", "700"],
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--vp-serif-display",
   weight: ["400", "600", "700", "900"],
   style: ["normal", "italic"],
 });
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  variable: "--font-source-serif",
+  variable: "--vp-serif",
   weight: ["300", "400", "600", "700"],
   style: ["normal", "italic"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
+  variable: "--vp-mono",
   weight: ["400", "500"],
 });
 
@@ -72,7 +72,6 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
-  themeColor: "#0e0e0d",
 };
 
 
@@ -83,7 +82,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className={`${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} bg-vp-bg text-vp-text antialiased min-h-screen`}>
+      <body className={`vp-root ${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} min-h-screen`}>
         {children}
       </body>
     </html>

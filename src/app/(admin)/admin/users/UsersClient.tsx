@@ -57,6 +57,7 @@ function RoleSelect({ userId, currentRole }: { userId: string; currentRole: Role
       value={optimisticRole}
       onChange={handleChange}
       disabled={isPending}
+      title="Alterar papel do usuário"
       className={`bg-vp-surface border border-vp-border rounded px-2 py-1 text-[12px] font-semibold ${ROLE_COLORS[optimisticRole]} disabled:opacity-50 cursor-pointer`}
     >
       {(Object.keys(ROLE_LABELS) as Role[]).map((r) => (
@@ -82,14 +83,14 @@ function StatusToggle({ userId, currentStatus, isSelf }: { userId: string; curre
   };
 
   if (isSelf) {
-    return <span className="text-[11px] text-vp-text-3 italic">você</span>;
+    return <span className="text-[11px] text-vp-text-4 italic font-serif">você</span>;
   }
 
   return (
     <button
       onClick={toggle}
       disabled={isPending}
-      className={`text-[11px] font-semibold disabled:opacity-50 hover:underline ${status === "ACTIVE" ? "text-vp-urgent" : "text-vp-ok"}`}
+      className={`text-[11px] font-black uppercase tracking-widest disabled:opacity-50 hover:underline ${status === "ACTIVE" ? "text-vp-urgent" : "text-vp-ok"}`}
     >
       {isPending ? "..." : status === "ACTIVE" ? "Suspender" : "Reativar"}
     </button>
@@ -109,112 +110,107 @@ export function UsersClient({ users, currentUserId }: { users: User[]; currentUs
   const bannedCount = users.filter((u) => u.status === "BANNED").length;
 
   return (
-    <div className="max-w-[1200px]">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-start gap-4 mb-5">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
-          <h1 className="text-[22px] font-semibold mb-1">Usuários & permissões</h1>
-          <p className="text-vp-text-3 text-[13px]">
-            {users.length} usuários · {activeCount} ativos · {bannedCount} suspensos
+          <h1 className="font-display text-[32px] lg:text-[42px] font-black leading-tight text-vp-text">
+            Usuários & Permissões.
+          </h1>
+          <p className="font-serif italic text-[16px] text-vp-text-3 mt-2">
+            Gerencie o acesso da redação · {users.length} usuários · {activeCount} ativos · {bannedCount} suspensos
           </p>
+        </div>
+        <div className="flex gap-3">
+          <button className="vp-btn text-[12px] font-bold uppercase tracking-widest py-2.5 px-6">
+             Logs de Acesso
+          </button>
+          <button className="vp-btn vp-btn-primary text-[12px] font-bold uppercase tracking-widest py-2.5 px-8">
+             + Convidar Membro
+          </button>
         </div>
       </div>
 
       {/* Role legend */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-1.5 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-1.5">
         {(Object.entries(ROLE_LABELS) as [Role, string][]).map(([role, label]) => (
-          <div key={role} className="bg-[#141413] border border-vp-border p-2.5 rounded flex items-center gap-2">
+          <div key={role} className="bg-[#141413] border border-vp-border p-2.5 rounded-sm flex items-center gap-2">
             <span className={`text-[8px] ${ROLE_COLORS[role]}`}>●</span>
-            <span className="text-[11px] font-medium">{label}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
           </div>
         ))}
       </div>
 
-      {/* Search */}
-      <div className="mb-4">
-        <input
-          className="vp-input w-full max-w-[400px] text-[13px]"
-          placeholder="Buscar por nome ou e-mail…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      {/* Table */}
-      <div className="bg-[#141413] border border-vp-border overflow-x-auto rounded">
-        <div className="min-w-[760px]">
-          {/* Header */}
-          <div className="grid grid-cols-[2fr_1.2fr_1fr_0.6fr_0.8fr] px-5 py-3 border-b border-vp-border text-[11px] uppercase tracking-[0.1em] text-vp-text-3">
-            <span>Usuário</span>
-            <span>Papel</span>
-            <span>Status</span>
-            <span>Matérias</span>
-            <span className="text-right">Ações</span>
+      {/* Search & List */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="relative group w-full max-w-[400px]">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-vp-text-4 font-mono">/</span>
+            <input
+              className="vp-input w-full pl-8 py-2.5 text-[13px] bg-[#0e0e0d] border-vp-border"
+              placeholder="Filtrar por nome ou e-mail…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
+        </div>
 
-          {/* Rows */}
-          {filtered.length === 0 ? (
-            <div className="px-5 py-8 text-center text-vp-text-3 text-[13px]">
-              Nenhum usuário encontrado.
-            </div>
-          ) : (
-            filtered.map((u, i) => (
-              <div
-                key={u.id}
-                className={`grid grid-cols-[2fr_1.2fr_1fr_0.6fr_0.8fr] px-5 py-3.5 items-center text-[13px] ${
-                  i < filtered.length - 1 ? "border-b border-vp-border" : ""
-                } ${u.status === "BANNED" ? "opacity-50" : ""}`}
-              >
-                {/* Name + email */}
-                <div className="flex items-center gap-3 min-w-0 pr-2">
-                  <div className="w-8 h-8 rounded-full bg-vp-surface-2 border border-vp-border flex items-center justify-center shrink-0 text-[12px] font-bold text-vp-accent uppercase">
-                    {u.image || u.avatar ? (
-                      <img src={u.image || u.avatar || ""} alt="" className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      u.name.charAt(0)
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-semibold truncate text-[13px]">{u.name}</div>
-                    <div className="text-[11px] text-vp-text-3 truncate">{u.email}</div>
-                  </div>
-                </div>
-
-                {/* Role select */}
-                <div>
-                  <RoleSelect userId={u.id} currentRole={u.role as Role} />
-                </div>
-
-                {/* Status badge */}
-                <div>
-                  <span
-                    className={`inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide`}
-                  >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        u.status === "ACTIVE" ? "bg-vp-ok" : u.status === "BANNED" ? "bg-vp-urgent" : "bg-vp-text-4"
-                      }`}
-                    />
-                    {u.status === "ACTIVE" ? "Ativo" : u.status === "BANNED" ? "Suspenso" : "Excluído"}
-                  </span>
-                </div>
-
-                {/* Article count */}
-                <span className="font-mono text-vp-text-2 text-[12px]">{u._count.articles}</span>
-
-                {/* Actions */}
-                <div className="text-right">
-                  <StatusToggle userId={u.id} currentStatus={u.status as UserStatus} isSelf={u.id === currentUserId} />
-                </div>
-              </div>
-            ))
-          )}
+        <div className="vp-panel overflow-hidden bg-[#141413] border border-vp-border">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-vp-border bg-[#0e0e0d]">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-vp-text-4">Membro da Redação</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-vp-text-4">Papel / Acesso</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-vp-text-4">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-vp-text-4 text-center">Matérias</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-vp-text-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-vp-border/30">
+                {filtered.map((u) => (
+                  <tr key={u.id} className={`hover:bg-vp-surface/30 transition-colors group ${u.status === "BANNED" ? "opacity-50" : ""}`}>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[14px]">
+                          {u.image || u.avatar ? (
+                            <img src={u.image || u.avatar || ""} alt="" className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            u.name.charAt(0)
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="text-[14px] font-bold text-vp-text">{u.name}</h4>
+                          <span className="text-[11px] text-vp-text-4 font-mono">{u.email}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <RoleSelect userId={u.id} currentRole={u.role as Role} />
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          u.status === "ACTIVE" ? "bg-vp-ok" : u.status === "BANNED" ? "bg-vp-urgent" : "bg-vp-text-4"
+                        }`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">
+                           {u.status === "ACTIVE" ? "Ativo" : u.status === "BANNED" ? "Suspenso" : "Excluído"}
+                        </span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-center font-mono text-[13px] text-vp-text-2">
+                      {u._count.articles}
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <StatusToggle userId={u.id} currentStatus={u.status as UserStatus} isSelf={u.id === currentUserId} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
-      <p className="mt-3 text-[11px] text-vp-text-3">
-        Mostrando {filtered.length} de {users.length} usuários · Alterações de papel são aplicadas imediatamente.
-      </p>
     </div>
   );
 }
