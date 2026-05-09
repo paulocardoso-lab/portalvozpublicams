@@ -55,7 +55,7 @@ export default async function ColumnistPage({ params }: { params: Promise<{ slug
           {latest && (
             <article className="pb-6 border-b border-vp-border">
               <div className="eyebrow text-[10px] mb-1.5">Última coluna</div>
-              <Link href={`/materia/${latest.slug}`}>
+              <Link href={`/${latest.slug}`}>
                 <h2 className="font-display text-[26px] italic leading-tight mb-3">“{latest.title}”</h2>
               </Link>
               <p className="font-serif text-[15px] text-vp-text-2 line-clamp-4">{latest.lead}</p>
@@ -69,7 +69,7 @@ export default async function ColumnistPage({ params }: { params: Promise<{ slug
                 <div className="font-mono text-[10px] text-vp-text-3 pt-1">
                   {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}
                 </div>
-                <Link href={`/materia/${art.slug}`}>
+                <Link href={`/${art.slug}`}>
                   <h4 className="font-display text-[18px] italic leading-tight">{art.title}</h4>
                 </Link>
               </article>

@@ -51,7 +51,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
         <div className="px-4 py-4 flex flex-col gap-6 pb-24">
           {featured && (
             <article className="pb-6 border-b border-vp-border">
-              <Link href={`/materia/${featured.slug}`}>
+              <Link href={`/${featured.slug}`}>
                 {featured.heroImage ? (
                   <div className="relative aspect-[16/9] w-full mb-3 rounded-sm overflow-hidden">
                     <Image src={featured.heroImage} alt="" fill className="object-cover" />
@@ -67,7 +67,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
 
           {list.map((art) => (
             <article key={art.id} className="grid grid-cols-[100px_1fr] gap-3 pb-4 border-b border-vp-border">
-              <Link href={`/materia/${art.slug}`}>
+              <Link href={`/${art.slug}`}>
                 {art.heroImage ? (
                   <div className="relative aspect-square w-full rounded-sm overflow-hidden">
                     <Image src={art.heroImage} alt="" fill className="object-cover" />

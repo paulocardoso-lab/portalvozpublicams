@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
  */
 const ADMIN_ROLES = [
   "SUPER_ADMIN",
+  "ADMIN",
   "EDITOR_CHIEF",
   "SECTION_EDITOR",
   "REPORTER",

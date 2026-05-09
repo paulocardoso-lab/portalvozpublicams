@@ -14,7 +14,7 @@ export async function Home() {
   let economia: any[] = [];
   let cidades: any[] = [];
   let mostRead: any[] = [];
-  const newsletterCount = 1240;
+  let newsletterCount = 0;
 
   try {
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
@@ -30,7 +30,8 @@ export async function Home() {
       fetchedPolitica,
       fetchedEconomia,
       fetchedCidades,
-      fetchedMostRead
+      fetchedMostRead,
+      fetchedNewsletterCount
     ] = await Promise.all([
       prisma.article.findMany({
         where: { status: 'PUBLISHED' },
@@ -82,7 +83,8 @@ export async function Home() {
         include: { section: true },
         orderBy: { views: 'desc' },
         take: 5,
-      })
+      }),
+      prisma.newsletterSubscriber.count()
     ]);
 
     articles = fetchedArticles || [];
@@ -95,6 +97,7 @@ export async function Home() {
     economia = fetchedEconomia || [];
     cidades = fetchedCidades || [];
     mostRead = fetchedMostRead || [];
+    newsletterCount = fetchedNewsletterCount || 0;
   } catch (error) {
     console.error('Home data fetch error:', error);
   }

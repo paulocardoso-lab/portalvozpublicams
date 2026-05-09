@@ -38,10 +38,11 @@ export function RSSManager({ sections }: RSSManagerProps) {
       } else {
         alert(result.error || 'Erro desconhecido ao salvar fonte RSS.');
       }
-    } catch (err) {
+    } catch (err: any) {
       setLoading(false);
       console.error('RSS Submit Error:', err);
-      alert('Ocorreu um erro de rede ou o servidor demorou muito para responder. Tente novamente.');
+      const errorMessage = err?.message || 'Erro desconhecido';
+      alert(`Erro na comunicação: ${errorMessage}. Verifique se o servidor está rodando ou se houve um erro interno.`);
     }
   }
 

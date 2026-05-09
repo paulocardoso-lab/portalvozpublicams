@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { Monogram } from '@/components/shared/Monogram';
 import { ImgPH } from '@/components/shared/ImgPH';
 
@@ -34,7 +35,12 @@ const nav: NavItem[] = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
+  const user = session?.user;
+  const userName = user?.name || user?.email?.split('@')[0] || "Administrador";
+  const userRole = (user as any)?.role || "ADMIN";
 
   return (
     <div className="flex min-h-screen bg-[#111110] text-vp-text font-sans">
@@ -91,13 +97,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         {/* User profile at bottom */}
         <div className="p-4 border-t border-vp-border flex items-center gap-3 bg-[#0a0a09]">
           <div className="w-8 h-8 rounded-full overflow-hidden border border-vp-border">
-            <ImgPH label="" width={32} height={32} />
+            {user?.image ? (
+                <img src={user.image} alt="" className="w-full h-full object-cover" />
+            ) : (
+                <ImgPH label="" width={32} height={32} />
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[12px] font-bold text-vp-text truncate">Marina Ribeiro</div>
-            <div className="text-[9px] text-vp-accent font-black uppercase tracking-wider">Editora-chefe</div>
+            <div className="text-[12px] font-bold text-vp-text truncate">{userName}</div>
+            <div className="text-[9px] text-vp-accent font-black uppercase tracking-wider">{userRole}</div>
           </div>
-          <button className="text-vp-text-4 hover:text-vp-urgent text-[11px] font-bold transition-colors uppercase">
+          <button 
+            onClick={() => nextAuthSignOut({ callbackUrl: '/' })}
+            className="text-vp-text-4 hover:text-vp-urgent text-[11px] font-bold transition-colors uppercase"
+          >
             Sair
           </button>
         </div>

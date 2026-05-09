@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-guard";
 import { CampaignStatus } from "@prisma/client";
+import { uploadImage } from "@/lib/storage";
 
 export async function createCampaign(formData: FormData) {
   await requireAdmin();
@@ -23,12 +24,23 @@ export async function createCampaign(formData: FormData) {
       throw new Error("Formato de data inválido.");
     }
 
+    const imageFile = formData.get("imageFile") as File;
+    let creativeUrl = String(formData.get("creative") ?? "");
+
+    if (imageFile && imageFile.size > 0) {
+      try {
+        creativeUrl = await uploadImage(imageFile, "ads");
+      } catch (err) {
+        console.error("Error uploading ad image:", err);
+      }
+    }
+
     await prisma.campaign.create({
       data: {
         name: String(formData.get("name") || "Sem nome"),
         client: String(formData.get("client") || "Anônimo"),
         slot: String(formData.get("slot")),
-        creative: String(formData.get("creative") ?? ""),
+        creative: creativeUrl,
         impressions: 0,
         clicks: 0,
         startsAt,
@@ -56,4 +68,10 @@ export async function deleteCampaign(id: string, _formData?: FormData) {
   await requireAdmin();
   await prisma.campaign.delete({ where: { id } });
   revalidatePath("/admin/ads");
+}
+export async function getCampaigns() {
+  await requireAdmin();
+  return await prisma.campaign.findMany({
+    orderBy: { startsAt: 'desc' }
+  });
 }

@@ -22,8 +22,8 @@ export async function GET() {
   ${articles.map((article) => `
   <item>
     <title><![CDATA[${article.title}]]></title>
-    <link>${baseUrl}/materia/${article.slug}</link>
-    <guid>${baseUrl}/materia/${article.slug}</guid>
+    <link>${baseUrl}/${article.slug}</link>
+    <guid>${baseUrl}/${article.slug}</guid>
     <pubDate>${new Date(article.publishedAt || article.createdAt).toUTCString()}</pubDate>
     <description><![CDATA[${article.lead || ''}]]></description>
     <category>${article.section.name}</category>

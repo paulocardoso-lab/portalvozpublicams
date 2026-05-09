@@ -11,6 +11,7 @@ export async function createRSSFeed(data: {
   targetSectionId: string;
   autoPublish: boolean;
 }) {
+  console.log('Server Action: createRSSFeed called with:', data);
   await requireAdmin();
 
   try {
@@ -25,9 +26,12 @@ export async function createRSSFeed(data: {
 
     revalidatePath('/admin/rss');
     return { success: true, feed };
-  } catch (error) {
-    console.error('Error creating RSS feed:', error);
-    return { error: 'Falha ao criar fonte RSS. Verifique se a URL já existe.' };
+  } catch (error: any) {
+    console.error('Detailed RSS Error:', error);
+    if (error.code === 'P2002') {
+      return { error: 'Esta URL de feed já está cadastrada.' };
+    }
+    return { error: `Erro ao salvar: ${error.message || 'Erro interno no servidor'}` };
   }
 }
 

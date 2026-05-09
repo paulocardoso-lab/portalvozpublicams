@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 interface AdSlotProps {
-  id: string; // Slot ID (ex: 'sidebar-top', 'leaderboard')
+  id: string; // Slot ID (ex: 'sidebar-top', 'leaderboard', 'in-article')
   className?: string;
 }
 
@@ -18,35 +18,44 @@ export function AdSlot({ id, className = '' }: AdSlotProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, this would fetch the active campaign for this slot
-    // For now, we mock it
-    const mockCampaigns: Record<string, Campaign> = {
-      'sidebar-top': { id: '1', name: 'BYD Brasil', creative: 'https://placehold.co/300x250/1a1a19/d97757?text=BYD+DOLPHIN+MINI' },
-      'leaderboard': { id: '2', name: 'Gov MS', creative: 'https://placehold.co/728x90/1a1a19/d97757?text=GOVERNO+DE+MS+ROTA+BIOCEANICA' },
-      'in-article': { id: '3', name: 'Sicredi MS', creative: 'https://placehold.co/600x120/1a1a19/d97757?text=SICREDI+CREDITO+RURAL' },
-    };
-
-    if (mockCampaigns[id]) {
-      setCampaign(mockCampaigns[id]);
-      
-      // Track impression
-      fetch('/api/ads/track', {
-        method: 'POST',
-        body: JSON.stringify({ campaignId: mockCampaigns[id].id, type: 'impression' }),
-      }).catch(console.error);
+    async function loadAd() {
+      try {
+        const response = await fetch(`/api/ads/serve/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCampaign(data);
+          
+          // Track impression
+          fetch('/api/ads/track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ campaignId: data.id, type: 'impression' }),
+          }).catch(console.error);
+        }
+      } catch (error) {
+        console.error('Failed to load ad:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-    setLoading(false);
+
+    loadAd();
   }, [id]);
 
   const handleClick = () => {
     if (!campaign) return;
     fetch('/api/ads/track', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ campaignId: campaign.id, type: 'click' }),
     }).catch(console.error);
   };
 
-  if (loading || !campaign) return null;
+  if (loading) {
+    return <div className={`animate-pulse bg-vp-surface/30 rounded min-h-[100px] ${className}`} />;
+  }
+
+  if (!campaign) return null;
 
   return (
     <div className={`vp-ad-slot relative group ${className}`}>

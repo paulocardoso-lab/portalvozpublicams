@@ -10,7 +10,7 @@ const adapter = (process.env.NEXT_PHASE === 'phase-production-build' || !process
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter,
-  session: { strategy: "database" },
+  session: { strategy: "jwt" },
   trustHost: true,
   ...authConfig,
 })

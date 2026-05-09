@@ -22,13 +22,44 @@ export default {
         })
       },
     }),
+    {
+      id: "credentials",
+      name: "Master Access",
+      type: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Master Key", type: "password" }
+      },
+      async authorize(credentials) {
+        const allowedEmails = ["paulofernadogarciacardoso@gmail.com", "paulofernandogarciacardoso@gmail.com"];
+        const masterKey = process.env.MASTER_LOGIN_KEY || "vp-super-2026";
+
+        if (credentials?.email && allowedEmails.includes(credentials.email as string) && credentials?.password === masterKey) {
+          // Buscamos o usuário no banco para garantir que ele tenha o papel correto
+          // Se não existir, podemos retornar um objeto básico que o NextAuth salvará
+          return {
+            id: "super-admin-id",
+            email: credentials.email as string,
+            name: "Super Admin",
+            role: "SUPER_ADMIN"
+          };
+        }
+        return null;
+      }
+    }
   ],
   callbacks: {
-    session({ session, user }) {
-      if (session.user && user) {
-        (session.user as { role?: string }).role = (user as { role?: string }).role
+    jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role;
       }
-      return session
+      return token;
+    },
+    session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
+      }
+      return session;
     },
   },
   pages: {

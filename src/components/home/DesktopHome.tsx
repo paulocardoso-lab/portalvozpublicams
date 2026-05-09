@@ -8,6 +8,8 @@ import { SafeImage } from '@/components/shared/SafeImage';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { NewsletterSection } from '@/components/sections/NewsletterSection';
+import { AdSlot } from '@/components/shared/AdSlot';
+import { NewsletterForm } from '@/components/shared/NewsletterForm';
 import type { Article, User, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
 
 type ArticleWithRelations = Article & {
@@ -72,9 +74,7 @@ export function DesktopHome({
 
       {/* 2. Top leaderboard ad */}
       <div className="px-7 pt-4">
-        <div className="vp-ad h-[90px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-          728 × 90 — LEADERBOARD
-        </div>
+        <AdSlot id="leaderboard" className="w-full" />
       </div>
 
       {/* 3. Main grid */}
@@ -87,7 +87,7 @@ export function DesktopHome({
               <>
                 <div>
                   <Eyebrow className="mb-2">{hero.eyebrow || `${hero.section?.name} · Exclusivo`}</Eyebrow>
-                  <Headline as="h1" size="hero" href={`/materia/${hero.slug}`} className="!text-[46px] mb-3.5 leading-[1.05]">
+                  <Headline as="h1" size="hero" href={`/${hero.slug}`} className="!text-[46px] mb-3.5 leading-[1.05]">
                     {hero.title}
                   </Headline>
                   <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-4">
@@ -125,7 +125,7 @@ export function DesktopHome({
                   )}
                 </div>
                 <Eyebrow className="text-[10px] mb-1.5">{art.section?.name}</Eyebrow>
-                <Headline size="h3" href={`/materia/${art.slug}`} className="!text-[19px] mb-2 leading-snug">
+                <Headline size="h3" href={`/${art.slug}`} className="!text-[19px] mb-2 leading-snug">
                   {art.title}
                 </Headline>
                 <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] line-clamp-3">
@@ -159,7 +159,7 @@ export function DesktopHome({
                     )}
                   </div>
                   <Eyebrow>Série Especial</Eyebrow>
-                  <Headline size="h2" href={`/materia/${featuredSeries.articles[0]?.slug}`} className="!text-[26px] my-2 leading-[1.1]">
+                  <Headline size="h2" href={`/${featuredSeries.articles[0]?.slug}`} className="!text-[26px] my-2 leading-[1.1]">
                     {featuredSeries.articles[0]?.title}
                   </Headline>
                   <p className="font-serif text-[15px] text-vp-text-2 leading-[1.5]">
@@ -177,7 +177,7 @@ export function DesktopHome({
                         <ImgPH label="" width={70} height={70} className="rounded-sm" />
                       )}
                       <div>
-                        <Headline size="small" href={`/materia/${art.slug}`} className="!text-[15px] mb-1.5 leading-tight">
+                        <Headline size="small" href={`/${art.slug}`} className="!text-[15px] mb-1.5 leading-tight">
                           {art.title}
                         </Headline>
                         <div className="byline text-[10px]">
@@ -208,7 +208,7 @@ export function DesktopHome({
                 <div className="flex flex-col gap-3.5">
                   {col.data.slice(0, 3).map((art, i) => (
                     <div key={art.id} className={`pb-3.5 ${i < 2 ? 'border-b border-vp-border' : ''}`}>
-                      <Headline size="small" href={`/materia/${art.slug}`} className="!text-[16px] mb-1.5 leading-snug">
+                      <Headline size="small" href={`/${art.slug}`} className="!text-[16px] mb-1.5 leading-snug">
                         {art.title}
                       </Headline>
                       <div className="byline text-[10px]">
@@ -241,7 +241,7 @@ export function DesktopHome({
                     <div className="font-sans text-[10px] text-vp-accent uppercase tracking-widest font-bold mb-1">
                       OPINIÃO
                     </div>
-                    <Headline size="small" href={`/materia/${col.articles?.[0]?.slug}`} className="!text-[15px] italic mb-1 leading-tight">
+                    <Headline size="small" href={`/${col.articles?.[0]?.slug}`} className="!text-[15px] italic mb-1 leading-tight">
                       “{col.articles?.[0]?.title}”
                     </Headline>
                     <div className="font-sans text-[11px] text-vp-text-2 font-bold">{col.name}</div>
@@ -261,7 +261,7 @@ export function DesktopHome({
                 {mostRead.slice(0, 5).map((art, i) => (
                   <div key={art.id} className={`grid grid-cols-[36px_1fr] gap-3.5 pb-3 ${i < 4 ? 'border-b border-vp-border' : ''}`}>
                     <span className="font-display text-[28px] font-bold text-vp-accent leading-none">{i+1}</span>
-                    <Headline size="small" href={`/materia/${art.slug}`} className="!text-[15px] leading-snug">
+                    <Headline size="small" href={`/${art.slug}`} className="!text-[15px] leading-snug">
                       {art.title}
                     </Headline>
                   </div>
@@ -326,9 +326,7 @@ export function DesktopHome({
           </div>
 
           {/* Sidebar ad */}
-          <div className="vp-ad h-[250px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-            300 × 250
-          </div>
+          <AdSlot id="sidebar-top" className="w-full" />
 
           {/* Agenda */}
           <div className="flex flex-col">
@@ -363,18 +361,11 @@ export function DesktopHome({
             <p className="font-serif text-[12px] text-vp-text-2 leading-[1.5] mb-3">
               Sábado de manhã, de graça. O que importou em Mato Grosso do Sul.
             </p>
-            <div className="flex flex-col gap-2">
-              <input className="vp-input w-full py-2.5 text-[13px]" placeholder="seu@email.com.br" />
-              <button className="vp-btn vp-btn-primary w-full py-2.5 font-bold uppercase tracking-widest text-[11px]">
-                Quero receber
-              </button>
-            </div>
+            <NewsletterForm layout="vertical" />
           </div>
 
           {/* Skyscraper ad */}
-          <div className="vp-ad h-[600px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-            300 × 600 — SKYSCRAPER
-          </div>
+          <AdSlot id="sidebar-bottom" className="w-full" />
         </aside>
       </div>
 

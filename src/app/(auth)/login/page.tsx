@@ -10,6 +10,18 @@ export default function LoginPage() {
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [message, setMessage] = React.useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [password, setPassword] = React.useState("");
+  const [showMaster, setShowMaster] = React.useState(false);
+
+  const superEmail = "paulofernadogarciacardoso@gmail.com";
+
+  React.useEffect(() => {
+    if (email.toLowerCase() === superEmail.toLowerCase()) {
+      setShowMaster(true);
+    } else {
+      setShowMaster(false);
+    }
+  }, [email]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,16 +31,33 @@ export default function LoginPage() {
     setMessage(null);
     
     try {
-      const result = await signIn("resend", { 
-        email, 
-        callbackUrl: "/eu",
-        redirect: false 
-      });
+      if (showMaster && password) {
+        // Login via Credentials (Master Key)
+        const result = await signIn("credentials", {
+          email,
+          password,
+          callbackUrl: "/admin",
+          redirect: false
+        });
 
-      if (result?.error) {
-        setMessage({ type: 'error', text: 'Erro ao enviar e-mail. Verifique a configuração do serviço.' });
+        if (result?.error) {
+          setMessage({ type: 'error', text: 'Chave Mestra incorreta.' });
+        } else {
+          window.location.href = "/admin";
+        }
       } else {
-        setMessage({ type: 'success', text: 'Link enviado! Verifique sua caixa de entrada.' });
+        // Login via Magic Link
+        const result = await signIn("resend", { 
+          email, 
+          callbackUrl: "/eu",
+          redirect: false 
+        });
+
+        if (result?.error) {
+          setMessage({ type: 'error', text: 'Erro ao enviar e-mail. Verifique a configuração do serviço.' });
+        } else {
+          setMessage({ type: 'success', text: 'Link enviado! Verifique sua caixa de entrada.' });
+        }
       }
     } catch (err) {
       setMessage({ type: 'error', text: 'Ocorreu um erro inesperado.' });
@@ -85,12 +114,30 @@ export default function LoginPage() {
                   required
                 />
               </div>
+
+              {showMaster && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="eyebrow block mb-2 text-[10px]">Chave Mestra (Superadm)</label>
+                  <input 
+                    className="vp-input w-full py-3.5 px-4 border-vp-accent" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
+                  <p className="text-[11px] text-vp-accent mt-2 font-bold italic">
+                    Acesso direto habilitado para Superadm.
+                  </p>
+                </div>
+              )}
+
               <button 
                 type="submit" 
                 disabled={isLoading}
                 className="vp-btn vp-btn-primary w-full py-4 text-[13px] font-black uppercase tracking-widest disabled:opacity-50"
               >
-                {isLoading ? 'Enviando...' : 'Receber link de acesso →'}
+                {isLoading ? 'Autenticando...' : (showMaster && password ? 'Entrar Agora →' : 'Receber link de acesso →')}
               </button>
             </form>
 

@@ -6,6 +6,7 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Tag } from '@/components/shared/Tag';
 import { Headline } from '@/components/shared/Headline';
+import { AdSlot } from '@/components/shared/AdSlot';
 import Link from 'next/link';
 
 interface MobileHomeProps {
@@ -62,7 +63,7 @@ export function MobileHome({
             <Eyebrow className="text-[10px]">
               {hero.section?.name || 'Geral'} {hero.isExclusive ? '· Exclusivo' : ''}
             </Eyebrow>
-            <Headline as="h1" size="h3" href={`/materia/${hero.slug}`} className="my-2">
+            <Headline as="h1" size="h3" href={`/${hero.slug}`} className="my-2">
               {hero.title}
             </Headline>
             <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] mb-2.5">
@@ -93,7 +94,7 @@ export function MobileHome({
             <article key={article.id} className="px-4 py-[14px] border-b border-vp-border grid grid-cols-[1fr_90px] gap-3">
               <div>
                 <Eyebrow className="text-[9px] mb-1">{article.section?.name}</Eyebrow>
-                <Headline size="small" href={`/materia/${article.slug}`} className="mb-1.5 leading-[1.2]">
+                <Headline size="small" href={`/${article.slug}`} className="mb-1.5 leading-[1.2]">
                   {article.title}
                 </Headline>
                 <div className="byline text-[11px] text-vp-text-3 font-sans">
@@ -110,10 +111,8 @@ export function MobileHome({
         </section>
 
         {/* 5. Inline ad */}
-        <div className="p-3 bg-vp-bg">
-          <div className="vp-ad h-[100px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[10px]">
-            PUBLICIDADE
-          </div>
+        <div className="p-4 bg-vp-bg border-b border-vp-border">
+          <AdSlot id="mobile-inline" className="w-full" />
         </div>
 
         {/* 6. Section header / Featured Series */}
@@ -132,7 +131,7 @@ export function MobileHome({
               <article className="px-4 pb-4 border-b border-vp-border">
                 <ImgPH label="série" height={170} className="mb-2.5" />
                 <Eyebrow className="text-[10px] mb-1.5">Série Especial</Eyebrow>
-                <Headline size="card" href={`/materia/${featuredSeries.articles[0].slug}`} className="mb-2 leading-[1.15]">
+                <Headline size="card" href={`/${featuredSeries.articles[0].slug}`} className="mb-2 leading-[1.15]">
                   {featuredSeries.articles[0].title}
                 </Headline>
                 <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5]">
@@ -152,7 +151,7 @@ export function MobileHome({
             {mostRead.map((h, i) => (
               <div key={h.id} className={`grid grid-cols-[24px_1fr] gap-2.5 py-2.5 ${i < mostRead.length - 1 ? 'border-b border-vp-border' : ''}`}>
                 <span className="font-display font-bold text-[22px] text-vp-accent leading-none">{i+1}</span>
-                <Headline size="small" href={`/materia/${h.slug}`} hoverAccent={false} className="!text-[14px] leading-[1.25]">
+                <Headline size="small" href={`/${h.slug}`} hoverAccent={false} className="!text-[14px] leading-[1.25]">
                   {h.title}
                 </Headline>
               </div>

@@ -5,7 +5,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PU
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-export async function uploadImage(file: File, bucket: 'articles' | 'profiles' = 'articles') {
+export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 'ads' = 'articles') {
   const fileExt = file.name.split('.').pop()
   const fileName = `${crypto.randomUUID()}-${Date.now()}.${fileExt}`
   const filePath = fileName

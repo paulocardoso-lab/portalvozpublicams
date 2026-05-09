@@ -1,10 +1,14 @@
 import React from 'react';
+import { auth } from '@/auth';
 import { DashboardStat } from '@/components/admin/DashboardStat';
 import { DashboardSparkline } from '@/components/admin/DashboardSparkline';
 import { ImgPH } from '@/components/shared/ImgPH';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const session = await auth();
+  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || "Administrador";
+  
   const trafficData = [32, 28, 45, 38, 52, 48, 65, 58, 72, 68, 85, 80, 95, 90, 110, 105, 125, 120, 140, 135, 150, 145, 160, 155];
   
   return (
@@ -13,7 +17,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
           <h1 className="font-display text-[32px] lg:text-[42px] font-black leading-tight">
-            Bom dia, Marina.
+            Bom dia, {userName}.
           </h1>
           <p className="font-serif italic text-[16px] text-vp-text-3 mt-2">
             Quarta-feira, 22 de abril · 14 matérias publicadas nas últimas 24h.

@@ -68,7 +68,7 @@ export function DesktopSection({ section, articles }: DesktopSectionProps) {
           {/* Featured Article */}
           {featured && (
             <article className="grid grid-cols-2 gap-[28px] pb-[28px] border-b border-vp-border">
-              <Link href={`/materia/${featured.slug}`} className="block">
+              <Link href={`/${featured.slug}`} className="block">
                 {featured.heroImage ? (
                   <div className="relative aspect-[16/10] overflow-hidden rounded-sm group">
                     <SafeImage
@@ -84,7 +84,7 @@ export function DesktopSection({ section, articles }: DesktopSectionProps) {
               </Link>
               <div className="flex flex-col justify-center">
                 <Eyebrow className="mb-2.5">{featured.eyebrow || 'Destaque'}</Eyebrow>
-                <Headline size="h2" href={`/materia/${featured.slug}`} className="!text-[38px] mb-3.5 leading-[1.05]">
+                <Headline size="h2" href={`/${featured.slug}`} className="!text-[38px] mb-3.5 leading-[1.05]">
                   {featured.title}
                 </Headline>
                 <p className="font-serif text-[16px] text-vp-text-2 leading-[1.5] mb-4 line-clamp-3">
@@ -101,7 +101,7 @@ export function DesktopSection({ section, articles }: DesktopSectionProps) {
           <div className="flex flex-col">
             {list.map((art, i) => (
               <article key={art.id} className="grid grid-cols-[200px_1fr_auto] gap-[22px] py-[22px] border-b border-vp-border items-start group">
-                <Link href={`/materia/${art.slug}`} className="block">
+                <Link href={`/${art.slug}`} className="block">
                   {art.heroImage ? (
                     <div className="relative h-[130px] overflow-hidden rounded-sm group-hover:opacity-90 transition-opacity">
                       <SafeImage src={art.heroImage} alt="" fill className="object-cover" />
@@ -112,7 +112,7 @@ export function DesktopSection({ section, articles }: DesktopSectionProps) {
                 </Link>
                 <div>
                   <Eyebrow className="text-[10px] mb-1.5">{art.eyebrow || 'Reportagem'}</Eyebrow>
-                  <Headline size="h3" href={`/materia/${art.slug}`} className="!text-[22px] mb-2 leading-tight">
+                  <Headline size="h3" href={`/${art.slug}`} className="!text-[22px] mb-2 leading-tight">
                     {art.title}
                   </Headline>
                   <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] line-clamp-2">
