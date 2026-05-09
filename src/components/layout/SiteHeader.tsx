@@ -19,7 +19,10 @@ export async function SiteHeader() {
     year: 'numeric'
   }).format(now);
 
-  let initialTickerData = { market: { usd: '5,12', boi: '353,80', soja: '122,51' }, weather: { temp: 28 } };
+  let initialTickerData = { 
+    market: { usd: '5,12', boi: '353,80', soja: '122,51', milho: '65,98', trigo: '1.250,00' }, 
+    weather: { temp: 28 } 
+  };
   let settings: Record<string, string> = {};
   let dbSections: any[] = [];
 
