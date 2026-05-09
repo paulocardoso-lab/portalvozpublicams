@@ -20,7 +20,8 @@ export async function GET(
     });
 
     if (!campaign) {
-      return NextResponse.json({ error: 'No active campaign for this slot' }, { status: 404 });
+      // Return a harmless placeholder when no active campaign exists
+      return NextResponse.json({ slot, message: 'No active campaign', campaign: null }, { status: 200 })
     }
 
     return NextResponse.json(campaign);
