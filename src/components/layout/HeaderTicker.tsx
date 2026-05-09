@@ -7,7 +7,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface HeaderTickerProps {
   initialData: {
-    market: { usd: string; boi: string; soja: string };
+    market: { usd: string; boi: string; soja: string; milho: string };
     weather: { temp: number };
   };
 }
@@ -28,6 +28,8 @@ export function HeaderTicker({ initialData }: HeaderTickerProps) {
         <span className="text-vp-text-4">BOI</span> {market.boi}
         <span className="mx-2 text-vp-text-4">|</span>
         <span className="text-vp-text-4">SOJA</span> {market.soja}
+        <span className="mx-2 text-vp-text-4">|</span>
+        <span className="text-vp-text-4">MILHO</span> {market.milho}
       </span>
     </div>
   );

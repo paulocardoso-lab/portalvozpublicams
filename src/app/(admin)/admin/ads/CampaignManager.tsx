@@ -141,6 +141,8 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
                   <option value="leaderboard">Topo Leaderboard (728x90)</option>
                   <option value="in-article">Dentro da Matéria (600x120)</option>
                   <option value="sidebar-bottom">Lateral Inferior (300x250)</option>
+                  <option value="mobile-inline">Mobile Entre Blocos (300x250)</option>
+                  <option value="mobile-top">Mobile Topo (320x50)</option>
                 </select>
               </div>
 

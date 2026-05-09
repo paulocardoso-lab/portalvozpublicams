@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s | Voz Pública MS"
   },
   description: "Investigação, política, meio ambiente e poder em Mato Grosso do Sul. O portal que aprofunda as notícias que importam para o estado.",
-  metadataBase: new URL('https://vozpublicams.com.br'),
+  metadataBase: new URL('https://sitevozpublicamsoficial.vercel.app'),
   alternates: {
     canonical: '/',
     types: {
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Voz Pública MS",
     description: "Jornalismo independente para Mato Grosso do Sul",
-    url: "https://vozpublicams.com.br",
+    url: "https://sitevozpublicamsoficial.vercel.app",
     siteName: "Voz Pública MS",
     locale: "pt_BR",
     type: "website",
@@ -75,6 +75,8 @@ export const metadata: Metadata = {
 };
 
 
+import { Providers } from "@/components/shared/Providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -83,7 +85,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark">
       <body className={`vp-root ${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} min-h-screen`}>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

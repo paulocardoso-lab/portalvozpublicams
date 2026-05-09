@@ -4,7 +4,7 @@ export async function getMarketData() {
   try {
     // Tenta buscar do banco primeiro (Cache persistente)
     const indicators = await prisma.marketIndicator.findMany({
-      where: { key: { in: ['usd', 'boi', 'soja'] } }
+      where: { key: { in: ['usd', 'boi', 'soja', 'milho', 'trigo'] } }
     });
 
     const dataMap = indicators.reduce((acc, curr) => {
@@ -12,31 +12,16 @@ export async function getMarketData() {
       return acc;
     }, {} as Record<string, string>);
 
-    // Se faltar algum dado ou estiver muito antigo, tenta buscar USD via API
-    // (Boi e Soja são atualizados via CRON diário)
-    if (!dataMap.usd) {
-      const res = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL', { 
-        next: { revalidate: 3600 } 
-      });
-      const data = await res.json();
-      dataMap.usd = parseFloat(data.USDBRL.bid).toFixed(2);
-      
-      // Salva/Atualiza o USD no banco
-      await prisma.marketIndicator.upsert({
-        where: { key: 'usd' },
-        update: { value: dataMap.usd },
-        create: { key: 'usd', value: dataMap.usd, unit: 'R$' }
-      });
-    }
-
     return {
       usd: dataMap.usd || "5,12",
       boi: dataMap.boi || "353,80",
-      soja: dataMap.soja || "122,51"
+      soja: dataMap.soja || "122,51",
+      milho: dataMap.milho || "65,98",
+      trigo: dataMap.trigo || "1.250,00"
     };
   } catch (error) {
     console.error('Erro ao buscar dados financeiros:', error);
-    return { usd: "5,12", boi: "353,80", soja: "122,51" };
+    return { usd: "5,12", boi: "353,80", soja: "122,51", milho: "65,98", trigo: "1.250,00" };
   }
 }
 

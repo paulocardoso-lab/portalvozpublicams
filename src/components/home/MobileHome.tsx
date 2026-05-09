@@ -34,6 +34,7 @@ export function MobileHome({
     <div className="bg-vp-bg min-h-screen flex flex-col md:hidden">
       <MobileMasthead />
       <MobileEditoriaScroller />
+      <AdSlot id="mobile-top" className="w-full bg-vp-surface/30" />
 
       {/* 1. Alert strip (if active) */}
       {activeAlert && (

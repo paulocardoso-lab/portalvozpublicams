@@ -7,6 +7,7 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Headline } from '@/components/shared/Headline';
 import { SafeImage } from '@/components/shared/SafeImage';
+import { AdSlot } from '@/components/shared/AdSlot';
 
 type ArticleWithRelations = Article & {
   authors: User[];
@@ -131,9 +132,7 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
 
         {/* Right Sidebar */}
         <aside className="flex flex-col gap-6 self-start">
-          <div className="vp-ad h-[250px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-            300 × 250
-          </div>
+          <AdSlot id="sidebar-top" className="w-full" />
           
           <div>
             <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold text-vp-text mb-4">Leia também</h3>

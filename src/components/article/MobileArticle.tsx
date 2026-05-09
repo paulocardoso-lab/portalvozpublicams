@@ -6,6 +6,7 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Headline } from '@/components/shared/Headline';
 import { SafeImage } from '@/components/shared/SafeImage';
+import { AdSlot } from '@/components/shared/AdSlot';
 
 type ArticleWithRelations = Article & {
   authors: User[];
@@ -120,6 +121,10 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
             }}
           />
         </article>
+
+        <div className="px-4 my-6">
+          <AdSlot id="mobile-inline" className="w-full" />
+        </div>
 
         {/* 2. Comments preview */}
         <section className="px-4 py-8 border-t border-vp-border bg-vp-surface mt-8">

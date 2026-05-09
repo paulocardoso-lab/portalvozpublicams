@@ -1,6 +1,11 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 /**
  * MobileMasthead — Cabeçalho mobile do portal.
@@ -11,6 +16,12 @@ export function MobileMasthead({ title }: { title?: string }) {
   const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   const formatted = `${days[now.getDay()]} · ${now.getDate()} ${months[now.getMonth()]}`;
+
+  const { data } = useSWR('/api/external', fetcher, {
+    refreshInterval: 600000, // 10 min
+  });
+
+  const market = data?.market || { usd: '5,12', boi: '353,80' };
 
   return (
     <div className="sticky top-0 z-50 bg-vp-bg border-b border-vp-border">
@@ -36,7 +47,7 @@ export function MobileMasthead({ title }: { title?: string }) {
       {/* Edition strip */}
       <div className="px-4 py-[6px] border-t border-vp-border font-sans text-[10px] text-vp-text-3 flex justify-between tracking-[0.06em] uppercase">
         <span className="font-semibold">{formatted}</span>
-        <span className="font-mono text-vp-text-4">USD 5,12 · BOI 302,40</span>
+        <span className="font-mono text-vp-text-4">USD {market.usd} · BOI {market.boi}</span>
       </div>
     </div>
   );

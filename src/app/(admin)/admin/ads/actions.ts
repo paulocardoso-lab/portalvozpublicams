@@ -19,6 +19,9 @@ export async function createCampaign(formData: FormData) {
 
     const startsAt = new Date(String(rawStartsAt));
     const endsAt = new Date(String(rawEndsAt));
+    
+    // Garantir que a campanha termine no final do dia escolhido
+    endsAt.setHours(23, 59, 59, 999);
 
     if (isNaN(startsAt.getTime()) || isNaN(endsAt.getTime())) {
       throw new Error("Formato de data inválido.");
