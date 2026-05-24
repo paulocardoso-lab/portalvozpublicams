@@ -53,6 +53,7 @@ model User {
   role          Role      @default(READER)
   bio           String?   @db.Text
   social        Json?
+  passwordHash  String?
   twoFA         Boolean   @default(false)
   twoFASecret   String?
   city          String?

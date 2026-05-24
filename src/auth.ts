@@ -6,10 +6,6 @@ import { magicLinkTemplate } from "./lib/email-templates"
 import prisma from "@/lib/prisma"
 import authConfig from "./auth.config"
 
-console.log("NEXT_PHASE:", process.env.NEXT_PHASE);
-console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-
-// Inicializamos o adaptador diretamente
 const adapter = PrismaAdapter(prisma);
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -23,12 +19,17 @@ if (resendApiKey && resendClient) {
       apiKey: resendApiKey,
       from: "Voz Pública MS <onboarding@resend.dev>",
       async sendVerificationRequest({ identifier, url }) {
+        // Corrige o URL para apontar para o host correto em produção
+        const correctedUrl = process.env.NEXTAUTH_URL
+          ? url.replace(/^https?:\/\/[^/]+/, process.env.NEXTAUTH_URL)
+          : url;
+
         await resendClient.emails.send({
           from: "Voz Pública MS <onboarding@resend.dev>",
           to: identifier,
           subject: "Acesso ao Portal Voz Pública MS",
-          html: magicLinkTemplate(url),
-        })
+          html: magicLinkTemplate(correctedUrl),
+        });
       },
     }) as any
   );
