@@ -92,21 +92,19 @@ export default function RootLayout({
 
   return (
     <html lang="pt-BR" className="dark">
-      <head>
-        {umamiWebsiteId && umamiSrc && (
-          <script
-            defer
-            src={umamiSrc}
-            data-website-id={umamiWebsiteId}
-          />
-        )}
-      </head>
       <body className={`vp-root ${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} min-h-screen`}>
         <Providers>
           {children}
         </Providers>
         <Analytics />
         <SpeedInsights />
+        {umamiWebsiteId && umamiSrc && (
+          <Script
+            src={umamiSrc}
+            data-website-id={umamiWebsiteId}
+            strategy="afterInteractive"
+          />
+        )}
         {GA_ID && (
           <>
             <Script
