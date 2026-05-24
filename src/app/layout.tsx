@@ -76,18 +76,34 @@ export const metadata: Metadata = {
 
 
 import { Providers } from "@/components/shared/Providers";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+  const umamiSrc = process.env.NEXT_PUBLIC_UMAMI_SRC;
+
   return (
     <html lang="pt-BR" className="dark">
+      <head>
+        {umamiWebsiteId && umamiSrc && (
+          <script
+            defer
+            src={umamiSrc}
+            data-website-id={umamiWebsiteId}
+          />
+        )}
+      </head>
       <body className={`vp-root ${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} min-h-screen`}>
         <Providers>
           {children}
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
