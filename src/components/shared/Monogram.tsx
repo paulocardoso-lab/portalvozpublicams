@@ -1,25 +1,19 @@
-import React from 'react';
+import Image from 'next/image';
+
+const SIZE_MAP = { sm: 24, md: 32, lg: 40, xl: 56 } as const;
 
 export function Monogram({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | number, className?: string }) {
-  // Map sizes to height in pixels as defined in the first version
-  let height = 32;
-  if (typeof size === 'number') {
-    height = size;
-  } else {
-    switch (size) {
-      case 'sm': height = 24; break;
-      case 'md': height = 32; break;
-      case 'lg': height = 40; break;
-      case 'xl': height = 56; break;
-    }
-  }
+  const height = typeof size === 'number' ? size : SIZE_MAP[size];
 
   return (
-    <img 
-      src="/logo.png" 
-      alt="Voz Pública MS" 
+    <Image
+      src="/logo.png"
+      alt="Voz Pública MS"
+      height={height}
+      width={height * 6}
       className={className}
-      style={{ height: `${height}px`, width: 'auto', objectFit: 'contain' }} 
+      style={{ height: `${height}px`, width: 'auto', objectFit: 'contain' }}
+      priority
     />
   );
 }
