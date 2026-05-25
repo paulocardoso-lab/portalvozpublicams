@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/api/og",
         width: 1200,
         height: 630,
         alt: "Voz Pública MS",
@@ -65,11 +65,11 @@ export const metadata: Metadata = {
     title: "Voz Pública MS",
     description: "Jornalismo independente para Mato Grosso do Sul",
     creator: "@vozpublicams",
-    images: ["/og-image.jpg"],
+    images: ["/api/og"],
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
     apple: "/apple-touch-icon.png",
   },
 };
