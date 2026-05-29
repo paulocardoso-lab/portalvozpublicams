@@ -20,7 +20,7 @@ const nav: NavItem[] = [
   { id: 'posts',     label: 'Matérias', icon: '≡', href: '/admin/posts' },
   { id: 'editor',    label: 'Nova matéria', icon: '✎', href: '/admin/posts/new' },
   { id: 'kanban',    label: 'Fila editorial', icon: '▦', href: '/admin/kanban' },
-  { id: 'comments',  label: 'Comentários', icon: '◉', href: '/admin/comments', badge: 12 },
+  { id: 'comments',  label: 'Comentários', icon: '◉', href: '/admin/comments' },
   { id: 'users',     label: 'Usuários & permissões', icon: '◎', href: '/admin/users' },
   { id: 'ads',       label: 'Banners & publicidade', icon: '▭', href: '/admin/ads' },
   { id: 'rss',       label: 'Automação RSS', icon: '📡', href: '/admin/rss' },
@@ -33,7 +33,14 @@ const nav: NavItem[] = [
 ];
 
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+interface AdminShellProps {
+  children: React.ReactNode;
+  pendingComments: number;
+  draftArticles: number;
+  reviewArticles: number;
+}
+
+export function AdminShell({ children, pendingComments, draftArticles, reviewArticles }: AdminShellProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -66,7 +73,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto vp-scroll py-4 px-2.5 space-y-1">
-          {nav.map((n) => {
+          {nav.map((item) => {
+            const n = item.id === 'comments' && pendingComments > 0
+              ? { ...item, badge: pendingComments }
+              : item;
             const active = pathname === n.href || (n.href !== '/admin' && pathname.startsWith(n.href));
             return (
               <Link
@@ -143,8 +153,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <span className="text-vp-ok">Online</span>
               </div>
               <div className="h-4 w-[1px] bg-vp-border" />
-              <span>12 em rascunho</span>
-              <span>4 em revisão</span>
+              <span>{draftArticles} em rascunho</span>
+              <span>{reviewArticles} em revisão</span>
             </div>
 
             <div className="flex items-center gap-2">

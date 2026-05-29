@@ -9,17 +9,18 @@ interface DashboardSparklineProps {
 }
 
 export function DashboardSparkline({ points, color = '#d97757', height = 120 }: DashboardSparklineProps) {
-  const max = Math.max(...points);
-  const min = Math.min(...points);
+  const safePoints = points.length > 1 ? points : [0, points[0] ?? 0];
+  const max = Math.max(...safePoints);
+  const min = Math.min(...safePoints);
   const w = 400;
-  const step = w / (points.length - 1);
+  const step = w / (safePoints.length - 1);
   
   const norm = (v: number) => {
     const range = max - min || 1;
     return height - ((v - min) / range) * (height - 12) - 6;
   };
 
-  const path = points.map((p, i) => 
+  const path = safePoints.map((p, i) =>
     `${i === 0 ? 'M' : 'L'} ${i * step} ${norm(p)}`
   ).join(' ');
 
@@ -58,7 +59,7 @@ export function DashboardSparkline({ points, color = '#d97757', height = 120 }: 
         {/* Current point dot */}
         <circle 
           cx={w} 
-          cy={norm(points[points.length-1])} 
+          cy={norm(safePoints[safePoints.length-1])}
           r="4" 
           fill={color} 
           className="animate-pulse" 

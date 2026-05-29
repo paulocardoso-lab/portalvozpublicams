@@ -47,11 +47,11 @@ export default async function AdminSettingsPage() {
           <div className="grid sm:grid-cols-3 gap-3">
              <label className="grid gap-1">
                <span className="text-[11px] text-vp-text-3 uppercase font-semibold">Arroba do Boi (R$)</span>
-               <input name="boi" className="vp-input text-[13px] font-mono" defaultValue={s["boi"] ?? "353,80"} />
+               <input name="boi" className="vp-input text-[13px] font-mono" defaultValue={s["boi"] ?? ""} placeholder="Sem valor manual" />
              </label>
              <label className="grid gap-1">
                <span className="text-[11px] text-vp-text-3 uppercase font-semibold">Saca da Soja (R$)</span>
-               <input name="soja" className="vp-input text-[13px] font-mono" defaultValue={s["soja"] ?? "122,51"} />
+               <input name="soja" className="vp-input text-[13px] font-mono" defaultValue={s["soja"] ?? ""} placeholder="Sem valor manual" />
              </label>
              <label className="grid gap-1">
                <span className="text-[11px] text-vp-text-3 uppercase font-semibold">Dólar (USD/BRL)</span>

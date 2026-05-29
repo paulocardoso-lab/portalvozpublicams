@@ -9,7 +9,7 @@ import { BrandLogo } from '@/components/shared/BrandLogo';
 export function AdminSidebar() {
   const pathname = usePathname() || '';
   
-  const nav = [
+  const nav: { id: string; label: string; icon: string; href: string; badge?: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: '□', href: '/admin' },
     { id: 'posts',     label: 'Matérias', icon: '≡', href: '/admin/posts' },
     { id: 'editor',    label: 'Nova matéria', icon: '✎', href: '/admin/posts/new' },
@@ -21,7 +21,7 @@ export function AdminSidebar() {
     { id: 'rss',       label: 'Automação RSS', icon: '∞', href: '/admin/rss' },
     { id: 'market',    label: 'Indicadores', icon: '∿', href: '/admin/metrics/market' },
     { id: 'denuncias', label: 'Denúncias', icon: '⚐', href: '/admin/denuncias' },
-    { id: 'comments',  label: 'Comentários', icon: '◉', badge: 12, href: '/admin/comments' },
+    { id: 'comments',  label: 'Comentários', icon: '◉', href: '/admin/comments' },
     { id: 'users',     label: 'Usuários & permissões', icon: '◎', href: '/admin/users' },
     { id: 'ads',       label: 'Banners & publicidade', icon: '▭', href: '/admin/ads' },
     { id: 'appearance',label: 'Aparência & layout', icon: '⌘', href: '/admin/appearance' },
@@ -60,8 +60,8 @@ export function AdminSidebar() {
           <ImgPH label="" width={32} height={32} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[12px] font-semibold truncate">Marina Ribeiro</div>
-          <div className="text-[10px] text-vp-accent uppercase tracking-[0.08em]">Editora-chefe</div>
+          <div className="text-[12px] font-semibold truncate">Usuário administrativo</div>
+          <div className="text-[10px] text-vp-accent uppercase tracking-[0.08em]">Admin</div>
         </div>
         <Link href="/" className="text-[11px] text-vp-text-3 hover:text-vp-text no-underline">Sair</Link>
       </div>

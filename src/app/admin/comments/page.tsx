@@ -1,120 +1,129 @@
-"use client";
+import React from 'react';
+import prisma from '@/lib/prisma';
 
-import React, { useState } from 'react';
-import { Eyebrow } from '@/components/shared/Eyebrow';
+export const dynamic = 'force-dynamic';
 
-export default function AdminCommentsPage() {
-  const [activeTab, setActiveTab] = useState<'pending' | 'flagged' | 'approved' | 'spam'>('flagged');
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Aguardando',
+  APPROVED: 'Aprovados',
+  HIDDEN: 'Ocultos',
+  SPAM: 'Spam',
+  BANNED: 'Banidos',
+};
 
-  const comments = [
-    { id: 1, user: 'João de Souza', email: 'joao@email.com', body: 'Isso é uma vergonha para o nosso estado! O Taquari está morrendo e ninguém faz nada.', article: 'O rio que sumiu: Taquari', date: 'há 12min', status: 'pending' },
-    { id: 2, user: 'Maria Oliveira', email: 'maria@email.com', body: 'Reportagem enviesada. Claramente atacando o governo sem ouvir o outro lado.', article: 'Assembleia aprova LDO 2027', date: 'há 45min', status: 'flagged', flags: 3, reason: 'Discurso de ódio' },
-    { id: 3, user: 'Carlos Silva', email: 'carlos@email.com', body: 'Ótima investigação. Precisamos de mais jornalismo assim em MS.', article: 'Raio-X: patrimônio dos deputados', date: 'há 2h', status: 'approved' },
-    { id: 4, user: 'Bot 123', email: 'spam@bot.com', body: 'GANHE DINHEIRO FÁCIL TRABALHANDO EM CASA! CLIQUE AQUI', article: 'O rio que sumiu', date: 'há 5h', status: 'spam' },
-  ];
+function relativeTime(date: Date) {
+  const seconds = Math.max(1, Math.floor((Date.now() - date.getTime()) / 1000));
+  if (seconds < 60) return 'agora';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `ha ${minutes}min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `ha ${hours}h`;
+  return date.toLocaleDateString('pt-BR');
+}
 
-  const filtered = comments.filter(c => c.status === activeTab);
+export default async function AdminCommentsPage() {
+  const [counts, comments] = await Promise.all([
+    prisma.comment.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+    }),
+    prisma.comment.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        body: true,
+        status: true,
+        flags: true,
+        flagReason: true,
+        guestName: true,
+        createdAt: true,
+        user: { select: { name: true, email: true } },
+        article: { select: { title: true } },
+      },
+    }),
+  ]);
+
+  const countByStatus = Object.fromEntries(counts.map((item) => [item.status, item._count._all]));
+  const pendingCount = countByStatus.PENDING ?? 0;
+  const flaggedCount = comments.filter((comment) => comment.flags > 0).length;
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
           <h1 className="font-display text-[26px] lg:text-[32px] font-black leading-tight">
             Moderação de Comentários.
           </h1>
           <p className="font-serif italic text-[15px] text-vp-text-3 mt-1">
-            Gerencie o debate público · 12 aguardando · 3 sinalizados.
+            Gerencie o debate público · {pendingCount} aguardando · {flaggedCount} sinalizados.
           </p>
-        </div>
-        <div className="flex gap-2">
-          <button className="vp-btn text-[11px] font-black uppercase tracking-widest px-4 py-2">
-             Regras de Moderação
-          </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-8 border-b border-vp-border">
-        {[
-          { id: 'pending', l: 'Aguardando', count: 12 },
-          { id: 'flagged', l: 'Sinalizados', count: 3, urgent: true },
-          { id: 'approved', l: 'Aprovados', count: 482 },
-          { id: 'spam', l: 'Spam', count: 14 }
-        ].map(t => (
-          <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id as any)}
-            className={`pb-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${
-              activeTab === t.id ? 'text-vp-text' : 'text-vp-text-4 hover:text-vp-text-2'
-            }`}
-          >
-            {t.l}
-            <span className={`ml-2 font-mono ${t.urgent ? 'text-vp-urgent' : 'text-vp-text-4'}`}>
-              ({t.count})
+      <div className="flex flex-wrap gap-6 border-b border-vp-border">
+        {Object.entries(STATUS_LABELS).map(([status, label]) => (
+          <div key={status} className="pb-4 text-[11px] font-black uppercase tracking-[0.2em] text-vp-text-3">
+            {label}
+            <span className="ml-2 font-mono text-vp-text-4">
+              ({countByStatus[status] ?? 0})
             </span>
-            {activeTab === t.id && (
-              <span className="absolute bottom-[-1px] left-0 w-full h-[2px] bg-vp-accent" />
-            )}
-          </button>
+          </div>
         ))}
       </div>
 
-      {/* List */}
       <div className="space-y-4">
-        {filtered.length === 0 ? (
+        {comments.length === 0 ? (
           <div className="py-20 text-center border border-dashed border-vp-border rounded">
-             <p className="text-vp-text-4 italic font-serif">Nenhum comentário nesta fila.</p>
+            <p className="text-vp-text-4 italic font-serif">Nenhum comentário registrado.</p>
           </div>
         ) : (
-          filtered.map(c => (
-            <div key={c.id} className="vp-panel p-6 bg-[#141413] border border-vp-border hover:border-vp-border-2 transition-all group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-text-3 text-[14px]">
-                    {c.user[0]}
+          comments.map((comment) => {
+            const author = comment.user?.name || comment.guestName || 'Visitante';
+            const email = comment.user?.email;
+
+            return (
+              <div key={comment.id} className="vp-panel p-6 bg-[#141413] border border-vp-border hover:border-vp-border-2 transition-all group">
+                <div className="flex justify-between items-start mb-4 gap-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-text-3 text-[14px]">
+                      {author.slice(0, 1).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="text-[14px] font-black text-vp-text">{author}</h4>
+                      <span className="text-[11px] text-vp-text-4 font-mono">{email ?? 'sem e-mail'}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-[14px] font-black text-vp-text">{c.user}</h4>
-                    <span className="text-[11px] text-vp-text-4 font-mono">{c.email}</span>
+                  <div className="text-right">
+                    <span className="text-[10px] text-vp-text-4 font-black uppercase tracking-widest block mb-1">Matéria</span>
+                    <p className="text-[12px] font-bold text-vp-accent italic">
+                      &quot;{comment.article.title}&quot;
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-[10px] text-vp-text-4 font-black uppercase tracking-widest block mb-1">Matéria</span>
-                  <p className="text-[12px] font-bold text-vp-accent italic hover:underline cursor-pointer">
-                    &quot;{c.article}&quot;
+
+                <div className="bg-vp-bg p-4 border border-vp-border mb-6">
+                  {comment.flags > 0 && (
+                    <div className="flex items-center gap-2 mb-3 text-vp-urgent">
+                      <span className="w-1.5 h-1.5 rounded-full bg-vp-urgent animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        Sinalizado: {comment.flagReason ?? 'sem motivo informado'} ({comment.flags})
+                      </span>
+                    </div>
+                  )}
+                  <p className="font-serif text-[16px] text-vp-text-2 leading-relaxed italic">
+                    &quot;{comment.body}&quot;
                   </p>
                 </div>
-              </div>
 
-              <div className="bg-vp-bg p-4 border border-vp-border mb-6">
-                 {c.status === 'flagged' && (
-                    <div className="flex items-center gap-2 mb-3 text-vp-urgent">
-                       <span className="w-1.5 h-1.5 rounded-full bg-vp-urgent animate-pulse" />
-                       <span className="text-[10px] font-black uppercase tracking-widest">Sinalizado: {c.reason} ({c.flags} denúncias)</span>
-                    </div>
-                 )}
-                 <p className="font-serif text-[16px] text-vp-text-2 leading-relaxed italic">
-                   &quot;{c.body}&quot;
-                 </p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-vp-text-4 font-mono uppercase tracking-widest">{c.date}</span>
-                <div className="flex gap-2">
-                  <button className="vp-btn text-[11px] font-black uppercase tracking-widest px-4 py-2 hover:bg-vp-urgent/10 hover:text-vp-urgent hover:border-vp-urgent transition-all">
-                    Banir Usuário
-                  </button>
-                  <button className="vp-btn text-[11px] font-black uppercase tracking-widest px-4 py-2 hover:bg-vp-surface transition-all">
-                    Marcar Spam
-                  </button>
-                  <button className="vp-btn vp-btn-primary text-[11px] font-black uppercase tracking-widest px-8 py-2">
-                    Aprovar Comentário
-                  </button>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-[11px] text-vp-text-4 font-mono uppercase tracking-widest">
+                    {STATUS_LABELS[comment.status] ?? comment.status} · {relativeTime(comment.createdAt)}
+                  </span>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
