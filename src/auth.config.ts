@@ -46,10 +46,10 @@ export default {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role || "READER";
+        token.role = (user as any).role || null;
         token.id = user.id;
       }
-      // Magic link: role não vem no user object — busca do banco
+      // Busca role do banco sempre que não estiver no token (magic link não retorna role no user object)
       if (!token.role && token.email) {
         const { default: prisma } = await import("@/lib/prisma");
         const dbUser = await prisma.user.findUnique({
