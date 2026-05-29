@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Article, User, Section } from '@prisma/client';
+import { Article, Section } from '@prisma/client';
 import { ImgPH } from '@/components/shared/ImgPH';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Headline } from '@/components/shared/Headline';
 import { SafeImage } from '@/components/shared/SafeImage';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { renderArticleBody } from '@/lib/article-renderer';
 
 type ArticleWithRelations = Article & {
-  authors: User[];
+  authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
   section: Section;
 };
 
@@ -114,11 +115,7 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
 
           <div 
             className="font-serif text-[17px] leading-[1.65] text-vp-text vp-article-content"
-            dangerouslySetInnerHTML={{ 
-              __html: typeof article.body === 'string' 
-                ? article.body 
-                : JSON.stringify(article.body)
-            }}
+            dangerouslySetInnerHTML={{ __html: renderArticleBody(article.body) }}
           />
         </article>
 
@@ -157,4 +154,3 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
     </div>
   );
 }
-

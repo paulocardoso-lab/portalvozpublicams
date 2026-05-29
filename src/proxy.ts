@@ -4,40 +4,52 @@ import authConfig from "./auth.config.edge"
 
 const { auth } = NextAuth(authConfig)
 
+type SessionUserWithRole = {
+  role?: string | null
+}
+
+type RedirectRequest = {
+  headers: Headers
+  nextUrl: URL
+}
+
+function redirectTo(path: string, req: RedirectRequest) {
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host")
+  const proto = req.headers.get("x-forwarded-proto") || req.nextUrl.protocol.replace(":", "")
+  const origin = host ? `${proto}://${host}` : req.nextUrl.origin
+
+  return NextResponse.redirect(new URL(path, origin))
+}
+
 export default auth((req) => {
   const isLoggedIn = !!req.auth
-  const userRole = (req.auth?.user as any)?.role || "READER"
+  const userRole = (req.auth?.user as SessionUserWithRole | undefined)?.role || "READER"
   const { nextUrl } = req
-  
+
   const isOnAdmin = nextUrl.pathname.startsWith("/admin")
   const isOnAuth = nextUrl.pathname.startsWith("/login") || nextUrl.pathname.startsWith("/signup")
   const isOnUserArea = nextUrl.pathname.startsWith("/eu")
 
-  // Protect Admin: Only roles other than READER can access
   if (isOnAdmin) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/login", nextUrl))
+      return redirectTo("/login", req)
     }
-    
+
     if (userRole === "READER") {
-      // Se for apenas leitor, não entra no admin
-      return NextResponse.redirect(new URL("/", nextUrl))
+      return redirectTo("/", req)
     }
   }
 
-  // Protect User Area: Any logged in user
   if (isOnUserArea && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", nextUrl))
+    return redirectTo("/login", req)
   }
 
   if (isOnAuth && isLoggedIn) {
-    // Se logado, redireciona para o admin (se tiver papel) ou home
     const redirectUrl = userRole === "READER" ? "/" : "/admin"
-    return NextResponse.redirect(new URL(redirectUrl, nextUrl))
+    return redirectTo(redirectUrl, req)
   }
 })
 
 export const config = {
   matcher: ["/admin/:path*", "/login", "/signup", "/eu/:path*"],
 }
-

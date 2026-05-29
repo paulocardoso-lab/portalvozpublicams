@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import type { User, Article } from '@prisma/client';
+import type { Article } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
@@ -9,7 +9,16 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 import { SafeImage } from '@/components/shared/SafeImage';
 
 interface DesktopColumnistProps {
-  columnist: User & { articles: Article[] };
+  columnist: {
+    id: string;
+    name: string;
+    slug: string | null;
+    image: string | null;
+    avatar: string | null;
+    email: string;
+    bio: string | null;
+    articles: Article[];
+  };
 }
 
 /**

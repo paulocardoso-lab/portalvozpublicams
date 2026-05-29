@@ -36,8 +36,16 @@ yarn-error.log*
 # vercel
 .vercel
 
+# editor
+/.vscode/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 /src/generated/prisma
+
+# local operational backups
+/scratch/backups/
+/scratch/sprint2/
+/scratch/sprint4/

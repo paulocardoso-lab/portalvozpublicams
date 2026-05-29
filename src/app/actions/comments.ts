@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
+import { rateLimitAction } from '@/lib/rate-limit';
 
 const commentSchema = z.object({
   articleId: z.string(),
@@ -12,6 +13,11 @@ const commentSchema = z.object({
 });
 
 export async function submitComment(formData: FormData) {
+  const limit = await rateLimitAction({ key: 'comment', limit: 5, windowMs: 10 * 60 * 1000 });
+  if (limit.limited) {
+    return { error: 'Muitas tentativas. Aguarde alguns minutos antes de comentar novamente.' };
+  }
+
   const session = await auth();
   
   const articleId = formData.get('articleId') as string;

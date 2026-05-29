@@ -4,7 +4,13 @@ import { DesktopSearch } from '@/components/search/DesktopSearch';
 import { MobileMasthead } from '@/components/layout/MobileMasthead';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import Link from 'next/link';
-import Image from 'next/image';
+
+const publicAuthorSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  avatar: true,
+} as const;
 
 export default async function SearchPage({ 
   searchParams 
@@ -23,7 +29,7 @@ export default async function SearchPage({
     },
     include: {
       section: true,
-      authors: true,
+      authors: { select: publicAuthorSelect },
     },
     orderBy: { publishedAt: 'desc' },
     take: 30,
@@ -84,4 +90,3 @@ export default async function SearchPage({
     </>
   );
 }
-

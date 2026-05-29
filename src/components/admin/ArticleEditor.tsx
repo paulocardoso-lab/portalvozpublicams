@@ -1,17 +1,27 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Article, ArticleVersion, Section, User, Role } from '@prisma/client';
+import { Article, Section, Role } from '@prisma/client';
 
 import { saveArticle, restoreVersion } from '@/app/admin/posts/actions';
 import { TiptapEditor } from './TiptapEditor';
+type AuthorOption = {
+  id: string;
+  name: string;
+  role: Role;
+};
+
 interface ArticleEditorProps {
   article?: Article & { 
-    authors: User[];
-    versions?: (ArticleVersion & { author: User })[];
+    authors: AuthorOption[];
+    versions?: {
+      id: string;
+      createdAt: Date;
+      author: { name: string };
+    }[];
   };
   sections: Section[];
-  users: User[];
+  users: AuthorOption[];
 }
 
 export function ArticleEditor({ article, sections, users }: ArticleEditorProps) {

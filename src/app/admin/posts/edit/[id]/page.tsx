@@ -10,9 +10,13 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   const article = await prisma.article.findUnique({
     where: { id },
     include: { 
-      authors: true,
+      authors: { select: { id: true, name: true, role: true } },
       versions: {
-        include: { author: true },
+        select: {
+          id: true,
+          createdAt: true,
+          author: { select: { name: true } }
+        },
         orderBy: { createdAt: 'desc' },
         take: 10
       }
@@ -24,6 +28,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   const sections = await prisma.section.findMany({ orderBy: { name: 'asc' } });
   const users = await prisma.user.findMany({ 
     where: { role: { not: Role.READER } },
+    select: { id: true, name: true, role: true },
     orderBy: { name: 'asc' } 
   });
 

@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export async function getPodcastEpisodes() {
   return prisma.podcastEpisode.findMany({
@@ -27,6 +28,8 @@ export async function savePodcastEpisode(data: {
   isActive: boolean;
   publishedAt?: Date;
 }) {
+  await requireAdmin();
+
   let episode;
   if (data.id) {
     episode = await prisma.podcastEpisode.update({
@@ -45,6 +48,8 @@ export async function savePodcastEpisode(data: {
 }
 
 export async function togglePodcastEpisode(id: string, currentStatus: boolean) {
+  await requireAdmin();
+
   await prisma.podcastEpisode.update({
     where: { id },
     data: { isActive: !currentStatus }
@@ -54,6 +59,8 @@ export async function togglePodcastEpisode(id: string, currentStatus: boolean) {
 }
 
 export async function deletePodcastEpisode(id: string) {
+  await requireAdmin();
+
   await prisma.podcastEpisode.delete({ where: { id } });
   revalidatePath('/');
   revalidatePath('/admin/podcasts');

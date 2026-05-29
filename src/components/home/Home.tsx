@@ -3,6 +3,13 @@ import { prisma } from '@/lib/prisma';
 import { DesktopHome } from './DesktopHome';
 import { MobileHome } from './MobileHome';
 
+const publicAuthorSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  avatar: true,
+} as const;
+
 export async function Home() {
   let articles: any[] = [];
   let columnists: any[] = [];
@@ -35,13 +42,26 @@ export async function Home() {
     ] = await Promise.all([
       prisma.article.findMany({
         where: { status: 'PUBLISHED' },
-        include: { authors: true, section: true },
+        include: { authors: { select: publicAuthorSelect }, section: true },
         orderBy: { publishedAt: 'desc' },
         take: 10,
       }),
       prisma.user.findMany({
         where: { role: { in: ['COLUMNIST', 'REPORTER'] }, status: 'ACTIVE' },
-        include: { articles: { where: { status: 'PUBLISHED' }, orderBy: { publishedAt: 'desc' }, take: 1 } },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          image: true,
+          avatar: true,
+          bio: true,
+          articles: {
+            where: { status: 'PUBLISHED' },
+            select: { title: true, slug: true },
+            orderBy: { publishedAt: 'desc' },
+            take: 1
+          }
+        },
         take: 4,
       }),
       prisma.alert.findFirst({
@@ -62,19 +82,19 @@ export async function Home() {
       }),
       prisma.article.findMany({
         where: { status: 'PUBLISHED', section: { slug: 'politica' } },
-        include: { authors: true, section: true },
+        include: { authors: { select: publicAuthorSelect }, section: true },
         orderBy: { publishedAt: 'desc' },
         take: 3,
       }),
       prisma.article.findMany({
         where: { status: 'PUBLISHED', section: { slug: 'economia' } },
-        include: { authors: true, section: true },
+        include: { authors: { select: publicAuthorSelect }, section: true },
         orderBy: { publishedAt: 'desc' },
         take: 3,
       }),
       prisma.article.findMany({
         where: { status: 'PUBLISHED', section: { slug: 'cidades' } },
-        include: { authors: true, section: true },
+        include: { authors: { select: publicAuthorSelect }, section: true },
         orderBy: { publishedAt: 'desc' },
         take: 3,
       }),

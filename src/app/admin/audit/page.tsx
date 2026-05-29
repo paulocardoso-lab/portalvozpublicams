@@ -1,11 +1,31 @@
 import React from "react";
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
+function maskIp(ip: string | null) {
+  if (!ip) return "—";
+  if (ip.includes(":")) return `${ip.split(":").slice(0, 3).join(":")}:…`;
+
+  const parts = ip.split(".");
+  if (parts.length !== 4) return "mascarado";
+
+  return `${parts[0]}.${parts[1]}.${parts[2]}.0`;
+}
+
 export default async function AdminAuditPage() {
+  await requireAdmin();
+
   const logs = await prisma.auditLog.findMany({
-    include: {
+    select: {
+      id: true,
+      userId: true,
+      action: true,
+      target: true,
+      status: true,
+      ip: true,
+      createdAt: true,
       user: { select: { name: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -52,7 +72,7 @@ export default async function AdminAuditPage() {
                       {log.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 font-mono text-vp-text-3">{log.ip ?? "—"}</td>
+                  <td className="px-4 py-3 font-mono text-vp-text-3">{maskIp(log.ip)}</td>
                 </tr>
               ))
             )}

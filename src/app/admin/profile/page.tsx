@@ -23,7 +23,17 @@ export default async function AdminProfilePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    include: { _count: { select: { articles: true, comments: true } } },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      role: true,
+      bio: true,
+      city: true,
+      createdAt: true,
+      _count: { select: { articles: true, comments: true } }
+    },
   });
 
   if (!user) redirect("/login");

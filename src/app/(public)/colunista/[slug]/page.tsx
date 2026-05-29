@@ -12,7 +12,14 @@ export default async function ColumnistPage({ params }: { params: Promise<{ slug
   
   const columnist = await prisma.user.findUnique({
     where: { slug },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      image: true,
+      avatar: true,
+      email: true,
+      bio: true,
       articles: {
         where: { status: 'PUBLISHED' },
         orderBy: { publishedAt: 'desc' },

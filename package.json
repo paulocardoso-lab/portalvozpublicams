@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "prisma generate && next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cleanup:data": "node prisma/cleanup-platform-data.js",
+    "validate:env": "node scripts/validate-production-env.js",
+    "smoke:prod": "node scripts/smoke-production.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

@@ -8,6 +8,13 @@ import Link from 'next/link';
 import { ImgPH } from '@/components/shared/ImgPH';
 import Image from 'next/image';
 
+const publicAuthorSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  avatar: true,
+} as const;
+
 export default async function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   
@@ -16,7 +23,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
     include: {
       articles: {
         where: { status: 'PUBLISHED' },
-        include: { authors: true },
+        include: { authors: { select: publicAuthorSelect } },
         orderBy: { publishedAt: 'desc' },
         take: 12,
       }
@@ -89,4 +96,3 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
     </>
   );
 }
-

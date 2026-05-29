@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import type { Article, User, Section } from '@prisma/client';
+import type { Article, Section } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
@@ -8,9 +8,10 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Headline } from '@/components/shared/Headline';
 import { SafeImage } from '@/components/shared/SafeImage';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { renderArticleBody } from '@/lib/article-renderer';
 
 type ArticleWithRelations = Article & {
-  authors: User[];
+  authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
   section: Section;
 };
 
@@ -105,7 +106,7 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
 
           <div className="vp-article-content mb-12">
             {/* O conteúdo injetado terá drop-cap via CSS ::first-letter se o globals.css for respeitado */}
-            <div dangerouslySetInnerHTML={{ __html: typeof article.body === 'string' ? article.body : JSON.stringify(article.body) }} />
+            <div dangerouslySetInnerHTML={{ __html: renderArticleBody(article.body) }} />
           </div>
 
           {/* Chapter Navigation */}
@@ -166,4 +167,3 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
     </div>
   );
 }
-

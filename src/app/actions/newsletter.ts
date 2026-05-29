@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import { z } from 'zod';
+import { rateLimitAction } from '@/lib/rate-limit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -11,6 +12,11 @@ const subscribeSchema = z.object({
 });
 
 export async function subscribeToNewsletter(formData: FormData) {
+  const limit = await rateLimitAction({ key: 'newsletter-action', limit: 5, windowMs: 10 * 60 * 1000 });
+  if (limit.limited) {
+    return { error: 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.' };
+  }
+
   const email = formData.get('email') as string;
   
   const validated = subscribeSchema.safeParse({ email });

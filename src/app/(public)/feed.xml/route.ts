@@ -7,7 +7,10 @@ export async function GET() {
     where: { status: 'PUBLISHED' },
     orderBy: { publishedAt: 'desc' },
     take: 20,
-    include: { authors: true, section: true },
+    include: {
+      authors: { select: { name: true } },
+      section: true
+    },
   });
 
   const rss = `<?xml version="1.0" encoding="UTF-8" ?>
@@ -27,7 +30,7 @@ export async function GET() {
     <pubDate>${new Date(article.publishedAt || article.createdAt).toUTCString()}</pubDate>
     <description><![CDATA[${article.lead || ''}]]></description>
     <category>${article.section.name}</category>
-    <author>${article.authors.map(a => a.email).join(', ')}</author>
+    <author>${article.authors.map(a => a.name).join(', ')}</author>
   </item>`).join('')}
 </channel>
 </rss>`;

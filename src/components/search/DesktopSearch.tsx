@@ -1,13 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
-import type { Article, Section, User } from '@prisma/client';
+import type { Article, Section } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { Headline } from '@/components/shared/Headline';
 
 type ArticleWithRelations = Article & {
   section: Section | null;
-  authors: User[];
+  authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
 };
 
 interface DesktopSearchProps {

@@ -10,10 +10,17 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { NewsletterSection } from '@/components/sections/NewsletterSection';
 import { AdSlot } from '@/components/shared/AdSlot';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
-import type { Article, User, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
+import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
+
+type PublicAuthor = {
+  id: string;
+  name: string;
+  slug: string | null;
+  avatar: string | null;
+};
 
 type ArticleWithRelations = Article & {
-  authors: User[];
+  authors: PublicAuthor[];
   section: Section;
 };
 
@@ -25,7 +32,15 @@ interface DesktopHomeProps {
   articles?: ArticleWithRelations[];
   newsletterCount?: number;
   agendaEvents?: AgendaEvent[];
-  columnists?: (User & { articles: { title: string; slug: string }[] })[];
+  columnists?: {
+    id: string;
+    name: string;
+    slug: string | null;
+    image: string | null;
+    avatar: string | null;
+    bio: string | null;
+    articles: { title: string; slug: string }[];
+  }[];
   mostRead?: ArticleWithRelations[];
   politica?: ArticleWithRelations[];
   economia?: ArticleWithRelations[];

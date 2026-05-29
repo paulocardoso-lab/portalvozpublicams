@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
+import { rateLimitAction } from "@/lib/rate-limit"
 
 export default {
   providers: [
@@ -13,6 +14,9 @@ export default {
         password: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
+        const limit = await rateLimitAction({ key: "credentials-login", limit: 10, windowMs: 10 * 60 * 1000 });
+        if (limit.limited) return null;
+
         if (!credentials?.email || !credentials?.password) return null;
 
         // Dynamic import to avoid edge runtime issues

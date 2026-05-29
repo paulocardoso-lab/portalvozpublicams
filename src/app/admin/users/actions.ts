@@ -58,6 +58,8 @@ export async function updateUserStatus(userId: string, status: UserStatus) {
 }
 
 export async function getUsers(search?: string) {
+  await requireAdmin();
+
   const users = await prisma.user.findMany({
     where: search
       ? {
@@ -67,7 +69,15 @@ export async function getUsers(search?: string) {
           ],
         }
       : undefined,
-    include: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      avatar: true,
+      role: true,
+      status: true,
+      createdAt: true,
       _count: { select: { articles: true, sessions: true } },
     },
     orderBy: { createdAt: "desc" },

@@ -7,6 +7,7 @@ export default async function NewPostPage() {
   const sections = await prisma.section.findMany({ orderBy: { name: 'asc' } });
   const users = await prisma.user.findMany({ 
     where: { role: { not: Role.READER } },
+    select: { id: true, name: true, role: true },
     orderBy: { name: 'asc' } 
   });
 

@@ -9,10 +9,10 @@ export const dynamic = 'force-dynamic';
  * Scrape realizado via Notícias Agrícolas por ser mais estável para bots.
  */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const token = searchParams.get('token');
-  
-  if (process.env.CRON_SECRET && token !== process.env.CRON_SECRET) {
+  const authHeader = request.headers.get('authorization');
+  const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : null;
+
+  if (process.env.NODE_ENV === 'production' && (!expected || authHeader !== expected)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -91,6 +91,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, results, timestamp: new Date() });
   } catch (error) {
     console.error('Erro no CRON de indicadores:', error);
-    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

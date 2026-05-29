@@ -1,6 +1,7 @@
 import React from "react";
 import prisma from "@/lib/prisma";
 import { updateTipStatus, deleteTip, saveTipNotes } from "./actions";
+import { requireAdmin } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,21 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export default async function AdminDenunciasPage() {
-  const tips = await prisma.tip.findMany({ orderBy: { createdAt: "desc" } });
+  await requireAdmin();
+
+  const tips = await prisma.tip.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      content: true,
+      status: true,
+      internalNotes: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   const counts = {
     NEW:          tips.filter((t) => t.status === "NEW").length,

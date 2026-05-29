@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export async function getSiteSettings() {
   // try {
@@ -18,6 +19,8 @@ export async function getSiteSettings() {
 }
 
 export async function saveSiteSetting(key: string, value: string) {
+  await requireAdmin();
+
   await prisma.siteSetting.upsert({
     where: { key },
     update: { value },
@@ -27,6 +30,8 @@ export async function saveSiteSetting(key: string, value: string) {
 }
 
 export async function saveBatchSettings(settings: Record<string, string>) {
+  await requireAdmin();
+
   for (const [key, value] of Object.entries(settings)) {
     if (value !== undefined) {
       await prisma.siteSetting.upsert({

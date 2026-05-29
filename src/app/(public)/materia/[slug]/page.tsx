@@ -8,6 +8,13 @@ import { ViewLogger } from '@/components/shared/ViewLogger';
 import { CommentSection } from '@/components/article/CommentSection';
 import { auth } from '@/auth';
 
+const publicAuthorSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  avatar: true,
+} as const;
+
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata
@@ -15,7 +22,7 @@ export async function generateMetadata(
   const { slug } = await params;
   const article = await prisma.article.findUnique({
     where: { slug },
-    include: { authors: true, section: true }
+    include: { authors: { select: publicAuthorSelect }, section: true }
   });
 
   if (!article) return { title: 'Notícia não encontrada | Voz Pública MS' };
@@ -53,11 +60,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const article = await prisma.article.findUnique({
     where: { slug },
     include: {
-      authors: true,
+      authors: { select: publicAuthorSelect },
       section: true,
       comments: {
         where: { status: 'APPROVED' },
-        include: { user: { select: { name: true } } },
+        select: {
+          id: true,
+          body: true,
+          guestName: true,
+          createdAt: true,
+          user: { select: { name: true } }
+        },
         orderBy: { createdAt: 'desc' }
       }
     }

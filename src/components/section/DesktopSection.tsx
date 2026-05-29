@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import type { Section, Article, User } from '@prisma/client';
+import type { Section, Article } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
@@ -10,7 +10,7 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 import { SafeImage } from '@/components/shared/SafeImage';
 
 type ArticleWithRelations = Article & {
-  authors: User[];
+  authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
 };
 
 interface DesktopSectionProps {

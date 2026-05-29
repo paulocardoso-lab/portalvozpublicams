@@ -8,7 +8,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   // Verificar token de segurança (configurar no Vercel)
   const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && process.env.NODE_ENV === 'production') {
+  const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : null;
+
+  if (process.env.NODE_ENV === 'production' && (!expected || authHeader !== expected)) {
     return new Response('Unauthorized', { status: 401 });
   }
 

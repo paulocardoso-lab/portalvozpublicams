@@ -1,11 +1,22 @@
 import React from "react";
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSubscriptionsPage() {
+  await requireAdmin();
+
   const subscriptions = await prisma.subscription.findMany({
-    include: { user: { select: { name: true, email: true } }, transactions: { orderBy: { createdAt: "desc" }, take: 1 } },
+    select: {
+      id: true,
+      plan: true,
+      amount: true,
+      method: true,
+      status: true,
+      startedAt: true,
+      user: { select: { name: true, email: true } },
+    },
     orderBy: { startedAt: "desc" },
   });
 

@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default async function AdminPostsPage() {
   const articles = await prisma.article.findMany({
     include: {
-      authors: true,
+      authors: { select: { id: true, name: true, avatar: true } },
       section: true,
     },
     orderBy: { createdAt: 'desc' },
