@@ -44,10 +44,22 @@ export default {
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role || "READER";
         token.id = user.id;
+      }
+      // Magic link: role não vem no user object — busca do banco
+      if (!token.role && token.email) {
+        const { default: prisma } = await import("@/lib/prisma");
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+          select: { id: true, role: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.id = dbUser.id;
+        }
       }
       return token;
     },
