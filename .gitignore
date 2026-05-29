@@ -47,5 +47,6 @@ next-env.d.ts
 
 # local operational backups
 /scratch/backups/
+/scratch/localhost/
 /scratch/sprint2/
 /scratch/sprint4/
