@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { syncFeed } from '@/lib/rss-engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +31,7 @@ export async function GET(request: Request) {
       select: { id: true }
     });
 
+    const { syncFeed } = await import('@/lib/rss-engine');
     const results = [];
     for (const feed of activeFeeds) {
       await syncFeed(feed.id);

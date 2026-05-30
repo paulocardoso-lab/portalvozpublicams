@@ -18,7 +18,7 @@ export function HeaderTicker({ initialData }: HeaderTickerProps) {
     refreshInterval: 600000, // Atualiza a cada 10 minutos
   });
 
-  const { market, weather } = data || initialData;
+  const { market } = data || initialData;
 
   return (
     <div className="flex gap-[12px] items-center">

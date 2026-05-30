@@ -1,6 +1,6 @@
 import React from 'react';
 import { prisma } from '@/lib/prisma';
-import { createSection, deleteSection, updateSectionMenu } from '@/app/actions/section';
+import { createSection, deleteSection, updateSection, updateSectionMenu } from '@/app/actions/section';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,42 +95,75 @@ export default async function AdminSectionsPage() {
             </thead>
             <tbody className="divide-y divide-vp-border">
               {sections.map((section) => (
-                <tr key={section.id} className="hover:bg-vp-surface/30 transition-colors">
-                  <td className="px-4 py-3 font-semibold">{section.name}</td>
-                  <td className="px-4 py-3 font-mono text-[12px] text-vp-text-3">/{section.slug}</td>
-                  <td className="px-4 py-3 text-center">
-                    <form action={updateSectionMenu.bind(null, section.id, {
-                      showInMenu: !section.showInMenu,
-                      menuOrder: section.menuOrder,
-                    })}>
-                      <button
-                        type="submit"
-                        className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border transition-all ${
-                          section.showInMenu
-                            ? 'bg-vp-ok/10 text-vp-ok border-vp-ok/30'
-                            : 'bg-vp-text-3/10 text-vp-text-3 border-vp-text-3/30 hover:bg-vp-ok/10 hover:text-vp-ok hover:border-vp-ok/30'
-                        }`}
-                      >
-                        {section.showInMenu ? '● Visível' : '○ Oculto'}
-                      </button>
-                    </form>
-                  </td>
-                  <td className="px-4 py-3 text-center font-mono text-[12px]">{section.menuOrder}</td>
-                  <td className="px-4 py-3 text-center font-mono text-[12px]">{section._count.articles}</td>
-                  <td className="px-4 py-3 text-right">
-                    {section._count.articles === 0 ? (
-                      <form action={deleteSection.bind(null, section.id)}>
-                        <button type="submit" className="vp-btn text-[11px] py-1 px-2.5 text-vp-urgent border-vp-urgent hover:bg-vp-urgent/10">
-                          Excluir
+                <React.Fragment key={section.id}>
+                  <tr className="hover:bg-vp-surface/30 transition-colors">
+                    <td className="px-4 py-3 font-semibold">{section.name}</td>
+                    <td className="px-4 py-3 font-mono text-[12px] text-vp-text-3">/{section.slug}</td>
+                    <td className="px-4 py-3 text-center">
+                      <form action={updateSectionMenu.bind(null, section.id, {
+                        showInMenu: !section.showInMenu,
+                        menuOrder: section.menuOrder,
+                      })}>
+                        <button
+                          type="submit"
+                          className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border transition-all ${
+                            section.showInMenu
+                              ? 'bg-vp-ok/10 text-vp-ok border-vp-ok/30'
+                              : 'bg-vp-text-3/10 text-vp-text-3 border-vp-text-3/30 hover:bg-vp-ok/10 hover:text-vp-ok hover:border-vp-ok/30'
+                          }`}
+                        >
+                          {section.showInMenu ? '● Visível' : '○ Oculto'}
                         </button>
                       </form>
-                    ) : (
-                      <span className="text-[11px] text-vp-text-4 italic">
-                        {section._count.articles} matéria(s)
-                      </span>
-                    )}
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-4 py-3 text-center font-mono text-[12px]">{section.menuOrder}</td>
+                    <td className="px-4 py-3 text-center font-mono text-[12px]">{section._count.articles}</td>
+                    <td className="px-4 py-3 text-right">
+                      {section._count.articles === 0 ? (
+                        <form action={deleteSection.bind(null, section.id)}>
+                          <button type="submit" className="vp-btn text-[11px] py-1 px-2.5 text-vp-urgent border-vp-urgent hover:bg-vp-urgent/10">
+                            Excluir
+                          </button>
+                        </form>
+                      ) : (
+                        <span className="text-[11px] text-vp-text-4 italic">
+                          {section._count.articles} matéria(s)
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                  <tr className="bg-vp-surface/20">
+                    <td colSpan={6} className="px-4 py-3">
+                      <form action={updateSection.bind(null, section.id)} className="grid gap-2 lg:grid-cols-[1fr_1fr_1.4fr_auto_auto] lg:items-end">
+                        <label className="grid gap-1">
+                          <span className="text-[10px] text-vp-text-4 uppercase font-semibold">Nome</span>
+                          <input name="name" className="vp-input text-[12px]" defaultValue={section.name} required />
+                        </label>
+                        <label className="grid gap-1">
+                          <span className="text-[10px] text-vp-text-4 uppercase font-semibold">Slug</span>
+                          <input name="slug" className="vp-input text-[12px] font-mono" defaultValue={section.slug} pattern="[a-z0-9\-]+" required />
+                        </label>
+                        <label className="grid gap-1">
+                          <span className="text-[10px] text-vp-text-4 uppercase font-semibold">Descrição</span>
+                          <input name="description" className="vp-input text-[12px]" defaultValue={section.description ?? ''} />
+                        </label>
+                        <label className="flex items-center gap-2 pb-2 text-[12px]">
+                          <input name="showInMenu" type="checkbox" className="accent-vp-accent" defaultChecked={section.showInMenu} />
+                          Menu
+                        </label>
+                        <div className="flex items-end gap-2">
+                          <label className="grid gap-1">
+                            <span className="text-[10px] text-vp-text-4 uppercase font-semibold">Ordem</span>
+                            <input name="menuOrder" type="number" className="vp-input text-[12px] w-20 font-mono" defaultValue={section.menuOrder} min="0" />
+                          </label>
+                          <button type="submit" className="vp-btn vp-btn-primary px-4 py-2 text-[11px]">
+                            Salvar
+                          </button>
+                        </div>
+                      </form>
+                    </td>
+                  </tr>
+                </React.Fragment>
               ))}
             </tbody>
           </table>

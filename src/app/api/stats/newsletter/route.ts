@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const count = await prisma.newsletterSubscriber.count();
     return NextResponse.json({ count });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
   }
 }

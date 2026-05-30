@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { Plan } from '@prisma/client';
 import { z } from 'zod';
 
 const subscriptionSchema = z.object({
@@ -36,6 +37,9 @@ export async function createSubscription(formData: FormData) {
   }
 
   try {
+    const normalizedPlan = planName.toUpperCase();
+    const plan = Object.values(Plan).includes(normalizedPlan as Plan) ? (normalizedPlan as Plan) : Plan.CUSTOM;
+
     // 1. Criar ou atualizar usuário
     const user = await prisma.user.upsert({
       where: { email },
@@ -53,7 +57,7 @@ export async function createSubscription(formData: FormData) {
     await prisma.subscription.create({
       data: {
         userId: user.id,
-        plan: (planName.toUpperCase() as any),
+        plan,
         status: 'ACTIVE',
         amount: Math.round(amount * 100), // Armazenar em centavos
         method: 'CARD', 

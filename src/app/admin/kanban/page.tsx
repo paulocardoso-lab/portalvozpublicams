@@ -67,6 +67,7 @@ export default async function AdminKanbanPage() {
                       title={article.title}
                       author={article.authors.map((author) => author.name).join(', ') || 'Sem autor'}
                       date={cardDate(article)}
+                      status={article.status}
                     />
                   ))
                 )}

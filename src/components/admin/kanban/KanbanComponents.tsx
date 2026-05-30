@@ -1,18 +1,52 @@
 "use client";
 
 import React from 'react';
+import { updateArticlePipelineStatus } from '@/app/admin/kanban/actions';
+
+type ArticleStatus = 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED';
 
 interface KanbanCardProps {
   id: string;
   title: string;
   author: string;
   date: string;
+  status: ArticleStatus;
   badge?: string;
 }
 
-export function KanbanCard({ title, author, date, badge }: KanbanCardProps) {
+const STATUS_OPTIONS: { value: ArticleStatus; label: string }[] = [
+  { value: 'DRAFT', label: 'Rascunho' },
+  { value: 'IN_REVIEW', label: 'Em revisão' },
+  { value: 'APPROVED', label: 'Aprovado' },
+  { value: 'SCHEDULED', label: 'Agendado' },
+  { value: 'PUBLISHED', label: 'Publicado' },
+  { value: 'ARCHIVED', label: 'Arquivado' },
+];
+
+export function KanbanCard({ id, title, author, date, status, badge }: KanbanCardProps) {
+  const [pending, startTransition] = React.useTransition();
+  const [currentStatus, setCurrentStatus] = React.useState(status);
+
+  function handleStatusChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    const nextStatus = event.target.value as ArticleStatus;
+    const previousStatus = currentStatus;
+    setCurrentStatus(nextStatus);
+
+    startTransition(async () => {
+      try {
+        const result = await updateArticlePipelineStatus(id, nextStatus);
+        if (result.success) return;
+        setCurrentStatus(previousStatus);
+        alert(result.error ?? 'Não foi possível atualizar o status da matéria.');
+      } catch {
+        setCurrentStatus(previousStatus);
+        alert('Não foi possível atualizar o status da matéria.');
+      }
+    });
+  }
+
   return (
-    <div className="bg-[#0e0e0d] border border-vp-border p-4 rounded-sm shadow-sm cursor-grab active:cursor-grabbing hover:border-vp-accent/40 transition-all group">
+    <div className="bg-[#0e0e0d] border border-vp-border p-4 rounded-sm shadow-sm hover:border-vp-accent/40 transition-all group">
       {badge && (
         <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-sm mb-3 ${
           badge === 'urgente' ? 'bg-vp-urgent text-white' : 'bg-vp-surface-2 text-vp-text-3'
@@ -27,6 +61,19 @@ export function KanbanCard({ title, author, date, badge }: KanbanCardProps) {
         <span className="font-bold text-vp-text-3">{author}</span>
         <span>{date}</span>
       </div>
+      <select
+        value={currentStatus}
+        onChange={handleStatusChange}
+        disabled={pending}
+        title="Mover matéria no fluxo editorial"
+        className="mt-3 w-full bg-vp-surface border border-vp-border px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-vp-text-2 disabled:opacity-50"
+      >
+        {STATUS_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value} className="bg-vp-bg text-vp-text">
+            {option.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
@@ -50,9 +97,9 @@ export function KanbanColumn({ title, color, count, children }: KanbanColumnProp
       </div>
       <div className="p-2 space-y-2 flex-1 overflow-y-auto vp-scroll">
         {children}
-        <button className="w-full py-3 border border-dashed border-vp-border-2 rounded text-[10px] font-black uppercase tracking-widest text-vp-text-4 hover:text-vp-accent hover:border-vp-accent transition-all">
+        <a href="/admin/posts/new" className="block w-full py-3 border border-dashed border-vp-border-2 rounded text-center text-[10px] font-black uppercase tracking-widest text-vp-text-4 hover:text-vp-accent hover:border-vp-accent transition-all no-underline">
           + novo item
-        </button>
+        </a>
       </div>
     </div>
   );

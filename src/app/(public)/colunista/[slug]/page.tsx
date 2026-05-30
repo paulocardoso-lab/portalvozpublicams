@@ -38,7 +38,7 @@ export default async function ColumnistPage({ params }: { params: Promise<{ slug
     <>
       {/* Desktop Version */}
       <div className="hidden lg:block">
-        <DesktopColumnist columnist={columnist as any} />
+        <DesktopColumnist columnist={columnist} />
       </div>
 
       {/* Mobile Version */}

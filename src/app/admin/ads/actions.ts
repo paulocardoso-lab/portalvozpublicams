@@ -6,6 +6,21 @@ import { requireAdmin } from "@/lib/auth-guard";
 import { CampaignStatus } from "@prisma/client";
 import { uploadImage } from "@/lib/storage";
 
+function normalizeImageUrl(value: FormDataEntryValue | null) {
+  const url = String(value ?? "").trim();
+  if (!url) return "";
+  if (url.startsWith("/") || url.startsWith("data:image/")) return url;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.toString();
+  } catch {
+    return "";
+  }
+
+  return "";
+}
+
 export async function createCampaign(formData: FormData) {
   await requireAdmin();
   
@@ -27,15 +42,15 @@ export async function createCampaign(formData: FormData) {
       throw new Error("Formato de data inválido.");
     }
 
-    const imageFile = formData.get("imageFile") as File;
-    let creativeUrl = String(formData.get("creative") ?? "");
+    const imageFile = formData.get("imageFile");
+    let creativeUrl = normalizeImageUrl(formData.get("creative"));
 
-    if (imageFile && imageFile.size > 0) {
-      try {
-        creativeUrl = await uploadImage(imageFile, "ads");
-      } catch (err) {
-        console.error("Error uploading ad image:", err);
-      }
+    if (imageFile instanceof File && imageFile.size > 0) {
+      creativeUrl = await uploadImage(imageFile, "ads");
+    }
+
+    if (!creativeUrl) {
+      throw new Error("Informe uma URL de imagem válida ou envie um arquivo de banner.");
     }
 
     await prisma.campaign.create({

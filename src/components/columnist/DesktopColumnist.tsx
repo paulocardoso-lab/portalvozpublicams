@@ -100,7 +100,7 @@ export function DesktopColumnist({ columnist }: DesktopColumnistProps) {
             Colunas recentes
           </h3>
           <div className="flex flex-col">
-            {archive.map((art, i) => (
+            {archive.map((art) => (
               <article key={art.id} className="py-[20px] border-b border-vp-border grid grid-cols-[60px_1fr] gap-[24px] group">
                 <div className="font-mono text-[11px] text-vp-text-3 tracking-[0.08em] uppercase pt-1.5 font-bold text-center">
                   {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}

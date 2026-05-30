@@ -3,15 +3,33 @@ import { getSiteSettings, saveSiteSettings } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminSettingsPage() {
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function AdminSettingsPage({ searchParams }: { searchParams: SearchParams }) {
+  const query = await searchParams;
+  const saved = firstParam(query.saved) === "1";
   const s = await getSiteSettings();
+  const hasCronSecret = Boolean(process.env.CRON_SECRET);
+  const hasGeminiKey = Boolean(process.env.GOOGLE_GEMINI_API_KEY);
+  const hasSupabaseStorage = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
+  const hasResend = Boolean(process.env.RESEND_API_KEY);
 
   return (
     <div className="max-w-[860px]">
       <h1 className="text-[22px] font-semibold mb-1">Configurações gerais</h1>
       <p className="text-vp-text-3 text-[13px] mb-6">Identidade do veículo, SEO e redes sociais. Alterações são aplicadas ao site imediatamente.</p>
+      {saved ? (
+        <div className="mb-5 border border-vp-ok/30 bg-vp-ok/10 px-4 py-3 text-[12px] font-semibold text-vp-ok">
+          Configurações salvas com sucesso.
+        </div>
+      ) : null}
 
       <form action={saveSiteSettings} className="grid gap-4">
+        <input type="hidden" name="_redirectTo" value="/admin/settings" />
         {/* Identity */}
         <section className="bg-[#141413] border border-vp-border p-5 rounded">
           <h3 className="text-[13px] font-semibold mb-4 uppercase tracking-wider text-vp-text-3">Identidade do Veículo</h3>
@@ -77,6 +95,53 @@ export default async function AdminSettingsPage() {
                 <input name={key} className="vp-input text-[13px] font-mono" defaultValue={s[key] ?? ""} placeholder={placeholder} />
               </label>
             ))}
+          </div>
+        </section>
+
+        {/* Automations */}
+        <section className="bg-[#141413] border border-vp-border p-5 rounded">
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-vp-text-3">Automações</h3>
+              <p className="mt-1 text-[12px] text-vp-text-4 italic">Controles operacionais usados pelos crons e integrações internas.</p>
+            </div>
+            <span className={`text-[10px] px-2 py-0.5 rounded border font-bold uppercase tracking-widest ${s["ENABLE_RSS"] === "true" ? "border-vp-ok/30 bg-vp-ok/10 text-vp-ok" : "border-vp-warn/30 bg-vp-warn/10 text-vp-warn"}`}>
+              RSS {s["ENABLE_RSS"] === "true" ? "ativo" : "pausado"}
+            </span>
+          </div>
+
+          <div className="grid gap-4">
+            <label className="flex items-start justify-between gap-4 border border-vp-border bg-vp-surface/40 p-3">
+              <span>
+                <span className="block text-[12px] font-semibold">Automação RSS</span>
+                <span className="mt-1 block text-[11px] text-vp-text-3">Permite que o endpoint de cron capture fontes RSS ativas.</span>
+              </span>
+              <input type="hidden" name="ENABLE_RSS" value="false" />
+              <input
+                name="ENABLE_RSS"
+                type="checkbox"
+                value="true"
+                defaultChecked={s["ENABLE_RSS"] === "true"}
+                className="mt-1 accent-vp-accent"
+                title="Ativar automação RSS"
+              />
+            </label>
+
+            <div className="grid gap-2 sm:grid-cols-4">
+              {[
+                ["Cron", hasCronSecret],
+                ["Gemini", hasGeminiKey],
+                ["Storage", hasSupabaseStorage],
+                ["E-mail", hasResend],
+              ].map(([label, ok]) => (
+                <div key={String(label)} className="border border-vp-border bg-vp-surface/30 p-3">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">{label}</div>
+                  <div className={`mt-1 text-[12px] font-semibold ${ok ? "text-vp-ok" : "text-vp-warn"}`}>
+                    {ok ? "Configurado" : "Pendente"}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

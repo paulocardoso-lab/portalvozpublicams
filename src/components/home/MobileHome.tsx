@@ -7,13 +7,24 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Tag } from '@/components/shared/Tag';
 import { Headline } from '@/components/shared/Headline';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { SafeImage } from '@/components/shared/SafeImage';
 import Link from 'next/link';
+import type { Alert } from '@prisma/client';
+import type { ArticleWithRelations, ArticleWithSection, SeriesWithArticles } from './DesktopHome';
+
+type MobileArticle = ArticleWithRelations & {
+  image?: string | null;
+  subtitle?: string | null;
+  excerpt?: string | null;
+  isExclusive?: boolean;
+  readingTime?: number | null;
+};
 
 interface MobileHomeProps {
-  articles?: any[];
-  activeAlert?: any;
-  featuredSeries?: any;
-  mostRead?: any[];
+  articles?: MobileArticle[];
+  activeAlert?: Alert | null;
+  featuredSeries?: SeriesWithArticles | null;
+  mostRead?: ArticleWithSection[];
 }
 
 /**
@@ -29,6 +40,7 @@ export function MobileHome({
   
   const hero = articles[0];
   const listItems = articles.slice(1, 4);
+  const heroImage = hero?.image || hero?.heroImage;
 
   return (
     <div className="bg-vp-bg min-h-screen flex flex-col md:hidden">
@@ -41,7 +53,7 @@ export function MobileHome({
         <div className="px-4 py-[10px] flex gap-[10px] items-center border-b border-vp-border bg-vp-surface">
           <Tag variant="live">AO VIVO</Tag>
           <span className="font-sans text-[12px] text-vp-text font-bold leading-[1.3]">
-            {activeAlert.title}
+            {activeAlert.message}
           </span>
         </div>
       )}
@@ -50,16 +62,12 @@ export function MobileHome({
         {/* 2. Hero Article */}
         {hero && (
           <article className="px-4 py-[18px] border-b border-vp-border">
-            {hero.image && (
+            {heroImage && (
               <div className="relative aspect-[16/9] mb-3 overflow-hidden bg-vp-surface">
-                <img 
-                  src={hero.image} 
-                  alt={hero.title} 
-                  className="w-full h-full object-cover" 
-                />
+                <SafeImage src={heroImage} alt={hero.title} fill sizes="100vw" className="object-cover" />
               </div>
             )}
-            {!hero.image && <ImgPH label="capa" height={200} className="mb-3" />}
+            {!heroImage && <ImgPH label="capa" height={200} className="mb-3" />}
             
             <Eyebrow className="text-[10px]">
               {hero.section?.name || 'Geral'} {hero.isExclusive ? '· Exclusivo' : ''}
@@ -68,10 +76,10 @@ export function MobileHome({
               {hero.title}
             </Headline>
             <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] mb-2.5">
-              {hero.subtitle || hero.excerpt}
+              {hero.subtitle || hero.excerpt || hero.lead}
             </p>
             <div className="byline text-[11px] text-vp-text-3 font-sans">
-              {hero.authors?.map((a: any) => a.name).join(' e ') || 'Redação'} · {new Date(hero.publishedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              {hero.authors?.map((a) => a.name).join(' e ') || 'Redação'} · {hero.publishedAt ? new Date(hero.publishedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
             </div>
           </article>
         )}
@@ -91,7 +99,7 @@ export function MobileHome({
 
         {/* 4. List items */}
         <section>
-          {listItems.map((article, i) => (
+          {listItems.map((article) => (
             <article key={article.id} className="px-4 py-[14px] border-b border-vp-border grid grid-cols-[1fr_90px] gap-3">
               <div>
                 <Eyebrow className="text-[9px] mb-1">{article.section?.name}</Eyebrow>
@@ -99,11 +107,13 @@ export function MobileHome({
                   {article.title}
                 </Headline>
                 <div className="byline text-[11px] text-vp-text-3 font-sans">
-                  há {Math.floor((Date.now() - new Date(article.publishedAt).getTime()) / 3600000)}h · {article.readingTime || 4} min
+                  {article.publishedAt ? `há ${Math.floor((Date.now() - new Date(article.publishedAt).getTime()) / 3600000)}h` : 'sem data'} · {article.readingTime || article.readTimeMin || 4} min
                 </div>
               </div>
-              {article.image ? (
-                <img src={article.image} alt="" className="w-full h-[80px] object-cover bg-vp-surface" />
+              {article.image || article.heroImage ? (
+                <div className="relative w-full h-[80px] overflow-hidden bg-vp-surface">
+                  <SafeImage src={article.image || article.heroImage || ''} alt="" fill sizes="90px" className="object-cover" />
+                </div>
               ) : (
                 <ImgPH height={80} />
               )}
@@ -122,9 +132,9 @@ export function MobileHome({
             <div className="px-4 pt-[18px] pb-2.5 flex items-center gap-2.5">
               <span className="w-1.5 h-1.5 bg-vp-accent rotate-45 flex-shrink-0" />
               <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold">
-                Especial · {featuredSeries.title}
+                Especial · {featuredSeries.name}
               </h3>
-              <Link href={`/especial/${featuredSeries.slug}`} className="font-sans text-[11px] text-vp-accent font-bold ml-auto no-underline">
+              <Link href={`/especial/${featuredSeries.id}`} className="font-sans text-[11px] text-vp-accent font-bold ml-auto no-underline">
                 Ver tudo →
               </Link>
             </div>
@@ -136,7 +146,7 @@ export function MobileHome({
                   {featuredSeries.articles[0].title}
                 </Headline>
                 <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5]">
-                  {featuredSeries.articles[0].subtitle || featuredSeries.articles[0].excerpt}
+                  {featuredSeries.articles[0].lead}
                 </p>
               </article>
             )}
@@ -165,4 +175,3 @@ export function MobileHome({
     </div>
   );
 }
-

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import type { Role } from "@prisma/client";
 
 /**
  * Roles that are allowed to access the admin panel.
@@ -7,14 +8,13 @@ import { redirect } from "next/navigation";
  */
 const ADMIN_ROLES = [
   "SUPER_ADMIN",
-  "ADMIN",
   "EDITOR_CHIEF",
   "SECTION_EDITOR",
   "REPORTER",
   "COLUMNIST",
   "MODERATOR",
   "FINANCE",
-] as const;
+] satisfies Exclude<Role, "READER">[];
 
 export type AdminRole = (typeof ADMIN_ROLES)[number];
 
@@ -42,9 +42,7 @@ export async function requireAdmin(
   const role = (session.user as { role?: string }).role;
 
   if (!role || !allowedRoles.includes(role as AdminRole)) {
-    throw new Error(
-      `Acesso negado. Papel necessário: ${allowedRoles.join(" | ")}. Papel atual: ${role ?? "READER"}`
-    );
+    redirect("/");
   }
 
   return {

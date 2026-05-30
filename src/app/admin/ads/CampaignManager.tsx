@@ -28,8 +28,8 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
     try {
       await createCampaign(formData);
       setIsModalOpen(false);
-    } catch (err: any) {
-      alert(err.message || "Erro ao criar campanha");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao criar campanha");
     } finally {
       setLoading(false);
     }

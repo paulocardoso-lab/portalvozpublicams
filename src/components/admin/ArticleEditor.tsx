@@ -5,6 +5,7 @@ import { Article, Section, Role } from '@prisma/client';
 
 import { saveArticle, restoreVersion } from '@/app/admin/posts/actions';
 import { TiptapEditor } from './TiptapEditor';
+import { SafeImage } from '@/components/shared/SafeImage';
 type AuthorOption = {
   id: string;
   name: string;
@@ -39,7 +40,7 @@ export function ArticleEditor({ article, sections, users }: ArticleEditorProps) 
       try {
         await restoreVersion(versionId);
         window.location.reload();
-      } catch (err) {
+      } catch {
         alert('Erro ao restaurar versão.');
       }
     }
@@ -109,7 +110,7 @@ export function ArticleEditor({ article, sections, users }: ArticleEditorProps) 
               <div className="flex flex-col gap-3">
                 {article?.heroImage && (
                   <div className="relative w-full h-[200px] bg-vp-surface border border-vp-border overflow-hidden rounded-[4px]">
-                    <img src={article.heroImage} alt="Hero preview" className="w-full h-full object-cover" />
+                    <SafeImage src={article.heroImage} alt="Hero preview" fill sizes="320px" className="object-cover" />
                     <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded">Imagem Atual</div>
                   </div>
                 )}

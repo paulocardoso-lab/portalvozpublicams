@@ -16,7 +16,7 @@ export function AgendaManager({ initialEvents }: { initialEvents: AgendaEvent[] 
       await createEvent(formData);
       setIsModalOpen(false);
       e.currentTarget.reset();
-    } catch (err) {
+    } catch {
       alert("Erro ao salvar evento");
     } finally {
       setLoading(false);

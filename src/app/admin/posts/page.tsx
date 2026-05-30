@@ -1,5 +1,6 @@
 import React from 'react';
 import { ImgPH } from '@/components/shared/ImgPH';
+import { SafeImage } from '@/components/shared/SafeImage';
 
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
@@ -74,9 +75,9 @@ export default async function AdminPostsPage() {
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full overflow-hidden shrink-0">
+                    <div className="relative w-5 h-5 rounded-full overflow-hidden shrink-0">
                       {p.authors[0]?.avatar ? (
-                        <img src={p.authors[0].avatar} alt="" className="w-full h-full object-cover" />
+                        <SafeImage src={p.authors[0].avatar} alt="" fill sizes="20px" className="object-cover" />
                       ) : (
                         <ImgPH label="" width={20} height={20} />
                       )}

@@ -5,23 +5,28 @@ import { Resend as ResendClient } from "resend"
 import { magicLinkTemplate } from "./lib/email-templates"
 import prisma from "@/lib/prisma"
 import authConfig from "./auth.config"
+import type { NextAuthConfig } from "next-auth"
 
 const adapter = PrismaAdapter(prisma);
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resendClient = resendApiKey ? new ResendClient(resendApiKey) : null;
 
-const providers = [...authConfig.providers];
+const providers: NextAuthConfig["providers"] = [...authConfig.providers];
 
 if (resendApiKey && resendClient) {
+  const hostUrl =
+    process.env.NEXTAUTH_URL ||
+    process.env.AUTH_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
+
   providers.push(
     ResendProvider({
       apiKey: resendApiKey,
       from: "Voz Pública MS <onboarding@resend.dev>",
       async sendVerificationRequest({ identifier, url }) {
-        // Corrige o URL para apontar para o host correto em produção
-        const correctedUrl = process.env.NEXTAUTH_URL
-          ? url.replace(/^https?:\/\/[^/]+/, process.env.NEXTAUTH_URL)
+        const correctedUrl = hostUrl
+          ? url.replace(/^https?:\/\/[^/]+/, hostUrl)
           : url;
 
         await resendClient.emails.send({
@@ -31,7 +36,7 @@ if (resendApiKey && resendClient) {
           html: magicLinkTemplate(correctedUrl),
         });
       },
-    }) as any
+    })
   );
 }
 

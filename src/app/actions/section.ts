@@ -39,6 +39,46 @@ export async function updateSectionMenu(id: string, data: { showInMenu: boolean;
   revalidatePath('/admin/sections');
 }
 
+export async function updateSection(id: string, formData: FormData) {
+  await requireAdmin();
+
+  const name = String(formData.get('name')).trim();
+  const slug = String(formData.get('slug')).trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+  const description = String(formData.get('description') ?? '').trim();
+  const showInMenu = formData.get('showInMenu') === 'on';
+  const menuOrder = parseInt(String(formData.get('menuOrder') ?? '0'), 10);
+
+  if (!name || !slug) {
+    throw new Error('Nome e slug são obrigatórios.');
+  }
+
+  try {
+    await prisma.section.update({
+      where: { id },
+      data: {
+        name,
+        slug,
+        description: description || null,
+        showInMenu,
+        menuOrder: Number.isFinite(menuOrder) ? menuOrder : 0,
+      },
+    });
+    await logAudit("SECTION_UPDATED", `section:${id}`, "OK");
+    revalidatePath('/admin/sections');
+    revalidatePath('/');
+  } catch (error) {
+    if (typeof error === 'object' && error && 'code' in error && error.code === 'P2002') {
+      throw new Error('Já existe uma editoria com este slug.');
+    }
+
+    console.error('updateSection failed:', error);
+    throw new Error('Não foi possível atualizar a editoria.');
+  }
+}
+
 export async function createSection(formData: FormData) {
   await requireAdmin();
   const name = String(formData.get('name')).trim();
@@ -52,12 +92,19 @@ export async function createSection(formData: FormData) {
 
   if (!name || !slug) return;
 
-  await prisma.section.create({
-    data: { name, slug, description: description || null, showInMenu, menuOrder },
-  });
-  await logAudit("SECTION_CREATED", name, "OK");
-  revalidatePath('/admin/sections');
-  revalidatePath('/');
+  try {
+    await prisma.section.create({
+      data: { name, slug, description: description || null, showInMenu, menuOrder },
+    });
+    await logAudit("SECTION_CREATED", name, "OK");
+    revalidatePath('/admin/sections');
+    revalidatePath('/');
+  } catch (error) {
+    if (typeof error === 'object' && error && 'code' in error && error.code === 'P2002') {
+      throw new Error('Já existe uma editoria com este slug.');
+    }
+    throw error;
+  }
 }
 
 export async function deleteSection(id: string) {
@@ -71,4 +118,3 @@ export async function deleteSection(id: string) {
   revalidatePath('/admin/sections');
   revalidatePath('/');
 }
-

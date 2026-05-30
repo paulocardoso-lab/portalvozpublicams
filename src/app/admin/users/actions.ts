@@ -1,12 +1,21 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { requireAdmin, requireSuperAdmin } from "@/lib/auth-guard";
+import { z } from "zod";
 
 type Role = "SUPER_ADMIN" | "EDITOR_CHIEF" | "SECTION_EDITOR" | "REPORTER" | "COLUMNIST" | "MODERATOR" | "FINANCE" | "READER";
 type UserStatus = "ACTIVE" | "BANNED" | "DELETED";
+
+const createUserSchema = z.object({
+  name: z.string().trim().min(2, "Informe o nome do usuário."),
+  email: z.string().trim().email("Informe um e-mail válido.").toLowerCase(),
+  role: z.enum(["SUPER_ADMIN", "EDITOR_CHIEF", "SECTION_EDITOR", "REPORTER", "COLUMNIST", "MODERATOR", "FINANCE", "READER"]),
+  password: z.string().min(8, "A senha temporária precisa ter pelo menos 8 caracteres."),
+});
 
 async function logAudit(action: string, target: string, status: string) {
   const session = await auth();
@@ -38,23 +47,78 @@ export async function updateProfile(formData: FormData) {
 }
 
 export async function updateUserRole(userId: string, role: Role) {
-  await requireSuperAdmin();
+  const admin = await requireSuperAdmin();
+  if (userId === admin.id && role !== admin.role) {
+    return { success: false, error: "Você não pode alterar o seu próprio papel." };
+  }
+
   await prisma.user.update({
     where: { id: userId },
     data: { role },
   });
   await logAudit(`USER_ROLE_CHANGED → ${role}`, `user:${userId}`, "OK");
   revalidatePath("/admin/users");
+  return { success: true };
 }
 
 export async function updateUserStatus(userId: string, status: UserStatus) {
-  await requireSuperAdmin();
+  const admin = await requireSuperAdmin();
+  if (userId === admin.id) {
+    return { success: false, error: "Você não pode suspender a própria conta." };
+  }
+
   await prisma.user.update({
     where: { id: userId },
     data: { status },
   });
   await logAudit(`USER_STATUS_CHANGED → ${status}`, `user:${userId}`, "OK");
   revalidatePath("/admin/users");
+  return { success: true };
+}
+
+export async function createUser(formData: FormData) {
+  await requireSuperAdmin();
+
+  const parsed = createUserSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    role: formData.get("role"),
+    password: formData.get("password"),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
+  }
+
+  const { name, email, role, password } = parsed.data;
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        role,
+        passwordHash,
+        status: "ACTIVE",
+      },
+      select: { id: true, email: true },
+    });
+
+    await logAudit("USER_CREATED", `user:${user.id}`, "OK");
+    revalidatePath("/admin/users");
+    return { success: true, message: `Usuário ${user.email} criado com acesso ativo.` };
+  } catch (error) {
+    if (typeof error === "object" && error && "code" in error && error.code === "P2002") {
+      return { success: false, error: "Já existe um usuário com este e-mail." };
+    }
+
+    console.error("createUser failed:", error);
+    return { success: false, error: "Não foi possível criar o usuário." };
+  }
 }
 
 export async function getUsers(search?: string) {

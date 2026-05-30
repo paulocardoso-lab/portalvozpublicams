@@ -2,6 +2,8 @@ import React from 'react';
 import { prisma } from '@/lib/prisma';
 import { DesktopHome } from './DesktopHome';
 import { MobileHome } from './MobileHome';
+import type { AgendaEvent, Alert, PodcastEpisode } from '@prisma/client';
+import type { ArticleWithRelations, ArticleWithSection, SeriesWithArticles } from './DesktopHome';
 
 const publicAuthorSelect = {
   id: true,
@@ -11,16 +13,24 @@ const publicAuthorSelect = {
 } as const;
 
 export async function Home() {
-  let articles: any[] = [];
-  let columnists: any[] = [];
-  let activeAlert: any = null;
-  let featuredSeries: any = null;
-  let activePodcast: any = null;
-  let agendaEvents: any[] = [];
-  let politica: any[] = [];
-  let economia: any[] = [];
-  let cidades: any[] = [];
-  let mostRead: any[] = [];
+  let articles: ArticleWithRelations[] = [];
+  let columnists: {
+    id: string;
+    name: string;
+    slug: string | null;
+    image: string | null;
+    avatar: string | null;
+    bio: string | null;
+    articles: { title: string; slug: string }[];
+  }[] = [];
+  let activeAlert: Alert | null = null;
+  let featuredSeries: SeriesWithArticles | null = null;
+  let activePodcast: PodcastEpisode | null = null;
+  let agendaEvents: AgendaEvent[] = [];
+  let politica: ArticleWithRelations[] = [];
+  let economia: ArticleWithRelations[] = [];
+  let cidades: ArticleWithRelations[] = [];
+  let mostRead: ArticleWithSection[] = [];
   let newsletterCount = 0;
 
   try {
@@ -127,9 +137,9 @@ export async function Home() {
       <div className="hidden lg:block">
         <DesktopHome 
           articles={articles}
-          columnists={columnists as any}
+          columnists={columnists}
           activeAlert={activeAlert}
-          featuredSeries={featuredSeries as any}
+          featuredSeries={featuredSeries}
           activePodcast={activePodcast}
           agendaEvents={agendaEvents}
           politica={politica}
@@ -144,7 +154,7 @@ export async function Home() {
         <MobileHome 
           articles={articles}
           activeAlert={activeAlert}
-          featuredSeries={featuredSeries as any}
+          featuredSeries={featuredSeries}
           mostRead={mostRead}
         />
       </div>

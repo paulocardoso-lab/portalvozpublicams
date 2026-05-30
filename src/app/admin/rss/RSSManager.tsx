@@ -7,6 +7,28 @@ interface RSSManagerProps {
   sections: { id: string; name: string }[];
 }
 
+type SyncSummary = {
+  items: number;
+  created: number;
+  skipped: number;
+  failed: number;
+  errors: string[];
+};
+
+type RSSFeedRow = {
+  id: string;
+  name: string;
+  url: string;
+  targetSectionId: string;
+  autoPublish: boolean;
+  isActive: boolean;
+};
+
+type SectionOption = {
+  id: string;
+  name: string;
+};
+
 export function RSSManager({ sections }: RSSManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,10 +60,10 @@ export function RSSManager({ sections }: RSSManagerProps) {
       } else {
         alert(result.error || 'Erro desconhecido ao salvar fonte RSS.');
       }
-    } catch (err: any) {
+    } catch (err) {
       setLoading(false);
       console.error('RSS Submit Error:', err);
-      const errorMessage = err?.message || 'Erro desconhecido';
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       alert(`Erro na comunicação: ${errorMessage}. Verifique se o servidor está rodando ou se houve um erro interno.`);
     }
   }
@@ -135,10 +157,11 @@ export function RSSManager({ sections }: RSSManagerProps) {
   );
 }
 
-export function RSSActions({ feed, sections }: { feed: any, sections: any[] }) {
+export function RSSActions({ feed, sections }: { feed: RSSFeedRow, sections: SectionOption[] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [formData, setFormData] = useState({
     name: feed.name,
     url: feed.url,
@@ -148,8 +171,23 @@ export function RSSActions({ feed, sections }: { feed: any, sections: any[] }) {
 
   async function handleSync() {
     setSyncing(true);
-    await runRSSSync(feed.id);
+    setMessage(null);
+    const result = await runRSSSync(feed.id);
     setSyncing(false);
+
+    if (!result.success) {
+      setMessage({ type: 'error', text: result.error || 'Falha na sincronização manual.' });
+      return;
+    }
+
+    const summary = result.summary as SyncSummary | undefined;
+    if (!summary) {
+      setMessage({ type: 'success', text: 'Sincronização concluída.' });
+      return;
+    }
+
+    const text = `${summary.created} criadas, ${summary.skipped} ignoradas, ${summary.failed} falhas de ${summary.items} itens.`;
+    setMessage({ type: summary.failed > 0 ? 'error' : 'success', text });
   }
 
   async function handleUpdate(e: React.FormEvent) {
@@ -163,7 +201,13 @@ export function RSSActions({ feed, sections }: { feed: any, sections: any[] }) {
 
   return (
     <>
-      <div className="flex gap-2 justify-end">
+      <div className="flex flex-col items-end gap-2">
+        {message && (
+          <div className={`max-w-[260px] border px-2 py-1 text-left text-[11px] ${message.type === 'success' ? 'border-vp-ok/40 bg-vp-ok/10 text-vp-ok' : 'border-vp-urgent/40 bg-vp-urgent/10 text-vp-urgent'}`}>
+            {message.text}
+          </div>
+        )}
+        <div className="flex gap-2 justify-end">
         <button 
           onClick={handleSync}
           disabled={syncing}
@@ -187,14 +231,18 @@ export function RSSActions({ feed, sections }: { feed: any, sections: any[] }) {
           {feed.isActive ? '●' : '○'}
         </button>
         <button 
-          onClick={() => {
-            if(confirm('Excluir esta fonte?')) deleteRSSFeed(feed.id);
+          onClick={async () => {
+            if(confirm('Excluir esta fonte?')) {
+              const result = await deleteRSSFeed(feed.id);
+              if (!result.success) alert('Falha ao excluir fonte RSS.');
+            }
           }}
           className="text-[12px] text-vp-text-3 hover:text-red-500 p-1"
           title="Excluir"
         >
           ✕
         </button>
+        </div>
       </div>
 
       {isEditing && (

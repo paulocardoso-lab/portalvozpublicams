@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
 import type { Article, Section } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';

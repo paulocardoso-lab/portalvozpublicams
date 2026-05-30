@@ -8,8 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "cleanup:data": "node prisma/cleanup-platform-data.js",
+    "reset:admin": "npx tsx scripts/reset-admin-base.ts",
     "validate:env": "node scripts/validate-production-env.js",
-    "smoke:prod": "node scripts/smoke-production.js"
+    "smoke:prod": "node scripts/smoke-production.js",
+    "smoke:admin": "node scripts/smoke-admin-auth.js",
+    "health:admin": "node scripts/check-admin-health.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

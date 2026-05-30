@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { updateUserRole, updateUserStatus } from "./actions";
+import { useRouter } from "next/navigation";
+import { createUser, updateUserRole, updateUserStatus } from "./actions";
+import { SafeImage } from "@/components/shared/SafeImage";
 
 type Role = "SUPER_ADMIN" | "EDITOR_CHIEF" | "SECTION_EDITOR" | "REPORTER" | "COLUMNIST" | "MODERATOR" | "FINANCE" | "READER";
 type UserStatus = "ACTIVE" | "BANNED" | "DELETED";
@@ -46,9 +48,14 @@ function RoleSelect({ userId, currentRole }: { userId: string; currentRole: Role
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newRole = e.target.value as Role;
+    const previousRole = optimisticRole;
     setOptimisticRole(newRole);
     startTransition(async () => {
-      await updateUserRole(userId, newRole);
+      const result = await updateUserRole(userId, newRole);
+      if (!result.success) {
+        setOptimisticRole(previousRole);
+        alert(result.error);
+      }
     });
   };
 
@@ -76,9 +83,14 @@ function StatusToggle({ userId, currentStatus, isSelf }: { userId: string; curre
   const toggle = () => {
     if (isSelf) return;
     const newStatus: UserStatus = status === "ACTIVE" ? "BANNED" : "ACTIVE";
+    const previousStatus = status;
     setStatus(newStatus);
     startTransition(async () => {
-      await updateUserStatus(userId, newStatus);
+      const result = await updateUserStatus(userId, newStatus);
+      if (!result.success) {
+        setStatus(previousStatus);
+        alert(result.error);
+      }
     });
   };
 
@@ -97,8 +109,99 @@ function StatusToggle({ userId, currentStatus, isSelf }: { userId: string; curre
   );
 }
 
+function InviteUserModal({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = React.useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  function handleSubmit(formData: FormData) {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await createUser(formData);
+      if (!result.success) {
+        setMessage({ type: "error", text: result.error ?? "Não foi possível criar o usuário." });
+        return;
+      }
+
+      setMessage({ type: "success", text: result.message ?? "Usuário criado com sucesso." });
+      router.refresh();
+      window.setTimeout(onClose, 900);
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-[520px] border border-vp-border bg-[#141413] p-6 shadow-2xl">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-[20px] font-bold">Convidar membro</h2>
+            <p className="mt-1 text-[12px] text-vp-text-3">
+              Crie um acesso ativo com senha temporária para a redação.
+            </p>
+          </div>
+          <button type="button" onClick={onClose} className="text-vp-text-3 hover:text-vp-text" title="Fechar">
+            ✕
+          </button>
+        </div>
+
+        <form action={handleSubmit} className="grid gap-4">
+          <label className="grid gap-1.5">
+            <span className="eyebrow text-[10px]">Nome</span>
+            <input name="name" className="vp-input text-[13px]" required minLength={2} />
+          </label>
+
+          <label className="grid gap-1.5">
+            <span className="eyebrow text-[10px]">E-mail</span>
+            <input name="email" type="email" className="vp-input text-[13px]" required />
+          </label>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="grid gap-1.5">
+              <span className="eyebrow text-[10px]">Papel</span>
+              <select name="role" className="vp-input text-[13px]" defaultValue="REPORTER" title="Papel inicial">
+                {(Object.entries(ROLE_LABELS) as [Role, string][]).map(([role, label]) => (
+                  <option key={role} value={role}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="grid gap-1.5">
+              <span className="eyebrow text-[10px]">Senha temporária</span>
+              <input name="password" type="password" className="vp-input text-[13px]" required minLength={8} />
+            </label>
+          </div>
+
+          {message && (
+            <div
+              className={`border px-3 py-2 text-[12px] ${
+                message.type === "success"
+                  ? "border-vp-ok/40 bg-vp-ok/10 text-vp-ok"
+                  : "border-vp-urgent/40 bg-vp-urgent/10 text-vp-urgent"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="vp-btn flex-1 py-2.5">
+              Cancelar
+            </button>
+            <button type="submit" disabled={isPending} className="vp-btn vp-btn-primary flex-1 py-2.5">
+              {isPending ? "Criando..." : "Criar usuário"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export function UsersClient({ users, currentUserId }: { users: User[]; currentUserId: string }) {
   const [search, setSearch] = React.useState("");
+  const [isInviteOpen, setIsInviteOpen] = React.useState(false);
 
   const filtered = users.filter(
     (u) =>
@@ -122,10 +225,14 @@ export function UsersClient({ users, currentUserId }: { users: User[]; currentUs
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="vp-btn text-[12px] font-bold uppercase tracking-widest py-2.5 px-6">
+          <a href="/admin/audit" className="vp-btn text-[12px] font-bold uppercase tracking-widest py-2.5 px-6 no-underline">
              Logs de Acesso
-          </button>
-          <button className="vp-btn vp-btn-primary text-[12px] font-bold uppercase tracking-widest py-2.5 px-8">
+          </a>
+          <button
+            type="button"
+            onClick={() => setIsInviteOpen(true)}
+            className="vp-btn vp-btn-primary text-[12px] font-bold uppercase tracking-widest py-2.5 px-8"
+          >
              + Convidar Membro
           </button>
         </div>
@@ -172,9 +279,9 @@ export function UsersClient({ users, currentUserId }: { users: User[]; currentUs
                   <tr key={u.id} className={`hover:bg-vp-surface/30 transition-colors group ${u.status === "BANNED" ? "opacity-50" : ""}`}>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[14px]">
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[14px]">
                           {u.image || u.avatar ? (
-                            <img src={u.image || u.avatar || ""} alt="" className="w-full h-full rounded-full object-cover" />
+                            <SafeImage src={u.image || u.avatar || ""} alt="" fill sizes="40px" className="object-cover" />
                           ) : (
                             u.name.charAt(0)
                           )}
@@ -211,6 +318,8 @@ export function UsersClient({ users, currentUserId }: { users: User[]; currentUs
           </div>
         </div>
       </div>
+
+      {isInviteOpen && <InviteUserModal onClose={() => setIsInviteOpen(false)} />}
     </div>
   );
 }

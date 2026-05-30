@@ -39,7 +39,7 @@ export default async function SearchPage({
     <>
       {/* Desktop Version */}
       <div className="hidden lg:block">
-        <DesktopSearch query={q || ''} results={results as any} />
+        <DesktopSearch query={q || ''} results={results} />
       </div>
 
       {/* Mobile Version */}

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { BrandLogo } from '@/components/shared/BrandLogo';
 
 export default function DonateSuccessPage() {
   return (

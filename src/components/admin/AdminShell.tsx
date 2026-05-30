@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { Monogram } from '@/components/shared/Monogram';
 import { ImgPH } from '@/components/shared/ImgPH';
+import { SafeImage } from '@/components/shared/SafeImage';
 
 interface NavItem {
   id: string;
@@ -29,6 +30,7 @@ const nav: NavItem[] = [
   { id: 'metrics',   label: 'Métricas & tráfego', icon: '↗', href: '/admin/metrics' },
   { id: 'subscriptions', label: 'Assinaturas & doações', icon: '♥', href: '/admin/subscriptions' },
   { id: 'audit',     label: 'Logs de auditoria', icon: '⎆', href: '/admin/audit' },
+  { id: 'health',    label: 'Saúde do sistema', icon: '✓', href: '/admin/health' },
   { id: 'settings',  label: 'Configurações', icon: '⚙', href: '/admin/settings' },
 ];
 
@@ -47,7 +49,7 @@ export function AdminShell({ children, pendingComments, draftArticles, reviewArt
 
   const user = session?.user;
   const userName = user?.name || user?.email?.split('@')[0] || "Administrador";
-  const userRole = (user as any)?.role || "ADMIN";
+  const userRole = (user as { role?: string } | undefined)?.role || "Sem papel";
 
   return (
     <div className="flex min-h-screen bg-[#111110] text-vp-text font-sans">
@@ -106,9 +108,9 @@ export function AdminShell({ children, pendingComments, draftArticles, reviewArt
 
         {/* User profile at bottom */}
         <div className="p-4 border-t border-vp-border flex items-center gap-3 bg-[#0a0a09]">
-          <div className="w-8 h-8 rounded-full overflow-hidden border border-vp-border">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden border border-vp-border">
             {user?.image ? (
-                <img src={user.image} alt="" className="w-full h-full object-cover" />
+                <SafeImage src={user.image} alt="" fill sizes="32px" className="object-cover" />
             ) : (
                 <ImgPH label="" width={32} height={32} />
             )}

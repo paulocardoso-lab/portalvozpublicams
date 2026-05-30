@@ -12,19 +12,23 @@ import { AdSlot } from '@/components/shared/AdSlot';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
 import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
 
-type PublicAuthor = {
+export type PublicAuthor = {
   id: string;
   name: string;
   slug: string | null;
   avatar: string | null;
 };
 
-type ArticleWithRelations = Article & {
+export type ArticleWithRelations = Article & {
   authors: PublicAuthor[];
   section: Section;
 };
 
-type SeriesWithArticles = Series & {
+export type ArticleWithSection = Article & {
+  section: Section | null;
+};
+
+export type SeriesWithArticles = Series & {
   articles: Article[];
 };
 
@@ -41,7 +45,7 @@ interface DesktopHomeProps {
     bio: string | null;
     articles: { title: string; slug: string }[];
   }[];
-  mostRead?: ArticleWithRelations[];
+  mostRead?: ArticleWithSection[];
   politica?: ArticleWithRelations[];
   economia?: ArticleWithRelations[];
   cidades?: ArticleWithRelations[];

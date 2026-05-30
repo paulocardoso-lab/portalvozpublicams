@@ -1,11 +1,31 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+function getSupabaseConfig() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+  if (!supabaseUrl || !supabaseKey) return null;
+
+  return { supabaseUrl, supabaseKey };
+}
+
+function getStorageClient() {
+  const config = getSupabaseConfig();
+
+  if (!config) {
+    throw new Error('Supabase Storage não configurado.');
+  }
+
+  return createClient(config.supabaseUrl, config.supabaseKey);
+}
+
+function getOptionalStorageClient() {
+  const config = getSupabaseConfig();
+  return config ? createClient(config.supabaseUrl, config.supabaseKey) : null;
+}
 
 export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 'ads' = 'articles') {
+  const supabase = getStorageClient();
   const fileExt = file.name.split('.').pop()
   const fileName = `${crypto.randomUUID()}-${Date.now()}.${fileExt}`
   const filePath = fileName
@@ -27,6 +47,9 @@ export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 
 
 export async function downloadAndUploadImage(url: string, bucket: 'articles' | 'profiles' = 'articles') {
   try {
+    const supabase = getOptionalStorageClient();
+    if (!supabase) return url;
+
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
     

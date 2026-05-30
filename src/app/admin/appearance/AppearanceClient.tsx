@@ -21,12 +21,12 @@ export function AppearanceClient({
     FEATURED_SERIES_ID: initialSettings['FEATURED_SERIES_ID'] || '',
     SITE_NAME: initialSettings['SITE_NAME'] || 'Voz Pública MS',
     SITE_TAGLINE: initialSettings['SITE_TAGLINE'] || 'Jornalismo independente de Mato Grosso do Sul',
-    SOCIAL_FB: initialSettings['SOCIAL_FB'] || '',
-    SOCIAL_IG: initialSettings['SOCIAL_IG'] || '',
-    SOCIAL_X: initialSettings['SOCIAL_X'] || '',
-    SOCIAL_YT: initialSettings['SOCIAL_YT'] || '',
-    SOCIAL_WA: initialSettings['SOCIAL_WA'] || '',
-    CONTACT_EMAIL: initialSettings['CONTACT_EMAIL'] || '',
+    SOCIAL_FACEBOOK: initialSettings['SOCIAL_FACEBOOK'] || initialSettings['SOCIAL_FB'] || '',
+    SOCIAL_INSTAGRAM: initialSettings['SOCIAL_INSTAGRAM'] || initialSettings['SOCIAL_IG'] || '',
+    SOCIAL_TWITTER: initialSettings['SOCIAL_TWITTER'] || initialSettings['SOCIAL_X'] || '',
+    SOCIAL_YOUTUBE: initialSettings['SOCIAL_YOUTUBE'] || initialSettings['SOCIAL_YT'] || '',
+    SOCIAL_WHATSAPP: initialSettings['SOCIAL_WHATSAPP'] || initialSettings['SOCIAL_WA'] || '',
+    EMAIL_CONTATO: initialSettings['EMAIL_CONTATO'] || initialSettings['CONTACT_EMAIL'] || '',
     CONTACT_PHONE: initialSettings['CONTACT_PHONE'] || '',
   });
 
@@ -118,8 +118,8 @@ export function AppearanceClient({
                   <input 
                     id="social-fb"
                     className="vp-input w-full"
-                    value={form.SOCIAL_FB}
-                    onChange={(e) => setForm({...form, SOCIAL_FB: e.target.value})}
+                    value={form.SOCIAL_FACEBOOK}
+                    onChange={(e) => setForm({...form, SOCIAL_FACEBOOK: e.target.value})}
                   />
                 </div>
                 <div>
@@ -127,8 +127,8 @@ export function AppearanceClient({
                   <input 
                     id="social-ig"
                     className="vp-input w-full"
-                    value={form.SOCIAL_IG}
-                    onChange={(e) => setForm({...form, SOCIAL_IG: e.target.value})}
+                    value={form.SOCIAL_INSTAGRAM}
+                    onChange={(e) => setForm({...form, SOCIAL_INSTAGRAM: e.target.value})}
                   />
                 </div>
                 <div>
@@ -136,8 +136,8 @@ export function AppearanceClient({
                   <input 
                     id="social-x"
                     className="vp-input w-full"
-                    value={form.SOCIAL_X}
-                    onChange={(e) => setForm({...form, SOCIAL_X: e.target.value})}
+                    value={form.SOCIAL_TWITTER}
+                    onChange={(e) => setForm({...form, SOCIAL_TWITTER: e.target.value})}
                   />
                 </div>
                 <div>
@@ -145,8 +145,8 @@ export function AppearanceClient({
                   <input 
                     id="social-yt"
                     className="vp-input w-full"
-                    value={form.SOCIAL_YT}
-                    onChange={(e) => setForm({...form, SOCIAL_YT: e.target.value})}
+                    value={form.SOCIAL_YOUTUBE}
+                    onChange={(e) => setForm({...form, SOCIAL_YOUTUBE: e.target.value})}
                   />
                 </div>
                 <div className="col-span-2">
@@ -154,8 +154,8 @@ export function AppearanceClient({
                   <input 
                     id="social-wa"
                     className="vp-input w-full"
-                    value={form.SOCIAL_WA}
-                    onChange={(e) => setForm({...form, SOCIAL_WA: e.target.value})}
+                    value={form.SOCIAL_WHATSAPP}
+                    onChange={(e) => setForm({...form, SOCIAL_WHATSAPP: e.target.value})}
                   />
                 </div>
               </div>
@@ -169,8 +169,8 @@ export function AppearanceClient({
                   <input 
                     id="contact-email"
                     className="vp-input w-full"
-                    value={form.CONTACT_EMAIL}
-                    onChange={(e) => setForm({...form, CONTACT_EMAIL: e.target.value})}
+                    value={form.EMAIL_CONTATO}
+                    onChange={(e) => setForm({...form, EMAIL_CONTATO: e.target.value})}
                   />
                 </div>
                 <div>

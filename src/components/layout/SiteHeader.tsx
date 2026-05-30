@@ -5,6 +5,7 @@ import { HeaderTicker } from './HeaderTicker';
 import { getMarketData, getWeatherData } from '@/lib/external-data';
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
+import type { Section } from '@prisma/client';
 
 /**
  * SiteHeader (Masthead) — Cabeçalho principal do portal.
@@ -24,7 +25,7 @@ export async function SiteHeader() {
     weather: { temp: 28 } 
   };
   let settings: Record<string, string> = {};
-  let dbSections: any[] = [];
+  let dbSections: Section[] = [];
 
   try {
     const [market, weather, siteSettings, sections] = await Promise.all([
@@ -122,4 +123,3 @@ export async function SiteHeader() {
     </header>
   );
 }
-

@@ -1,5 +1,5 @@
 import React from 'react';
-import Image, { ImageProps } from 'next/image';
+import Image, { type ImageLoader, type ImageProps } from 'next/image';
 
 interface SafeImageProps extends ImageProps {
   fallbackLabel?: string;
@@ -13,6 +13,8 @@ const AUTHORIZED_HOSTS = [
   'com.br'
 ];
 
+const passthroughLoader: ImageLoader = ({ src }) => src;
+
 export function SafeImage({ src, alt, ...props }: SafeImageProps) {
   if (!src) return null;
 
@@ -20,14 +22,15 @@ export function SafeImage({ src, alt, ...props }: SafeImageProps) {
   if (typeof src === 'string') {
     const isAuthorized = AUTHORIZED_HOSTS.some(host => src.includes(host));
     
-    // Se não for autorizado ou for uma URL relativa, usamos a tag img normal para evitar erro 500
+    // URLs fora da allowlist passam sem otimização para evitar erro de remotePatterns.
     if (!isAuthorized && src.startsWith('http')) {
       return (
-        <img 
-          src={src} 
-          alt={alt as string} 
-          {...(props as any)} 
-          style={{ objectFit: 'cover', width: '100%', height: '100%', ...props.style }} 
+        <Image
+          src={src}
+          alt={alt}
+          {...props}
+          unoptimized
+          loader={passthroughLoader}
         />
       );
     }

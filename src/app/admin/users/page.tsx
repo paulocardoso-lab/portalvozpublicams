@@ -9,5 +9,5 @@ export default async function AdminUsersPage() {
   const [users, session] = await Promise.all([getUsers(), auth()]);
   const currentUserId = session?.user?.id ?? "";
 
-  return <UsersClient users={users as any} currentUserId={currentUserId} />;
+  return <UsersClient users={users} currentUserId={currentUserId} />;
 }

@@ -4,9 +4,9 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from 'next/navigation';
-import { ArticleStatus } from '@prisma/client';
+import { ArticleStatus, Prisma } from '@prisma/client';
 import { uploadImage } from '@/lib/storage';
-import { requireAdmin, requireSuperAdmin } from "@/lib/auth-guard";
+import { requireAdmin } from "@/lib/auth-guard";
 
 async function logAudit(action: string, target: string, status: string) {
   const session = await auth();
@@ -51,7 +51,7 @@ export async function saveArticle(formData: FormData) {
     slug,
     eyebrow,
     lead,
-    body: content as any, // body is Json in Prisma
+    body: content as Prisma.InputJsonValue,
     status,
     section: { connect: { id: sectionId } },
     updatedAt: new Date(),
@@ -69,7 +69,7 @@ export async function saveArticle(formData: FormData) {
       await prisma.articleVersion.create({
         data: {
           articleId: id,
-          body: currentArticle.body as any,
+          body: currentArticle.body as Prisma.InputJsonValue,
           authorId: admin.id,
         },
       });
@@ -125,7 +125,7 @@ export async function restoreVersion(versionId: string) {
   await prisma.article.update({
     where: { id: version.articleId },
     data: {
-      body: version.body as any,
+      body: version.body as Prisma.InputJsonValue,
       updatedAt: new Date(),
     }
   });

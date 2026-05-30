@@ -3,6 +3,11 @@ import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { rateLimitAction } from "@/lib/rate-limit"
 
+type AuthUserFields = {
+  id?: string;
+  role?: string | null;
+};
+
 export default {
   providers: [
     // Google desabilitado temporariamente
@@ -46,7 +51,7 @@ export default {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role || null;
+        token.role = (user as AuthUserFields).role || null;
         token.id = user.id;
       }
       // Busca role do banco sempre que não estiver no token (magic link não retorna role no user object)
@@ -65,8 +70,9 @@ export default {
     },
     session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role;
-        (session.user as any).id = token.id;
+        const user = session.user as typeof session.user & AuthUserFields;
+        user.role = typeof token.role === "string" ? token.role : null;
+        if (typeof token.id === "string") user.id = token.id;
       }
       return session;
     },

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
+import type { Section } from '@prisma/client';
 
 /**
  * SiteFooter — Rodapé principal do portal.
@@ -9,7 +10,7 @@ import { Monogram } from '@/components/shared/Monogram';
  */
 export async function SiteFooter() {
   let settings: Record<string, string> = {};
-  let dbSections: any[] = [];
+  let dbSections: Section[] = [];
 
   try {
     const [siteSettings, sections] = await Promise.all([
@@ -82,4 +83,3 @@ export async function SiteFooter() {
     </footer>
   );
 }
-

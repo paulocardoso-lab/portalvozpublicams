@@ -2,7 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
-import { Eyebrow } from '@/components/shared/Eyebrow';
 
 export default function NotFound() {
   return (

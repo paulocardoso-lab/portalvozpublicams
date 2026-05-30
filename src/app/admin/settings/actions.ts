@@ -3,7 +3,9 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-guard";
+import { expandSettingAliases, withSettingAliases } from "@/lib/settings-aliases";
 
 async function logAudit(action: string, target: string, status: string) {
   const session = await auth();
@@ -29,16 +31,20 @@ export async function getSiteSettings(): Promise<Record<string, string>> {
     ...Object.fromEntries(indicators.map((r) => [r.key, r.value])),
   };
 
-  return combined;
+  return withSettingAliases(combined);
 }
 
 export async function saveSiteSettings(formData: FormData) {
   await requireAdmin();
-  const entries = Array.from(formData.entries());
+  const redirectTo = String(formData.get("_redirectTo") ?? "");
+  const rawSettings = Object.fromEntries(
+    Array.from(formData.entries())
+      .filter(([key]) => !key.startsWith("$ACTION") && !key.startsWith("_"))
+      .map(([key, value]) => [key, String(value)])
+  );
+  const settings = expandSettingAliases(rawSettings);
   
-  for (const [key, value] of entries) {
-    if (key.startsWith("$ACTION")) continue; 
-    
+  for (const [key, value] of Object.entries(settings)) {
     // Se for um indicador de mercado, salva na tabela MarketIndicator
     if (['boi', 'soja', 'usd'].includes(key)) {
       await prisma.marketIndicator.upsert({
@@ -58,5 +64,10 @@ export async function saveSiteSettings(formData: FormData) {
   
   await logAudit("SITE_SETTINGS_UPDATED", "settings", "OK");
   revalidatePath("/admin/settings");
+  revalidatePath("/admin/social");
   revalidatePath("/", "layout");
+
+  if (redirectTo === "/admin/settings" || redirectTo === "/admin/social") {
+    redirect(`${redirectTo}?saved=1`);
+  }
 }

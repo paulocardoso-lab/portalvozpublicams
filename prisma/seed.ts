@@ -1,4 +1,5 @@
 import "dotenv/config";
+import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
@@ -38,26 +39,23 @@ async function main() {
     })
   }
 
-  // 2. Criar usuários administrativos
-  const editor = await prisma.user.upsert({
-    where: { email: 'editor@vozpublicams.com.br' },
-    update: {},
-    create: {
-      email: 'editor@vozpublicams.com.br',
-      name: 'Marina Ribeiro',
-      role: 'EDITOR_CHIEF',
-      status: 'ACTIVE',
-    },
-  })
+  // 2. Criar o único usuário administrativo ativo
+  const passwordHash = await bcrypt.hash('admin123', 10);
 
   const admin = await prisma.user.upsert({
     where: { email: 'paulofernandogarciacardoso@gmail.com' },
-    update: {},
+    update: {
+      name: 'Paulo Cardoso',
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+      passwordHash,
+    },
     create: {
       email: 'paulofernandogarciacardoso@gmail.com',
       name: 'Paulo Cardoso',
       role: 'SUPER_ADMIN',
       status: 'ACTIVE',
+      passwordHash,
     },
   })
 
@@ -79,7 +77,7 @@ async function main() {
       status: 'PUBLISHED',
       publishedAt: new Date(),
       section: { connect: { slug: 'pantanal' } },
-      authors: { connect: { id: editor.id } },
+      authors: { connect: { id: admin.id } },
     },
   })
 

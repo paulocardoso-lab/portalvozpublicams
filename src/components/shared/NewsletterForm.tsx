@@ -31,7 +31,7 @@ export function NewsletterForm({
       } else {
         setMessage({ type: 'error', text: result.error || 'Erro inesperado' });
       }
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: 'Erro de conexão' });
     } finally {
       setLoading(false);

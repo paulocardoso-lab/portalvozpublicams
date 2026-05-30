@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { updateProfile } from "./actions";
+import { SafeImage } from "@/components/shared/SafeImage";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +48,9 @@ export default async function AdminProfilePage() {
 
       {/* Profile card */}
       <div className="bg-[#141413] border border-vp-border p-5 rounded mb-4 flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-vp-surface-2 border-2 border-vp-border flex items-center justify-center text-[24px] font-bold text-vp-accent shrink-0">
+        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-vp-surface-2 border-2 border-vp-border flex items-center justify-center text-[24px] font-bold text-vp-accent shrink-0">
           {user.image ? (
-            <img src={user.image} alt="" className="w-full h-full rounded-full object-cover" />
+            <SafeImage src={user.image} alt="" fill sizes="64px" className="object-cover" />
           ) : (
             user.name.charAt(0).toUpperCase()
           )}

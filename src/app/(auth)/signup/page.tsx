@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { Monogram } from '@/components/shared/Monogram';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 
@@ -98,4 +97,3 @@ export default function SignupPage() {
     </div>
   );
 }
-

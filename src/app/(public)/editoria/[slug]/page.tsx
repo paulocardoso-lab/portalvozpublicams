@@ -40,7 +40,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
     <>
       {/* Desktop Version */}
       <div className="hidden lg:block">
-        <DesktopSection section={section} articles={articles as any} />
+        <DesktopSection section={section} articles={articles} />
       </div>
 
       {/* Mobile Version */}

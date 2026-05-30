@@ -1,7 +1,10 @@
 /**
  * generateCSV — Utilitário para exportação de dados para anunciantes e gestores.
  */
-export function generateCSV(data: any[], filename: string) {
+type CSVValue = string | number | boolean | Date | null | undefined;
+type CSVRow = Record<string, CSVValue>;
+
+export function generateCSV(data: CSVRow[], filename: string) {
   if (data.length === 0) return;
 
   const headers = Object.keys(data[0]);
@@ -27,7 +30,18 @@ export function generateCSV(data: any[], filename: string) {
 /**
  * generateCampaignReport — Formata dados de campanha para exportação.
  */
-export function generateCampaignReport(campaigns: any[]) {
+type CampaignReportRow = {
+  name: string;
+  client: string;
+  slot: string;
+  impressions: number;
+  clicks: number;
+  ctr?: number;
+  status: string;
+  endsAt: string | Date;
+};
+
+export function generateCampaignReport(campaigns: CampaignReportRow[]) {
   const reportData = campaigns.map(c => ({
     Campanha: c.name,
     Cliente: c.client,

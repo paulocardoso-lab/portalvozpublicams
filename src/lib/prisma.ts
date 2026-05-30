@@ -5,13 +5,13 @@ import { PrismaPg } from "@prisma/adapter-pg"
 const prismaClientSingleton = () => {
   // Verificação de segurança para Build e Ambiente sem DB
   if (process.env.NEXT_PHASE === 'phase-production-build' || !process.env.DATABASE_URL) {
-    const createSafeProxy = (path: string = ''): any => {
+    const createSafeProxy = (path: string = ''): unknown => {
       const proxy = new Proxy(() => {}, {
-        get: (target, prop) => {
+        get: (_target, prop) => {
           if (prop === 'then' || prop === 'catch' || prop === 'finally' || typeof prop === 'symbol') return undefined;
           return createSafeProxy(`${path}.${String(prop)}`);
         },
-        apply: (target, thisArg, args) => {
+        apply: () => {
           if (path.toLowerCase().includes('many') || path.toLowerCase().includes('find')) return Promise.resolve([]);
           return Promise.resolve(null);
         }

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { MarketIndicator } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { updateMarketIndicator } from './actions';
 
@@ -10,7 +11,7 @@ export default async function AdminMarketMetricsPage() {
   const dataMap = indicators.reduce((acc, curr) => {
     acc[curr.key] = curr;
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, MarketIndicator>);
 
   const keys = [
     { id: 'usd', label: 'Dólar Comercial', defaultUnit: 'R$' },

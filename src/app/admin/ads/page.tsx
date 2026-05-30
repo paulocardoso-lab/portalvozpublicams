@@ -48,7 +48,7 @@ export default async function AdminAdsPage() {
         </div>
       </div>
 
-      <CampaignManager initialCampaigns={campaigns as any} />
+      <CampaignManager initialCampaigns={campaigns} />
     </div>
   );
 }

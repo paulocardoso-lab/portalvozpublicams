@@ -329,7 +329,7 @@ model Tip {
   name          String?
   email         String?
   content       String    @db.Text
-  attachments   String[]
+  attachments   String[]  @default([])
   status        TipStatus @default(NEW)
   internalNotes String?   @db.Text
   createdAt     DateTime  @default(now())

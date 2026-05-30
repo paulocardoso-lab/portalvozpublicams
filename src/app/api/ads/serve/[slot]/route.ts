@@ -14,6 +14,7 @@ export async function GET(
       where: {
         slot,
         status: 'ACTIVE',
+        creative: { not: '' },
         startsAt: { lte: new Date() },
         endsAt: { gte: new Date() }
       }
@@ -24,8 +25,12 @@ export async function GET(
       return NextResponse.json({ slot, message: 'No active campaign', campaign: null }, { status: 200 })
     }
 
+    if (!campaign.creative.trim()) {
+      return NextResponse.json({ slot, message: 'Campaign without creative', campaign: null }, { status: 200 });
+    }
+
     return NextResponse.json(campaign);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

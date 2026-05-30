@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signIn } from "next-auth/react";
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import { Eyebrow } from '@/components/shared/Eyebrow';
@@ -14,6 +15,16 @@ export default function LoginPage() {
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [message, setMessage] = React.useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    const error = searchParams.get('error');
+    if (error === 'AccessDenied') {
+      setMessage({ type: 'error', text: 'Acesso negado. Entre com uma conta administrativa.' });
+    }
+  }, [searchParams]);
+
+  const callbackOrigin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +35,11 @@ export default function LoginPage() {
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/admin",
+        callbackUrl: `${callbackOrigin}/admin`,
         redirect: false,
       });
       if (result?.error) {
-        setMessage({ type: 'error', text: 'E-mail ou senha incorretos.' });
+        setMessage({ type: 'error', text: result.error === 'AccessDenied' ? 'Acesso negado. Verifique seu usuário.' : 'E-mail ou senha incorretos.' });
       } else if (result?.url) {
         window.location.href = result.url;
       }
@@ -47,12 +58,12 @@ export default function LoginPage() {
     try {
       const result = await signIn("resend", {
         email,
-        callbackUrl: "/eu",
+        callbackUrl: `${callbackOrigin}/eu`,
         redirect: false,
       });
       if (result?.error) {
         setMessage({ type: 'error', text: 'Erro ao enviar e-mail. Verifique o endereço.' });
-      } else {
+      } else if (result?.url) {
         setMessage({ type: 'success', text: 'Link enviado! Verifique sua caixa de entrada.' });
       }
     } catch {

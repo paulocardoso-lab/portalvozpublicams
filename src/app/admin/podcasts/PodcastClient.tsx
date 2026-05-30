@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PodcastEpisode } from '@prisma/client';
 import { savePodcastEpisode, togglePodcastEpisode, deletePodcastEpisode } from '@/app/actions/podcast';
 import { useRouter } from 'next/navigation';
+import { SafeImage } from '@/components/shared/SafeImage';
 
 export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpisode[] }) {
   const router = useRouter();
@@ -189,7 +190,9 @@ export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpi
           <div key={ep.id} className={`flex items-center justify-between p-4 border ${ep.isActive ? 'border-vp-border bg-vp-surface' : 'border-vp-border opacity-60'}`}>
             <div className="flex gap-4">
               {ep.coverImage ? (
-                <img src={ep.coverImage} alt="Cover" className="w-16 h-16 object-cover rounded-sm border border-vp-border" />
+                <div className="relative w-16 h-16 overflow-hidden rounded-sm border border-vp-border">
+                  <SafeImage src={ep.coverImage} alt="Cover" fill sizes="64px" className="object-cover" />
+                </div>
               ) : (
                 <div className="w-16 h-16 bg-vp-bg border border-vp-border flex items-center justify-center text-[10px] text-vp-text-3">SEM CAPA</div>
               )}

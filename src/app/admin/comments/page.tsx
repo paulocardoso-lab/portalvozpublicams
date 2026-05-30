@@ -1,5 +1,7 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
+import { deleteComment, updateCommentStatus } from './actions';
+import { CommentStatus } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -120,6 +122,41 @@ export default async function AdminCommentsPage() {
                   <span className="text-[11px] text-vp-text-4 font-mono uppercase tracking-widest">
                     {STATUS_LABELS[comment.status] ?? comment.status} · {relativeTime(comment.createdAt)}
                   </span>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    {comment.status !== 'APPROVED' && (
+                      <form action={updateCommentStatus.bind(null, comment.id, CommentStatus.APPROVED)}>
+                        <button type="submit" className="vp-btn text-[11px] px-3 py-1 text-vp-ok border-vp-ok">
+                          Aprovar
+                        </button>
+                      </form>
+                    )}
+                    {comment.status !== 'HIDDEN' && (
+                      <form action={updateCommentStatus.bind(null, comment.id, CommentStatus.HIDDEN)}>
+                        <button type="submit" className="vp-btn text-[11px] px-3 py-1">
+                          Ocultar
+                        </button>
+                      </form>
+                    )}
+                    {comment.status !== 'SPAM' && (
+                      <form action={updateCommentStatus.bind(null, comment.id, CommentStatus.SPAM)}>
+                        <button type="submit" className="vp-btn text-[11px] px-3 py-1 text-vp-warn border-vp-warn">
+                          Spam
+                        </button>
+                      </form>
+                    )}
+                    {comment.status !== 'BANNED' && (
+                      <form action={updateCommentStatus.bind(null, comment.id, CommentStatus.BANNED)}>
+                        <button type="submit" className="vp-btn text-[11px] px-3 py-1 text-vp-urgent border-vp-urgent">
+                          Banir
+                        </button>
+                      </form>
+                    )}
+                    <form action={deleteComment.bind(null, comment.id)}>
+                      <button type="submit" className="vp-btn text-[11px] px-3 py-1 text-vp-urgent border-vp-urgent">
+                        Excluir
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             );

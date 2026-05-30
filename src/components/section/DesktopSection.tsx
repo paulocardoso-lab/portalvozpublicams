@@ -4,7 +4,6 @@ import type { Section, Article } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { ImgPH } from '@/components/shared/ImgPH';
-import { Tag } from '@/components/shared/Tag';
 import { Headline } from '@/components/shared/Headline';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { SafeImage } from '@/components/shared/SafeImage';
@@ -99,7 +98,7 @@ export function DesktopSection({ section, articles }: DesktopSectionProps) {
 
           {/* Article List */}
           <div className="flex flex-col">
-            {list.map((art, i) => (
+            {list.map((art) => (
               <article key={art.id} className="grid grid-cols-[200px_1fr_auto] gap-[22px] py-[22px] border-b border-vp-border items-start group">
                 <Link href={`/${art.slug}`} className="block">
                   {art.heroImage ? (

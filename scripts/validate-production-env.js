@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-function loadEnvFile(fileName) {
+function loadEnvFile(fileName, { override = false } = {}) {
   const envPath = path.join(process.cwd(), fileName);
   if (!fs.existsSync(envPath)) return;
 
@@ -14,16 +14,25 @@ function loadEnvFile(fileName) {
     const key = trimmed.slice(0, index).trim();
     const rawValue = trimmed.slice(index + 1).trim();
     const value = rawValue.replace(/^['"]|['"]$/g, "");
-    if (!process.env[key]) process.env[key] = value;
+    if (override || !process.env[key]) process.env[key] = value;
   }
 }
 
 loadEnvFile(".env");
-loadEnvFile(".env.local");
+loadEnvFile(".env.local", { override: true });
+
+const isProductionRuntime =
+  process.env.NODE_ENV === "production" ||
+  process.env.VERCEL === "1" ||
+  process.env.CI === "true" ||
+  process.argv.includes("--production");
+
+function isLocalUrl(value) {
+  return /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(?:\/|$)/.test(value);
+}
 
 const required = [
   "DATABASE_URL",
-  "CRON_SECRET",
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
 ];
@@ -33,10 +42,7 @@ const recommended = [
   "AUTH_SECRET",
   "NEXTAUTH_SECRET",
   "SUPABASE_SERVICE_ROLE_KEY",
-  "RESEND_API_KEY",
-  "EMAIL_FROM",
   "GOOGLE_GEMINI_API_KEY",
-  "NEXT_PUBLIC_GA_ID",
 ];
 
 const failures = [];
@@ -50,11 +56,20 @@ if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
   failures.push("AUTH_SECRET or NEXTAUTH_SECRET is required for production auth.");
 }
 
+if (isProductionRuntime && !process.env.CRON_SECRET) {
+  failures.push("CRON_SECRET is required in production.");
+}
+
 if (process.env.CRON_SECRET && process.env.CRON_SECRET.length < 32) {
   warnings.push("CRON_SECRET should be at least 32 characters.");
 }
 
-if (process.env.NEXTAUTH_URL && !/^https:\/\//.test(process.env.NEXTAUTH_URL)) {
+if (
+  isProductionRuntime &&
+  process.env.NEXTAUTH_URL &&
+  !/^https:\/\//.test(process.env.NEXTAUTH_URL) &&
+  !isLocalUrl(process.env.NEXTAUTH_URL)
+) {
   warnings.push("NEXTAUTH_URL should use https:// in production.");
 }
 
@@ -70,6 +85,16 @@ for (const key of recommended) {
   if (!process.env[key]) warnings.push(`${key} is not set.`);
 }
 
+if (isProductionRuntime) {
+  for (const key of ["EMAIL_FROM", "NEXT_PUBLIC_GA_ID"]) {
+    if (!process.env[key]) warnings.push(`${key} is not set.`);
+  }
+}
+
+if (isProductionRuntime && (process.env.RESEND_API_KEY || process.env.AUTH_RESEND_KEY) && !process.env.EMAIL_FROM) {
+  warnings.push("EMAIL_FROM is not set, so transactional email sender identity is incomplete.");
+}
+
 if (process.env.NEXT_PUBLIC_UMAMI_SRC && !process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID) {
   warnings.push("NEXT_PUBLIC_UMAMI_SRC is set but NEXT_PUBLIC_UMAMI_WEBSITE_ID is missing.");
 }
@@ -79,7 +104,8 @@ if (process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && !process.env.NEXT_PUBLIC_UMAMI_S
 }
 
 console.log("Production environment validation");
-console.log(`Required checks: ${required.length + 1}`);
+console.log(`Mode: ${isProductionRuntime ? "production" : "local"}`);
+console.log(`Required checks: ${required.length + 1 + (isProductionRuntime ? 1 : 0)}`);
 console.log(`Failures: ${failures.length}`);
 console.log(`Warnings: ${warnings.length}`);
 

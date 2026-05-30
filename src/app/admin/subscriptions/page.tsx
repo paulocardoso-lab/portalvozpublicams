@@ -1,6 +1,8 @@
 import React from "react";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
+import { updateSubscriptionStatus } from "./actions";
+import { SubStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -72,12 +74,13 @@ export default async function AdminSubscriptionsPage() {
               <th className="px-4 py-3">Método</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Desde</th>
+              <th className="px-4 py-3 text-right">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-vp-border">
             {subscriptions.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-vp-text-3 italic">
+                <td colSpan={7} className="px-4 py-10 text-center text-vp-text-3 italic">
                   Nenhuma assinatura ainda.
                 </td>
               </tr>
@@ -98,6 +101,38 @@ export default async function AdminSubscriptionsPage() {
                   </td>
                   <td className="px-4 py-3 font-mono text-vp-text-3">
                     {sub.startedAt.toLocaleDateString("pt-BR")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      {sub.status !== "ACTIVE" && (
+                        <form action={updateSubscriptionStatus.bind(null, sub.id, SubStatus.ACTIVE)}>
+                          <button type="submit" className="vp-btn text-[10px] px-2 py-1 text-vp-ok border-vp-ok">
+                            Ativar
+                          </button>
+                        </form>
+                      )}
+                      {sub.status !== "PAUSED" && (
+                        <form action={updateSubscriptionStatus.bind(null, sub.id, SubStatus.PAUSED)}>
+                          <button type="submit" className="vp-btn text-[10px] px-2 py-1">
+                            Pausar
+                          </button>
+                        </form>
+                      )}
+                      {sub.status !== "PAST_DUE" && (
+                        <form action={updateSubscriptionStatus.bind(null, sub.id, SubStatus.PAST_DUE)}>
+                          <button type="submit" className="vp-btn text-[10px] px-2 py-1 text-vp-warn border-vp-warn">
+                            Inadimplente
+                          </button>
+                        </form>
+                      )}
+                      {sub.status !== "CANCELLED" && (
+                        <form action={updateSubscriptionStatus.bind(null, sub.id, SubStatus.CANCELLED)}>
+                          <button type="submit" className="vp-btn text-[10px] px-2 py-1 text-vp-urgent border-vp-urgent">
+                            Cancelar
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
