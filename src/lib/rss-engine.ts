@@ -1,5 +1,5 @@
 import Parser from 'rss-parser';
-import { JSDOM } from 'jsdom';
+import { parseHTML } from 'linkedom';
 import { Readability } from '@mozilla/readability';
 import type { Prisma } from '@prisma/client';
 import prisma from './prisma';
@@ -116,10 +116,10 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const html = await response.text();
-    const dom = new JSDOM(html, { url: link });
-    const reader = new Readability(dom.window.document);
+    const { document } = parseHTML(html);
+    const reader = new Readability(document as unknown as Document);
     articleData = reader.parse();
-    rawHeroImage = dom.window.document.querySelector<HTMLMetaElement>('meta[property="og:image"]')?.content || null;
+    rawHeroImage = (document.querySelector('meta[property="og:image"]') as HTMLMetaElement | null)?.content || null;
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
       console.warn(`RSS article fetch fallback for ${link}:`, error);
