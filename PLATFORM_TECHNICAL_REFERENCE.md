@@ -42,7 +42,7 @@
 - **Projeto:** `sitevozpublicamsoficial`
 - **Project ID:** `prj_1B26sr89ctqmDO9bEn7gQKOJgCVR`
 - **Org ID:** `team_lpNHKzXfGFMEXoGfUFSjme6d`
-- **URL produção:** `https://sitevozpublicamsoficial.vercel.app`
+- **URL produção:** `https://sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app`
 - **Região:** AWS SA East 1 (São Paulo)
 
 ### Supabase
@@ -113,10 +113,10 @@ DATABASE_URL
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
-NEXTAUTH_URL=https://sitevozpublicamsoficial.vercel.app
+NEXTAUTH_URL=https://sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app
 NEXTAUTH_SECRET
 AUTH_SECRET
-AUTH_URL=https://sitevozpublicamsoficial.vercel.app
+AUTH_URL=https://sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app
 RESEND_API_KEY
 AUTH_RESEND_KEY
 GOOGLE_GEMINI_API_KEY

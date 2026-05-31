@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s | Voz Pública MS"
   },
   description: "Investigação, política, meio ambiente e poder em Mato Grosso do Sul. O portal que aprofunda as notícias que importam para o estado.",
-  metadataBase: new URL('https://sitevozpublicamsoficial.vercel.app'),
+  metadataBase: new URL('https://sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app'),
   alternates: {
     canonical: '/',
     types: {
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Voz Pública MS",
     description: "Jornalismo independente para Mato Grosso do Sul",
-    url: "https://sitevozpublicamsoficial.vercel.app",
+    url: "https://sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app",
     siteName: "Voz Pública MS",
     locale: "pt_BR",
     type: "website",

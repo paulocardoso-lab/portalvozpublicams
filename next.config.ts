@@ -6,7 +6,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://www.google-analytics.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.globo.com https://*.googleusercontent.com https://www.noticiasagricolas.com.br https://vozpublicams.com.br https://sitevozpublicamsoficial.vercel.app",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.globo.com https://*.googleusercontent.com https://www.noticiasagricolas.com.br https://vozpublicams.com.br https://sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app",
   "font-src 'self' data:",
   "connect-src 'self' https://www.google-analytics.com https://*.supabase.co https://*.ingest.sentry.io https://vitals.vercel-insights.com",
   "media-src 'self' https://*.supabase.co",
@@ -57,7 +57,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "sitevozpublicamsoficial.vercel.app",
+        hostname: "sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app",
       }
     ],
   },

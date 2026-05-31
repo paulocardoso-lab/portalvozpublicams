@@ -104,7 +104,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       'name': 'Voz Pública MS',
       'logo': {
         '@type': 'ImageObject',
-        'url': 'https://sitevozpublicamsoficial.vercel.app/logo.png'
+        'url': 'https://sitevozpublicamsoficial-paulocardoso-labs-projects.vercel.app/logo.png'
       }
     },
     'mainEntityOfPage': {
