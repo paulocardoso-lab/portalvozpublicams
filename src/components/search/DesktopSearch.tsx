@@ -39,7 +39,7 @@ export function DesktopSearch({ query, results }: DesktopSearchProps) {
         </form>
         
         <div className="byline mb-8">
-          Cerca de <strong className="text-vp-text">{results.length} resultados</strong> · {(Math.random() * 0.2 + 0.05).toFixed(2)}s
+          Cerca de <strong className="text-vp-text">{results.length} resultados</strong> encontrados
         </div>
 
         <div className="grid grid-cols-[200px_1fr] gap-[32px]">

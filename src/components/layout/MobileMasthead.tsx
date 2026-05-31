@@ -46,7 +46,7 @@ export function MobileMasthead({ title }: { title?: string }) {
       </div>
       {/* Edition strip */}
       <div className="px-4 py-[6px] border-t border-vp-border font-sans text-[10px] text-vp-text-3 flex justify-between tracking-[0.06em] uppercase">
-        <span className="font-semibold">{formatted}</span>
+        <span className="font-semibold" suppressHydrationWarning>{formatted}</span>
         <span className="font-mono text-vp-text-4">USD {market.usd} · BOI {market.boi}</span>
       </div>
     </div>
