@@ -4,14 +4,26 @@ import { Readability } from '@mozilla/readability';
 import type { Prisma, RSSLogStatus } from '@prisma/client';
 import prisma from './prisma';
 import { slugify } from './utils';
-import { rewriteArticleContent } from './ai-service';
+import { rewriteArticleContent, humanizeArticleContent } from './ai-service';
 import { downloadAndUploadImage } from './storage';
 
-const parser = new Parser();
+const parser = new Parser({
+  customFields: {
+    item: [
+      ['media:content', 'mediaContent', { keepArray: false }],
+      ['media:thumbnail', 'mediaThumbnail', { keepArray: false }],
+      ['enclosure', 'enclosure', { keepArray: false }],
+    ],
+  },
+});
 const RSS_SYSTEM_USER_ID = 'rss-system-user-0000000000000001';
 const MAX_DEAD_LETTER_ATTEMPTS = 3;
 
-type RSSItem = Parser.Item;
+type RSSItem = Parser.Item & {
+  mediaContent?: { $?: { url?: string } };
+  mediaThumbnail?: { $?: { url?: string } };
+  enclosure?: { url?: string };
+};
 type RSSFeedWithSection = Prisma.RSSFeedGetPayload<{ include: { targetSection: true } }>;
 
 export type RSSSyncSummary = {
@@ -73,6 +85,43 @@ async function withRetry<T>(
     }
   }
   throw lastError;
+}
+
+// ── Image extraction helpers ──────────────────────────────────────────────────
+
+function extractRssItemImage(item: RSSItem): string | null {
+  // media:content url
+  const mediaUrl = item.mediaContent?.$?.url;
+  if (mediaUrl) return mediaUrl;
+
+  // media:thumbnail url
+  const thumbUrl = item.mediaThumbnail?.$?.url;
+  if (thumbUrl) return thumbUrl;
+
+  // enclosure (podcasts/images)
+  const encUrl = item.enclosure?.url;
+  if (encUrl && /\.(jpe?g|png|gif|webp)(\?|$)/i.test(encUrl)) return encUrl;
+
+  // img tag inside item.content
+  if (item.content) {
+    const match = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (match?.[1]) return match[1];
+  }
+
+  return null;
+}
+
+function resolveArticleUrl(item: RSSItem): string {
+  const link = item.link || '';
+
+  // Google News links encode the real URL inside the path — extract the source
+  // link from the <a> in item.content when available
+  if (link.includes('news.google.com') && item.content) {
+    const match = item.content.match(/href=["'](https?:\/\/(?!news\.google\.com)[^"']+)["']/i);
+    if (match?.[1]) return match[1];
+  }
+
+  return link;
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -263,47 +312,167 @@ export async function syncFeed(feedId: string): Promise<RSSSyncSummary> {
   return summary;
 }
 
+// ── Content extraction helpers ────────────────────────────────────────────────
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+/**
+ * Extracts clean text paragraphs from the best available source.
+ * Priority: Readability HTML → Readability textContent → RSS item.content → item.contentSnippet
+ */
+function extractParagraphs(
+  readabilityHtml: string | null | undefined,
+  readabilityText: string | null | undefined,
+  item: RSSItem
+): string[] {
+  // 1. Extract from Readability HTML — splits on <p> tags (best quality)
+  if (readabilityHtml) {
+    const chunks = readabilityHtml
+      .split(/<\/p>|<br\s*\/?>/i)
+      .map(chunk => stripHtml(chunk).trim())
+      .filter(p => p.length > 40);
+
+    if (chunks.length >= 2) {
+      return chunks.slice(0, 30);
+    }
+  }
+
+  // 2. Extract from Readability textContent — split on double newlines
+  if (readabilityText && readabilityText.trim().length > 200) {
+    const chunks = readabilityText
+      .split(/\n{2,}/)
+      .map(p => p.replace(/\n/g, ' ').trim())
+      .filter(p => p.length > 40);
+
+    if (chunks.length >= 2) {
+      return chunks.slice(0, 30);
+    }
+
+    // Single-newline split as last resort on textContent
+    const singleSplit = readabilityText
+      .split(/\n/)
+      .map(p => p.trim())
+      .filter(p => p.length > 60);
+
+    if (singleSplit.length >= 2) {
+      return singleSplit.slice(0, 30);
+    }
+  }
+
+  // 3. RSS item.content HTML (often includes full article HTML in well-structured feeds)
+  if (item.content && item.content.length > 200) {
+    const chunks = item.content
+      .split(/<\/p>|<br\s*\/?>/i)
+      .map(chunk => stripHtml(chunk).trim())
+      .filter(p => p.length > 40);
+
+    if (chunks.length >= 2) {
+      return chunks.slice(0, 30);
+    }
+
+    // Plain text fallback from RSS content
+    const plain = stripHtml(item.content);
+    if (plain.length > 200) {
+      return plain
+        .split(/\n{2,}/)
+        .map(p => p.replace(/\n/g, ' ').trim())
+        .filter(p => p.length > 40)
+        .slice(0, 30);
+    }
+  }
+
+  // 4. contentSnippet / summary — last resort, produces minimal body
+  const snippet = (item.contentSnippet || item.summary || '').trim();
+  if (snippet.length > 40) {
+    return [snippet];
+  }
+
+  return [];
+}
+
 // ── Article processing ────────────────────────────────────────────────────────
 
 async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
-  const link = item.link;
-  if (!link) throw new Error('Item RSS sem link.');
+  if (!item.link) throw new Error('Item RSS sem link.');
 
-  let articleData: { title?: string | null; excerpt?: string | null; textContent?: string | null } | null = null;
+  const link = resolveArticleUrl(item);
+
+  let articleData: { title?: string | null; excerpt?: string | null; textContent?: string | null; content?: string | null } | null = null;
   let rawHeroImage: string | null = null;
+
+  // Priority 1: image from RSS feed fields (media:content, enclosure, etc.)
+  const rssImage = extractRssItemImage(item);
 
   try {
     const response = await withRetry(
-      () => fetch(link, { signal: AbortSignal.timeout(15000) }).then((r) => {
+      () => fetch(link, {
+        signal: AbortSignal.timeout(20000),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+        },
+      }).then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r;
       }),
-      { attempts: 2, baseDelayMs: 1500 }
+      { attempts: 3, baseDelayMs: 2000 }
     );
 
     const html = await response.text();
     const { document } = parseHTML(html);
     const reader = new Readability(document as unknown as Document);
     articleData = reader.parse();
-    rawHeroImage = (document.querySelector('meta[property="og:image"]') as HTMLMetaElement | null)?.content || null;
-  } catch (error) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(`RSS article fetch fallback for ${link}:`, error);
+    if (!rssImage) {
+      rawHeroImage = (document.querySelector('meta[property="og:image"]') as HTMLMetaElement | null)?.content || null;
     }
+  } catch (error) {
+    console.warn(`RSS fetch failed for ${link}:`, error instanceof Error ? error.message : error);
   }
 
-  const fallbackText = item.contentSnippet || item.content || item.summary || item.title || link;
+  rawHeroImage = rssImage || rawHeroImage;
+
+  // ── Build body paragraphs ────────────────────────────────────────────────────
+  // Priority: Readability HTML content → Readability textContent → RSS item.content → contentSnippet
+  const bodyParagraphs = extractParagraphs(articleData?.content, articleData?.textContent, item);
+
+  // Source text for AI rewrite: use Readability textContent when available (richer than snippet)
+  const sourceTextForAI = (articleData?.textContent || '').trim() ||
+    stripHtml(item.content || '') ||
+    item.contentSnippet || item.summary || '';
+
   const sourceTitle = item.title || articleData?.title || 'Sem título';
-  const sourceLead = articleData?.excerpt || item.contentSnippet || item.summary || '';
-  const sourceText = articleData?.textContent || fallbackText;
+  const sourceLead  = articleData?.excerpt || item.contentSnippet || item.summary || '';
 
-  if (!sourceText) throw new Error('Item RSS sem conteúdo aproveitável.');
+  if (bodyParagraphs.length === 0 && !sourceTextForAI) {
+    throw new Error('Item RSS sem conteúdo aproveitável.');
+  }
 
-  const { title: aiTitle, lead: aiLead, tags } = await rewriteArticleContent(
-    sourceTitle,
-    sourceLead,
-    sourceText
-  );
+  // Run rewrite (title/lead/tags) and humanization (body) in parallel
+  const rawBodyParagraphs = bodyParagraphs.length > 0
+    ? bodyParagraphs
+    : [sourceTextForAI || sourceLead || sourceTitle].filter(Boolean);
+
+  const [
+    { title: aiTitle, lead: aiLead, tags },
+    humanizedParagraphs,
+  ] = await Promise.all([
+    rewriteArticleContent(sourceTitle, sourceLead, sourceTextForAI),
+    humanizeArticleContent(sourceTitle, rawBodyParagraphs),
+  ]);
 
   const slug = slugify(aiTitle);
   let heroImageUrl = rawHeroImage;
@@ -315,15 +484,29 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
     heroImageUrl = await downloadAndUploadImage(rawHeroImage);
   }
 
-  const paragraphs = sourceText
-    .split(/\n\n+/)
-    .map((p) => p.trim())
-    .filter((p) => p.length > 30)
-    .slice(0, 20);
+  // Build Tiptap body with humanized paragraphs + source attribution node at the end
+  const paragraphNodes = humanizedParagraphs.map((p) => ({
+    type: 'paragraph',
+    content: [{ type: 'text', text: p }],
+  }));
 
-  const bodyContent = paragraphs.length > 0
-    ? paragraphs.map((p) => ({ type: 'paragraph', content: [{ type: 'text', text: p }] }))
-    : [{ type: 'paragraph', content: [{ type: 'text', text: sourceText }] }];
+  // Extract readable source name from URL hostname
+  let sourceName: string;
+  try {
+    sourceName = new URL(link).hostname.replace(/^www\./, '');
+  } catch {
+    sourceName = link;
+  }
+
+  const attributionNode = {
+    type: 'sourceAttribution',
+    attrs: {
+      sourceName,
+      sourceUrl: link,
+    },
+  };
+
+  const bodyContent = [...paragraphNodes, attributionNode];
 
   const articleStatus = feed.autoPublish
     ? 'PUBLISHED'

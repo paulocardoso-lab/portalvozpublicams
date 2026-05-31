@@ -73,7 +73,7 @@ export default async function SearchPage({
               <div className="flex items-center gap-2 text-[10px] font-bold text-vp-accent uppercase tracking-wider mb-1">
                 {article.section?.name}
               </div>
-              <Link href={`/${article.slug}`}>
+              <Link href={`/materia/${article.slug}`}>
                 <h2 className="font-display text-[22px] leading-tight mb-2">
                   {article.title}
                 </h2>

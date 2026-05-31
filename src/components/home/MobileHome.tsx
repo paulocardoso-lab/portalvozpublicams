@@ -7,6 +7,7 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Tag } from '@/components/shared/Tag';
 import { Headline } from '@/components/shared/Headline';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { StickyBottomAd } from '@/components/shared/StickyBottomAd';
 import { SafeImage } from '@/components/shared/SafeImage';
 import Link from 'next/link';
 import type { Alert } from '@prisma/client';
@@ -72,7 +73,7 @@ export function MobileHome({
             <Eyebrow className="text-[10px]">
               {hero.section?.name || 'Geral'} {hero.isExclusive ? '· Exclusivo' : ''}
             </Eyebrow>
-            <Headline as="h1" size="h3" href={`/${hero.slug}`} className="my-2">
+            <Headline as="h1" size="h3" href={`/materia/${hero.slug}`} className="my-2">
               {hero.title}
             </Headline>
             <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] mb-2.5">
@@ -97,27 +98,34 @@ export function MobileHome({
           </Link>
         </div>
 
-        {/* 4. List items */}
+        {/* 4. List items — native-feed ad injected after 3rd article */}
         <section>
-          {listItems.map((article) => (
-            <article key={article.id} className="px-4 py-[14px] border-b border-vp-border grid grid-cols-[1fr_90px] gap-3">
-              <div>
-                <Eyebrow className="text-[9px] mb-1">{article.section?.name}</Eyebrow>
-                <Headline size="small" href={`/${article.slug}`} className="mb-1.5 leading-[1.2]">
-                  {article.title}
-                </Headline>
-                <div className="byline text-[11px] text-vp-text-3 font-sans">
-                  {article.publishedAt ? `há ${Math.floor((Date.now() - new Date(article.publishedAt).getTime()) / 3600000)}h` : 'sem data'} · {article.readingTime || article.readTimeMin || 4} min
+          {listItems.map((article, idx) => (
+            <React.Fragment key={article.id}>
+              <article className="px-4 py-[14px] border-b border-vp-border grid grid-cols-[1fr_90px] gap-3">
+                <div>
+                  <Eyebrow className="text-[9px] mb-1">{article.section?.name}</Eyebrow>
+                  <Headline size="small" href={`/materia/${article.slug}`} className="mb-1.5 leading-[1.2]">
+                    {article.title}
+                  </Headline>
+                  <div className="byline text-[11px] text-vp-text-3 font-sans">
+                    {article.publishedAt ? `há ${Math.floor((Date.now() - new Date(article.publishedAt).getTime()) / 3600000)}h` : 'sem data'} · {article.readingTime || article.readTimeMin || 4} min
+                  </div>
                 </div>
-              </div>
-              {article.image || article.heroImage ? (
-                <div className="relative w-full h-[80px] overflow-hidden bg-vp-surface">
-                  <SafeImage src={article.image || article.heroImage || ''} alt="" fill sizes="90px" className="object-cover" />
+                {article.image || article.heroImage ? (
+                  <div className="relative w-full h-[80px] overflow-hidden bg-vp-surface">
+                    <SafeImage src={article.image || article.heroImage || ''} alt="" fill sizes="90px" className="object-cover" />
+                  </div>
+                ) : (
+                  <ImgPH height={80} />
+                )}
+              </article>
+              {idx === 2 && (
+                <div className="px-4 py-3 border-b border-vp-border bg-vp-surface/30">
+                  <AdSlot id="native-feed" className="w-full" />
                 </div>
-              ) : (
-                <ImgPH height={80} />
               )}
-            </article>
+            </React.Fragment>
           ))}
         </section>
 
@@ -142,7 +150,7 @@ export function MobileHome({
               <article className="px-4 pb-4 border-b border-vp-border">
                 <ImgPH label="série" height={170} className="mb-2.5" />
                 <Eyebrow className="text-[10px] mb-1.5">Série Especial</Eyebrow>
-                <Headline size="card" href={`/${featuredSeries.articles[0].slug}`} className="mb-2 leading-[1.15]">
+                <Headline size="card" href={`/materia/${featuredSeries.articles[0].slug}`} className="mb-2 leading-[1.15]">
                   {featuredSeries.articles[0].title}
                 </Headline>
                 <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5]">
@@ -155,14 +163,14 @@ export function MobileHome({
 
         {/* 7. Mais lidas */}
         {mostRead.length > 0 && (
-          <section className="px-4 pt-4 pb-8">
-            <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-3">
+          <section className="px-5 pt-6 pb-10 border-t border-vp-border">
+            <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-5">
               Mais lidas hoje
             </h3>
             {mostRead.map((h, i) => (
-              <div key={h.id} className={`grid grid-cols-[24px_1fr] gap-2.5 py-2.5 ${i < mostRead.length - 1 ? 'border-b border-vp-border' : ''}`}>
-                <span className="font-display font-bold text-[22px] text-vp-accent leading-none">{i+1}</span>
-                <Headline size="small" href={`/${h.slug}`} hoverAccent={false} className="!text-[14px] leading-[1.25]">
+              <div key={h.id} className={`grid grid-cols-[36px_1fr] gap-4 py-4 ${i < mostRead.length - 1 ? 'border-b border-vp-border' : ''}`}>
+                <span className="font-display font-bold text-[28px] text-vp-accent leading-none pt-0.5">{i+1}</span>
+                <Headline size="small" href={`/materia/${h.slug}`} hoverAccent={false} className="text-[15px]! leading-tight self-center">
                   {h.title}
                 </Headline>
               </div>
@@ -171,6 +179,7 @@ export function MobileHome({
         )}
       </main>
 
+      <StickyBottomAd />
       <MobileTabBar active="home" />
     </div>
   );

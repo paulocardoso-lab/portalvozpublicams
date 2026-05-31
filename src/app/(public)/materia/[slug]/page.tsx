@@ -35,7 +35,7 @@ export async function generateMetadata(
     openGraph: {
       title: article.title,
       description: article.lead || '',
-      url: `https://vozpublica.com.br/${article.slug}`,
+      url: `https://vozpublica.com.br/materia/${article.slug}`,
       siteName: 'Voz Pública MS',
       images: article.heroImage ? [article.heroImage, ...previousImages] : previousImages,
       locale: 'pt_BR',
@@ -109,7 +109,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     },
     'mainEntityOfPage': {
       '@type': 'WebPage',
-      '@id': `https://vozpublica.com.br/${article.slug}`
+      '@id': `https://vozpublica.com.br/materia/${article.slug}`
     }
   };
 

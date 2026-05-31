@@ -79,13 +79,13 @@ export function DesktopColumnist({ columnist }: DesktopColumnistProps) {
               <Eyebrow className="mb-2.5">
                 Coluna de hoje · {latest.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(latest.publishedAt)) : ''}
               </Eyebrow>
-              <Headline as="h2" size="hero" href={`/${latest.slug}`} className="!text-[42px] italic mb-3.5 leading-[1.1] font-black">
+              <Headline as="h2" size="hero" href={`/materia/${latest.slug}`} className="!text-[42px] italic mb-3.5 leading-[1.1] font-black">
                 “{latest.title}”
               </Headline>
               <p className="font-serif text-[19px] text-vp-text-2 leading-[1.6] mb-6">
                 {latest.lead}
               </p>
-              <Link href={`/${latest.slug}`} className="vp-btn inline-block px-6 py-3 font-bold uppercase tracking-widest text-[12px]">
+              <Link href={`/materia/${latest.slug}`} className="vp-btn inline-block px-6 py-3 font-bold uppercase tracking-widest text-[12px]">
                 Ler coluna completa →
               </Link>
             </article>
@@ -106,7 +106,7 @@ export function DesktopColumnist({ columnist }: DesktopColumnistProps) {
                   {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}
                 </div>
                 <div>
-                  <Headline size="h3" href={`/${art.slug}`} className="!text-[22px] italic mb-1.5 leading-snug group-hover:text-vp-accent transition-colors">
+                  <Headline size="h3" href={`/materia/${art.slug}`} className="!text-[22px] italic mb-1.5 leading-snug group-hover:text-vp-accent transition-colors">
                     “{art.title}”
                   </Headline>
                   <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] line-clamp-2">

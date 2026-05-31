@@ -90,7 +90,7 @@ export function DesktopSearch({ query, results }: DesktopSearchProps) {
                   <div className="font-sans text-[10px] text-vp-text-3 uppercase tracking-widest mb-1.5 font-bold">
                     {art.section?.name || 'Geral'} · {art.eyebrow || 'Reportagem'} · {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}
                   </div>
-                  <Headline size="h3" href={`/${art.slug}`} className="!text-[24px] mb-2 group-hover:text-vp-accent transition-colors">
+                  <Headline size="h3" href={`/materia/${art.slug}`} className="!text-[24px] mb-2 group-hover:text-vp-accent transition-colors">
                     {art.title}
                   </Headline>
                   <p className="font-serif text-[15px] text-vp-text-2 leading-[1.6] line-clamp-2">

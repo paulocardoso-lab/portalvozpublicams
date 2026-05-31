@@ -18,17 +18,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
-    if (type === 'impression') {
-      await prisma.campaign.update({
+    await prisma.$transaction([
+      prisma.campaign.update({
         where: { id: campaignId },
-        data: { impressions: { increment: 1 } },
-      });
-    } else {
-      await prisma.campaign.update({
-        where: { id: campaignId },
-        data: { clicks: { increment: 1 } },
-      });
-    }
+        data: { [type === 'impression' ? 'impressions' : 'clicks']: { increment: 1 } },
+      }),
+      prisma.adEvent.create({
+        data: { campaignId, type },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

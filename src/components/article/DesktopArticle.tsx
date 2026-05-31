@@ -8,6 +8,7 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Headline } from '@/components/shared/Headline';
 import { SafeImage } from '@/components/shared/SafeImage';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { ArticleBodyWithAd } from '@/components/shared/ArticleBodyWithAd';
 import { renderArticleBody } from '@/lib/article-renderer';
 
 type ArticleWithRelations = Article & {
@@ -104,10 +105,12 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
             {article.heroCaption || 'Foto: Voz Pública'}
           </p>
 
-          <div className="vp-article-content mb-12">
-            {/* O conteúdo injetado terá drop-cap via CSS ::first-letter se o globals.css for respeitado */}
-            <div dangerouslySetInnerHTML={{ __html: renderArticleBody(article.body) }} />
-          </div>
+          <ArticleBodyWithAd
+            html={renderArticleBody(article.body)}
+            className="vp-article-content mb-12"
+            adSlotId="in-article"
+            insertAfterParagraph={4}
+          />
 
           {/* Chapter Navigation */}
           <div className="mt-8 border border-vp-border bg-vp-surface">

@@ -198,7 +198,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 vp-panel p-8 bg-[#141413] border border-vp-border">
+        <div className="lg:col-span-2 vp-panel p-6 bg-[#141413] border border-vp-border overflow-hidden">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h3 className="text-[15px] font-black uppercase tracking-widest mb-1">Trafego registrado</h3>
@@ -208,10 +208,10 @@ export default async function AdminDashboardPage() {
 
           {hasTrafficData ? (
             <>
-              <div className="h-[200px] flex flex-col justify-end">
+              <div className="h-[200px] overflow-hidden">
                 <DashboardSparkline points={trafficData} height={200} />
               </div>
-              <div className="flex justify-between mt-6 px-2 font-mono text-[10px] text-vp-text-4 uppercase tracking-widest border-t border-vp-border pt-4">
+              <div className="flex justify-between mt-4 font-mono text-[10px] text-vp-text-4 uppercase tracking-widest border-t border-vp-border pt-4">
                 <span>{recentMetrics[0]?.date.toLocaleDateString('pt-BR') ?? 'Inicio'}</span>
                 <span className="text-vp-accent font-black">Hoje</span>
               </div>
@@ -225,19 +225,19 @@ export default async function AdminDashboardPage() {
           )}
         </div>
 
-        <div className="vp-panel p-8 bg-[#141413] border border-vp-border">
-          <h3 className="text-[15px] font-black uppercase tracking-widest mb-8">Mais lidas</h3>
+        <div className="vp-panel p-6 bg-[#141413] border border-vp-border overflow-hidden">
+          <h3 className="text-[15px] font-black uppercase tracking-widest mb-6">Mais lidas</h3>
           {topArticles.length === 0 ? (
             <p className="text-[13px] text-vp-text-3 italic">Nenhuma materia publicada ainda.</p>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {topArticles.map((article, i) => (
-                <div key={article.id} className="grid grid-cols-[30px_1fr_auto] gap-4 items-start group">
-                  <span className="font-mono text-[18px] text-vp-accent font-black leading-none">{i + 1}</span>
-                  <p className="text-[13px] leading-snug font-bold text-vp-text-2 group-hover:text-vp-text transition-colors line-clamp-2">
+                <div key={article.id} className="grid grid-cols-[24px_1fr_40px] gap-3 items-start group">
+                  <span className="font-mono text-[16px] text-vp-accent font-black leading-none pt-0.5">{i + 1}</span>
+                  <p className="text-[12px] leading-snug font-bold text-vp-text-2 group-hover:text-vp-text transition-colors line-clamp-2 min-w-0">
                     {article.title}
                   </p>
-                  <span className="font-mono text-[11px] text-vp-text-4">{formatNumber(article.views)}</span>
+                  <span className="font-mono text-[11px] text-vp-text-4 text-right tabular-nums pt-0.5">{formatNumber(article.views)}</span>
                 </div>
               ))}
             </div>

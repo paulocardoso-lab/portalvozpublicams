@@ -26,6 +26,46 @@ function getOptionalStorageClient() {
   return config ? createClient(config.supabaseUrl, config.supabaseKey) : null;
 }
 
+export async function uploadBrandAsset(
+  file: File,
+  type: 'logo' | 'favicon'
+): Promise<string> {
+  const supabase = getStorageClient();
+  const inputBuffer = Buffer.from(await file.arrayBuffer());
+
+  let outputBuffer: Buffer;
+  let fileName: string;
+
+  if (type === 'logo') {
+    // Logo: convert to WebP, max 400px tall, maintain aspect ratio
+    outputBuffer = await sharp(inputBuffer)
+      .resize({ height: 400, withoutEnlargement: true })
+      .webp({ quality: 90 })
+      .toBuffer();
+    fileName = 'logo.webp';
+  } else {
+    // Favicon: square crop + resize to 512×512 PNG (browsers scale down)
+    outputBuffer = await sharp(inputBuffer)
+      .resize(512, 512, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .png()
+      .toBuffer();
+    fileName = 'favicon.png';
+  }
+
+  const { error } = await supabase.storage
+    .from('brand')
+    .upload(fileName, outputBuffer, {
+      contentType: type === 'logo' ? 'image/webp' : 'image/png',
+      upsert: true,
+    });
+
+  if (error) throw error;
+
+  // Bust cache by appending timestamp as query param
+  const { data: { publicUrl } } = supabase.storage.from('brand').getPublicUrl(fileName);
+  return `${publicUrl}?v=${Date.now()}`;
+}
+
 export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 'ads' = 'articles') {
   const supabase = getStorageClient();
 

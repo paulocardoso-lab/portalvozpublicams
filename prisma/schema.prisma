@@ -269,11 +269,24 @@ model Campaign {
   client      String
   slot        String
   creative    String
+  targetUrl   String   @default("")
   impressions Int      @default(0)
   clicks      Int      @default(0)
+  weight      Int      @default(1)
   startsAt    DateTime
   endsAt      DateTime
   status      CampaignStatus @default(ACTIVE)
+  events      AdEvent[]
+}
+
+model AdEvent {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type       String
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, createdAt])
 }
 
 enum CampaignStatus {

@@ -7,6 +7,8 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Headline } from '@/components/shared/Headline';
 import { SafeImage } from '@/components/shared/SafeImage';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { StickyBottomAd } from '@/components/shared/StickyBottomAd';
+import { ArticleBodyWithAd } from '@/components/shared/ArticleBodyWithAd';
 import { renderArticleBody } from '@/lib/article-renderer';
 
 type ArticleWithRelations = Article & {
@@ -113,9 +115,11 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
             )}
           </div>
 
-          <div 
+          <ArticleBodyWithAd
+            html={renderArticleBody(article.body)}
             className="font-serif text-[17px] leading-[1.65] text-vp-text vp-article-content"
-            dangerouslySetInnerHTML={{ __html: renderArticleBody(article.body) }}
+            adSlotId="in-article"
+            insertAfterParagraph={3}
           />
         </article>
 
@@ -133,6 +137,8 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
           </button>
         </section>
       </main>
+
+      <StickyBottomAd />
 
       {/* 3. Sticky bottom action bar */}
       <nav className="fixed bottom-0 left-0 right-0 border-t border-vp-border bg-vp-bg grid grid-cols-4 py-2 z-50">

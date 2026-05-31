@@ -106,7 +106,7 @@ export function DesktopHome({
               <>
                 <div>
                   <Eyebrow className="mb-2">{hero.eyebrow || `${hero.section?.name} · Exclusivo`}</Eyebrow>
-                  <Headline as="h1" size="hero" href={`/${hero.slug}`} className="mb-3.5">
+                  <Headline as="h1" size="hero" href={`/materia/${hero.slug}`} className="mb-3.5">
                     {hero.title}
                   </Headline>
                   <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-4">
@@ -144,7 +144,7 @@ export function DesktopHome({
                   )}
                 </div>
                 <Eyebrow className="mb-1.5">{art.section?.name}</Eyebrow>
-                <Headline size="h3" href={`/${art.slug}`} className="mb-2">
+                <Headline size="h3" href={`/materia/${art.slug}`} className="mb-2">
                   {art.title}
                 </Headline>
                 <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] line-clamp-3">
@@ -178,7 +178,7 @@ export function DesktopHome({
                     )}
                   </div>
                   <Eyebrow>Série Especial</Eyebrow>
-                  <Headline size="h2" href={`/${featuredSeries.articles[0]?.slug}`} className="my-2">
+                  <Headline size="h2" href={`/materia/${featuredSeries.articles[0]?.slug}`} className="my-2">
                     {featuredSeries.articles[0]?.title}
                   </Headline>
                   <p className="font-serif text-[15px] text-vp-text-2 leading-[1.5]">
@@ -196,7 +196,7 @@ export function DesktopHome({
                         <ImgPH label="" width={70} height={70} className="rounded-sm" />
                       )}
                       <div>
-                        <Headline size="small" href={`/${art.slug}`} className="mb-1.5">
+                        <Headline size="small" href={`/materia/${art.slug}`} className="mb-1.5">
                           {art.title}
                         </Headline>
                         <div className="byline text-[10px]">
@@ -227,7 +227,7 @@ export function DesktopHome({
                 <div className="flex flex-col gap-3.5">
                   {col.data.slice(0, 3).map((art, i) => (
                     <div key={art.id} className={`pb-3.5 ${i < 2 ? 'border-b border-vp-border' : ''}`}>
-                      <Headline size="small" href={`/${art.slug}`} className="mb-1.5">
+                      <Headline size="small" href={`/materia/${art.slug}`} className="mb-1.5">
                         {art.title}
                       </Headline>
                       <div className="byline text-[10px]">
@@ -260,7 +260,7 @@ export function DesktopHome({
                     <div className="font-sans text-[10px] text-vp-accent uppercase tracking-widest font-bold mb-1">
                       OPINIÃO
                     </div>
-                    <Headline size="small" href={`/${col.articles?.[0]?.slug}`} className="italic mb-1">
+                    <Headline size="small" href={`/materia/${col.articles?.[0]?.slug}`} className="italic mb-1">
                       “{col.articles?.[0]?.title}”
                     </Headline>
                     <div className="font-sans text-[11px] text-vp-text-2 font-bold">{col.name}</div>
@@ -271,27 +271,27 @@ export function DesktopHome({
           </section>
 
           {/* Most Read + Podcast */}
-          <section className="grid grid-cols-2 gap-12 py-8">
-            <div>
-              <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-4">
+          <section className={`pt-8 pb-6 border-t border-vp-border ${activePodcast ? 'grid grid-cols-2 gap-16' : 'block'}`}>
+            <div className={activePodcast ? '' : 'max-w-[640px]'}>
+              <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-6">
                 Mais lidas da semana
               </h3>
-              <div className="flex flex-col gap-3.5">
+              <div className="flex flex-col">
                 {mostRead.slice(0, 5).map((art, i) => (
-                  <div key={art.id} className={`grid grid-cols-[36px_1fr] gap-3.5 pb-3 ${i < 4 ? 'border-b-2 border-vp-text' : ''}`}>
-                    <span className="font-display text-[28px] font-bold text-vp-accent leading-none">{i+1}</span>
-                    <Headline size="small" href={`/${art.slug}`} className="leading-snug">
+                  <div key={art.id} className={`grid grid-cols-[48px_1fr] gap-5 py-4 ${i < mostRead.length - 1 ? 'border-b border-vp-border' : ''}`}>
+                    <span className="font-display text-[34px] font-bold text-vp-accent leading-none pt-0.5">{i+1}</span>
+                    <Headline size="small" href={`/materia/${art.slug}`} className="leading-snug self-center">
                       {art.title}
                     </Headline>
                   </div>
                 ))}
               </div>
             </div>
-            <div>
-              <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-4">
-                Podcast · Voz Alta
-              </h3>
-              {activePodcast && (
+            {activePodcast && (
+              <div>
+                <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-6">
+                  Podcast · Voz Alta
+                </h3>
                 <div className="flex flex-col">
                   {activePodcast.coverImage ? (
                     <div className="relative w-full h-[200px] mb-3.5 overflow-hidden rounded-sm">
@@ -321,8 +321,8 @@ export function DesktopHome({
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </section>
         </div>
 

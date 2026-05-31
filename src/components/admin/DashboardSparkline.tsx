@@ -26,10 +26,11 @@ export function DashboardSparkline({ points, color = '#d97757', height = 120 }: 
 
   return (
     <div className="w-full relative group">
-      <svg 
-        viewBox={`0 0 ${w} ${height}`} 
-        className="w-full h-full block overflow-visible drop-shadow-[0_0_15px_rgba(217,119,87,0.15)]" 
+      <svg
+        viewBox={`0 0 ${w} ${height}`}
+        className="w-full h-full block drop-shadow-[0_0_15px_rgba(217,119,87,0.15)]"
         preserveAspectRatio="none"
+        style={{ overflow: 'hidden' }}
       >
         <defs>
           <linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">

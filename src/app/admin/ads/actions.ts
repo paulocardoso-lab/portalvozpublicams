@@ -53,14 +53,20 @@ export async function createCampaign(formData: FormData) {
       throw new Error("Informe uma URL de imagem válida ou envie um arquivo de banner.");
     }
 
+    const rawWeight = parseInt(String(formData.get("weight") || "1"), 10);
+    const weight = isNaN(rawWeight) || rawWeight < 1 ? 1 : Math.min(rawWeight, 100);
+    const targetUrl = normalizeImageUrl(formData.get("targetUrl")) || "";
+
     await prisma.campaign.create({
       data: {
         name: String(formData.get("name") || "Sem nome"),
         client: String(formData.get("client") || "Anônimo"),
         slot: String(formData.get("slot")),
         creative: creativeUrl,
+        targetUrl,
         impressions: 0,
         clicks: 0,
+        weight,
         startsAt,
         endsAt,
         status: "ACTIVE",
@@ -92,4 +98,69 @@ export async function getCampaigns() {
   return await prisma.campaign.findMany({
     orderBy: { startsAt: 'desc' }
   });
+}
+
+export async function getCampaignDailyStats(campaignId: string, days = 30) {
+  await requireAdmin();
+
+  const since = new Date();
+  since.setDate(since.getDate() - days + 1);
+  since.setHours(0, 0, 0, 0);
+
+  const events = await prisma.adEvent.findMany({
+    where: { campaignId, createdAt: { gte: since } },
+    select: { type: true, createdAt: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  // Group by date string YYYY-MM-DD
+  const byDay: Record<string, { impressions: number; clicks: number }> = {};
+
+  for (let i = 0; i < days; i++) {
+    const d = new Date(since);
+    d.setDate(d.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    byDay[key] = { impressions: 0, clicks: 0 };
+  }
+
+  for (const ev of events) {
+    const key = ev.createdAt.toISOString().slice(0, 10);
+    if (!byDay[key]) byDay[key] = { impressions: 0, clicks: 0 };
+    if (ev.type === 'impression') byDay[key].impressions++;
+    else if (ev.type === 'click') byDay[key].clicks++;
+  }
+
+  return Object.entries(byDay).map(([date, counts]) => ({ date, ...counts }));
+}
+
+export async function getAllCampaignsDailyStats(days = 30) {
+  await requireAdmin();
+
+  const since = new Date();
+  since.setDate(since.getDate() - days + 1);
+  since.setHours(0, 0, 0, 0);
+
+  const events = await prisma.adEvent.findMany({
+    where: { createdAt: { gte: since } },
+    select: { type: true, createdAt: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  const byDay: Record<string, { impressions: number; clicks: number }> = {};
+
+  for (let i = 0; i < days; i++) {
+    const d = new Date(since);
+    d.setDate(d.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    byDay[key] = { impressions: 0, clicks: 0 };
+  }
+
+  for (const ev of events) {
+    const key = ev.createdAt.toISOString().slice(0, 10);
+    if (!byDay[key]) byDay[key] = { impressions: 0, clicks: 0 };
+    if (ev.type === 'impression') byDay[key].impressions++;
+    else if (ev.type === 'click') byDay[key].clicks++;
+  }
+
+  return Object.entries(byDay).map(([date, counts]) => ({ date, ...counts }));
 }
