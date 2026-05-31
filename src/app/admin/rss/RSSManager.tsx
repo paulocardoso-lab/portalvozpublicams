@@ -16,8 +16,9 @@ type SyncSummary = {
 
 type RSSFeedRow = {
   id: string; name: string; url: string; targetSectionId: string;
-  autoPublish: boolean; isActive: boolean;
-  syncIntervalHours: number; maxItemsPerSync: number; keywordFilter: string[];
+  autoPublish: boolean; requiresReview: boolean; isActive: boolean;
+  syncIntervalHours: number; maxItemsPerSync: number;
+  keywordFilter: string[]; blacklistKeywords: string[];
   consecutiveFailures: number; disabledAt: Date | null;
 };
 
@@ -31,7 +32,7 @@ type HealthStats = {
 function FeedForm({
   initial, sections, onSubmit, onCancel, submitLabel, extra,
 }: {
-  initial: { name: string; url: string; targetSectionId: string; autoPublish: boolean; syncIntervalHours: number; maxItemsPerSync: number; keywordFilter: string[] };
+  initial: { name: string; url: string; targetSectionId: string; autoPublish: boolean; requiresReview: boolean; syncIntervalHours: number; maxItemsPerSync: number; keywordFilter: string[]; blacklistKeywords: string[] };
   sections: SectionOption[];
   onSubmit: (data: typeof initial) => Promise<void>;
   onCancel: () => void;
@@ -44,6 +45,7 @@ function FeedForm({
   const [preview, setPreview] = useState<PreviewItem[] | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [keywordInput, setKeywordInput] = useState(initial.keywordFilter.join(', '));
+  const [blacklistInput, setBlacklistInput] = useState(initial.blacklistKeywords.join(', '));
 
   async function handlePreview() {
     if (!form.url) return;
@@ -60,7 +62,8 @@ function FeedForm({
     e.preventDefault();
     setLoading(true);
     const keywords = keywordInput.split(',').map(k => k.trim()).filter(Boolean);
-    await onSubmit({ ...form, keywordFilter: keywords });
+    const blacklist = blacklistInput.split(',').map(k => k.trim()).filter(Boolean);
+    await onSubmit({ ...form, keywordFilter: keywords, blacklistKeywords: blacklist });
     setLoading(false);
   }
 
@@ -121,6 +124,17 @@ function FeedForm({
             <span className="text-[12px]">Publicar direto</span>
           </label>
         </div>
+        <div className="flex flex-col justify-end">
+          <label className="flex items-center gap-2 cursor-pointer py-3">
+            <input type="checkbox" checked={form.requiresReview}
+              onChange={e => setForm({ ...form, requiresReview: e.target.checked })}
+              className="accent-vp-accent"
+              disabled={form.autoPublish} />
+            <span className={`text-[12px] ${form.autoPublish ? 'text-vp-text-4' : ''}`}>
+              Exige revisão
+            </span>
+          </label>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -142,7 +156,18 @@ function FeedForm({
         </label>
         <input className="vp-input w-full text-[12px]" value={keywordInput}
           onChange={e => setKeywordInput(e.target.value)}
-          placeholder="ex: Mato Grosso do Sul, MS, Campo Grande" />
+          placeholder="ex: Mato Grosso do Sul, MS, Campo Grande"
+          title="Filtro de palavras-chave (whitelist)" />
+      </div>
+
+      <div>
+        <label className="eyebrow block mb-1.5 text-[10px]">
+          Blacklist <span className="normal-case font-normal text-vp-text-4">(bloqueia artigos que contenham estas palavras — separadas por vírgula)</span>
+        </label>
+        <input className="vp-input w-full text-[12px]" value={blacklistInput}
+          onChange={e => setBlacklistInput(e.target.value)}
+          placeholder="ex: patrocinado, publi, propaganda"
+          title="Palavras que bloqueiam o artigo" />
       </div>
 
       {extra}
@@ -238,7 +263,9 @@ export function RSSManager({ sections }: RSSManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const defaultForm = {
     name: '', url: '', targetSectionId: sections[0]?.id || '',
-    autoPublish: false, syncIntervalHours: 6, maxItemsPerSync: 10, keywordFilter: [] as string[],
+    autoPublish: false, requiresReview: true,
+    syncIntervalHours: 6, maxItemsPerSync: 10,
+    keywordFilter: [] as string[], blacklistKeywords: [] as string[],
   };
 
   async function handleCreate(data: typeof defaultForm) {
@@ -297,7 +324,8 @@ export function RSSActions({ feed, sections }: { feed: RSSFeedRow; sections: Sec
 
   async function handleUpdate(data: {
     name: string; url: string; targetSectionId: string; autoPublish: boolean;
-    syncIntervalHours: number; maxItemsPerSync: number; keywordFilter: string[];
+    requiresReview: boolean; syncIntervalHours: number; maxItemsPerSync: number;
+    keywordFilter: string[]; blacklistKeywords: string[];
   }) {
     const result = await updateRSSFeed(feed.id, data);
     if (result.success) setIsEditing(false);
@@ -354,9 +382,11 @@ export function RSSActions({ feed, sections }: { feed: RSSFeedRow; sections: Sec
                 name: feed.name, url: feed.url,
                 targetSectionId: feed.targetSectionId,
                 autoPublish: feed.autoPublish,
+                requiresReview: feed.requiresReview,
                 syncIntervalHours: feed.syncIntervalHours,
                 maxItemsPerSync: feed.maxItemsPerSync,
                 keywordFilter: feed.keywordFilter,
+                blacklistKeywords: feed.blacklistKeywords,
               }}
               sections={sections}
               onSubmit={handleUpdate}

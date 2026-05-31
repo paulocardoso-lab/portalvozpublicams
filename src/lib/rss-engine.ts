@@ -8,6 +8,7 @@ import { rewriteArticleContent } from './ai-service';
 import { downloadAndUploadImage } from './storage';
 
 const parser = new Parser();
+const RSS_SYSTEM_USER_ID = 'rss-system-user-0000000000000001';
 
 type RSSItem = Parser.Item;
 type RSSFeedWithSection = Prisma.RSSFeedGetPayload<{ include: { targetSection: true } }>;
@@ -74,11 +75,18 @@ export async function syncFeed(feedId: string): Promise<RSSSyncSummary> {
     for (const item of items) {
       if (!item.link) { summary.skipped += 1; continue; }
 
-      // Filtro de palavras-chave
+      // Filtro de palavras-chave (whitelist)
       if (feed.keywordFilter.length > 0) {
         const text = `${item.title || ''} ${item.contentSnippet || ''}`.toLowerCase();
         const matches = feed.keywordFilter.some((kw) => text.includes(kw.toLowerCase()));
         if (!matches) { summary.skipped += 1; continue; }
+      }
+
+      // Blacklist de palavras-chave
+      if (feed.blacklistKeywords.length > 0) {
+        const text = `${item.title || ''} ${item.contentSnippet || ''}`.toLowerCase();
+        const blocked = feed.blacklistKeywords.some((kw) => text.includes(kw.toLowerCase()));
+        if (blocked) { summary.skipped += 1; continue; }
       }
 
       const existing = await prisma.rSSLog.findFirst({
@@ -204,16 +212,25 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
     ? paragraphs.map((p) => ({ type: 'paragraph', content: [{ type: 'text', text: p }] }))
     : [{ type: 'paragraph', content: [{ type: 'text', text: sourceText }] }];
 
+  // Determina status: autoPublish ignora requiresReview; caso contrário vai para IN_REVIEW
+  const articleStatus = feed.autoPublish
+    ? 'PUBLISHED'
+    : feed.requiresReview
+      ? 'IN_REVIEW'
+      : 'DRAFT';
+
   const article = await prisma.article.create({
     data: {
       title: aiTitle,
       slug: `${slug}-${crypto.randomUUID().slice(0, 8)}`,
       lead: aiLead,
       body: { type: 'doc', content: bodyContent },
-      status: feed.autoPublish ? 'PUBLISHED' : 'DRAFT',
+      status: articleStatus,
       sectionId: feed.targetSectionId,
-      publishedAt: new Date(),
+      publishedAt: feed.autoPublish ? new Date() : null,
       heroImage: heroImageUrl,
+      sourceUrl: link,
+      authors: { connect: { id: RSS_SYSTEM_USER_ID } },
       tags: {
         connectOrCreate: normalizedTags.map((tag: { name: string; slug: string }) => ({
           where: { slug: tag.slug },

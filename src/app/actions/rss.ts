@@ -10,9 +10,11 @@ const rssFeedSchema = z.object({
   url: z.string().trim().url('Informe uma URL válida para o feed RSS.'),
   targetSectionId: z.string().trim().min(1, 'Selecione uma editoria alvo.'),
   autoPublish: z.boolean(),
+  requiresReview: z.boolean().default(true),
   syncIntervalHours: z.number().int().min(1).max(168).default(6),
   maxItemsPerSync: z.number().int().min(1).max(50).default(10),
   keywordFilter: z.array(z.string()).default([]),
+  blacklistKeywords: z.array(z.string()).default([]),
 });
 
 function isPrismaUniqueError(error: unknown) {
@@ -28,9 +30,11 @@ export async function createRSSFeed(data: {
   url: string;
   targetSectionId: string;
   autoPublish: boolean;
+  requiresReview?: boolean;
   syncIntervalHours?: number;
   maxItemsPerSync?: number;
   keywordFilter?: string[];
+  blacklistKeywords?: string[];
 }) {
   await requireAdmin();
 
@@ -46,9 +50,11 @@ export async function createRSSFeed(data: {
         url: parsed.data.url,
         targetSectionId: parsed.data.targetSectionId,
         autoPublish: parsed.data.autoPublish,
+        requiresReview: parsed.data.requiresReview,
         syncIntervalHours: parsed.data.syncIntervalHours,
         maxItemsPerSync: parsed.data.maxItemsPerSync,
         keywordFilter: parsed.data.keywordFilter,
+        blacklistKeywords: parsed.data.blacklistKeywords,
       }
     });
 
@@ -68,9 +74,11 @@ export async function updateRSSFeed(id: string, data: {
   url: string;
   targetSectionId: string;
   autoPublish: boolean;
+  requiresReview?: boolean;
   syncIntervalHours?: number;
   maxItemsPerSync?: number;
   keywordFilter?: string[];
+  blacklistKeywords?: string[];
 }) {
   await requireAdmin();
 
@@ -87,10 +95,11 @@ export async function updateRSSFeed(id: string, data: {
         url: parsed.data.url,
         targetSectionId: parsed.data.targetSectionId,
         autoPublish: parsed.data.autoPublish,
+        requiresReview: parsed.data.requiresReview,
         syncIntervalHours: parsed.data.syncIntervalHours,
         maxItemsPerSync: parsed.data.maxItemsPerSync,
         keywordFilter: parsed.data.keywordFilter,
-        // Reativa feed se estava auto-desabilitado
+        blacklistKeywords: parsed.data.blacklistKeywords,
         isActive: true,
         consecutiveFailures: 0,
         disabledAt: null,

@@ -54,20 +54,24 @@ export async function downloadAndUploadImage(url: string, bucket: 'articles' | '
     const supabase = getOptionalStorageClient();
     if (!supabase) return url;
 
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
-    
-    const blob = await response.blob();
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    const ext = contentType.split('/').pop() || 'jpg';
-    const fileName = `rss-${crypto.randomUUID()}.${ext}`;
+
+    const arrayBuffer = await response.arrayBuffer();
+    const inputBuffer = Buffer.from(arrayBuffer);
+
+    // Valida dimensões mínimas (200x200) e converte para WebP
+    const metadata = await sharp(inputBuffer).metadata();
+    if ((metadata.width ?? 0) < 200 || (metadata.height ?? 0) < 200) {
+      return url; // imagem muito pequena, descarta
+    }
+
+    const webpBuffer = await sharp(inputBuffer).webp({ quality: 85 }).toBuffer();
+    const fileName = `rss-${crypto.randomUUID()}.webp`;
 
     const { error } = await supabase.storage
       .from(bucket)
-      .upload(fileName, blob, {
-        contentType,
-        upsert: true
-      });
+      .upload(fileName, webpBuffer, { contentType: 'image/webp', upsert: true });
 
     if (error) throw error;
 
@@ -78,6 +82,6 @@ export async function downloadAndUploadImage(url: string, bucket: 'articles' | '
     return publicUrl;
   } catch (error) {
     console.error('Error downloading/uploading image:', error);
-    return url; // Fallback para a URL original se falhar
+    return url;
   }
 }

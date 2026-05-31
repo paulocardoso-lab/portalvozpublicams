@@ -110,6 +110,7 @@ model Article {
   paywall             Boolean  @default(false)
   sendPush            Boolean  @default(false)
   includeInNewsletter Boolean  @default(true)
+  sourceUrl           String?
   views               Int      @default(0)
   readTimeMin         Int?
   comments            Comment[]
@@ -411,11 +412,13 @@ model RSSFeed {
   targetSectionId     String
   targetSection       Section   @relation(fields: [targetSectionId], references: [id])
   autoPublish         Boolean   @default(false)
+  requiresReview      Boolean   @default(true)
   lastSync            DateTime?
   isActive            Boolean   @default(true)
   syncIntervalHours   Int       @default(6)
   maxItemsPerSync     Int       @default(10)
   keywordFilter       String[]  @default([])
+  blacklistKeywords   String[]  @default([])
   consecutiveFailures Int       @default(0)
   disabledAt          DateTime?
   logs                RSSLog[]
