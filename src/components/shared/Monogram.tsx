@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-const SIZE_MAP = { sm: 24, md: 32, lg: 40, xl: 56 } as const;
+const SIZE_MAP = { sm: 32, md: 48, lg: 64, xl: 96 } as const;
 
 export function Monogram({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | number, className?: string }) {
   const height = typeof size === 'number' ? size : SIZE_MAP[size];
