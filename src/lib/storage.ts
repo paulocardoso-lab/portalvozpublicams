@@ -1,4 +1,6 @@
+"use server";
 import { createClient } from '@supabase/supabase-js'
+import sharp from 'sharp'
 
 function getSupabaseConfig() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,23 +28,25 @@ function getOptionalStorageClient() {
 
 export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 'ads' = 'articles') {
   const supabase = getStorageClient();
-  const fileExt = file.name.split('.').pop()
-  const fileName = `${crypto.randomUUID()}-${Date.now()}.${fileExt}`
-  const filePath = fileName
+
+  const inputBuffer = Buffer.from(await file.arrayBuffer());
+  const webpBuffer = await sharp(inputBuffer)
+    .webp({ quality: 85 })
+    .toBuffer();
+
+  const fileName = `${crypto.randomUUID()}-${Date.now()}.webp`;
 
   const { error } = await supabase.storage
     .from(bucket)
-    .upload(filePath, file)
+    .upload(fileName, webpBuffer, { contentType: 'image/webp' });
 
-  if (error) {
-    throw error
-  }
+  if (error) throw error;
 
   const { data: { publicUrl } } = supabase.storage
     .from(bucket)
-    .getPublicUrl(filePath)
+    .getPublicUrl(fileName);
 
-  return publicUrl
+  return publicUrl;
 }
 
 export async function downloadAndUploadImage(url: string, bucket: 'articles' | 'profiles' = 'articles') {
