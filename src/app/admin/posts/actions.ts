@@ -26,7 +26,9 @@ export async function saveArticle(formData: FormData) {
   
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
-  const slug = formData.get('slug') as string;
+  const slug = (formData.get('slug') as string)
+    .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
   const eyebrow = formData.get('eyebrow') as string;
   const lead = formData.get('lead') as string;
   const content = formData.get('content') as string;

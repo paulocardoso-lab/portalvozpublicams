@@ -35,6 +35,19 @@ export function ArticleEditor({ article, sections, users }: ArticleEditorProps) 
     return JSON.stringify(article.body);
   });
 
+  const slugify = (text: string) =>
+    text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+    if (!article?.slug) setSlug(slugify(e.target.value));
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlug(slugify(e.target.value));
+  };
+
   const handleRestore = async (versionId: string) => {
     if (confirm('Tem certeza que deseja restaurar esta versão? O rascunho atual será sobrescrito.')) {
       try {
@@ -75,7 +88,7 @@ export function ArticleEditor({ article, sections, users }: ArticleEditorProps) 
               <input 
                 name="title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={handleTitleChange}
                 className="vp-input text-[24px] font-display py-3" 
                 placeholder="Ex: O silêncio que engole o Pantanal..."
                 required
@@ -88,7 +101,7 @@ export function ArticleEditor({ article, sections, users }: ArticleEditorProps) 
                 <input 
                   name="slug"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onChange={handleSlugChange}
                   className="vp-input font-mono text-[13px]" 
                   placeholder="o-silencio-pantanal"
                   required
