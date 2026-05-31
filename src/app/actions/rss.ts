@@ -163,6 +163,50 @@ export async function previewRSSFeed(url: string) {
   }
 }
 
+// ── Bulk review queue actions ─────────────────────────────────────────────────
+
+export async function bulkApproveArticles(ids: string[]) {
+  await requireAdmin();
+  if (ids.length === 0) return { success: false, error: 'Nenhum ID fornecido.' };
+
+  await prisma.article.updateMany({
+    where: { id: { in: ids }, status: 'IN_REVIEW' },
+    data: { status: 'PUBLISHED', publishedAt: new Date() },
+  });
+
+  revalidatePath('/admin/rss/fila');
+  revalidatePath('/admin/posts');
+  revalidatePath('/');
+  return { success: true };
+}
+
+export async function bulkRejectArticles(ids: string[]) {
+  await requireAdmin();
+  if (ids.length === 0) return { success: false, error: 'Nenhum ID fornecido.' };
+
+  await prisma.article.updateMany({
+    where: { id: { in: ids }, status: 'IN_REVIEW' },
+    data: { status: 'DRAFT' },
+  });
+
+  revalidatePath('/admin/rss/fila');
+  revalidatePath('/admin/posts');
+  return { success: true };
+}
+
+export async function bulkDeleteArticles(ids: string[]) {
+  await requireAdmin();
+  if (ids.length === 0) return { success: false, error: 'Nenhum ID fornecido.' };
+
+  await prisma.article.deleteMany({
+    where: { id: { in: ids }, status: 'IN_REVIEW' },
+  });
+
+  revalidatePath('/admin/rss/fila');
+  revalidatePath('/admin/posts');
+  return { success: true };
+}
+
 export async function getFeedDeadLetters(feedId: string) {
   await requireAdmin();
 

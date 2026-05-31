@@ -19,6 +19,7 @@ export function AdminSidebar() {
     { id: 'alerts',    label: 'Faixa ao vivo (Alertas)', icon: '⚠', href: '/admin/alerts' },
     { id: 'agenda',    label: 'Agenda pública', icon: '⌚', href: '/admin/agenda' },
     { id: 'rss',       label: 'Automação RSS', icon: '∞', href: '/admin/rss' },
+    { id: 'rss-fila',  label: 'Fila RSS', icon: '⏳', href: '/admin/rss/fila' },
     { id: 'market',    label: 'Indicadores', icon: '∿', href: '/admin/metrics/market' },
     { id: 'denuncias', label: 'Denúncias', icon: '⚐', href: '/admin/denuncias' },
     { id: 'comments',  label: 'Comentários', icon: '◉', href: '/admin/comments' },
@@ -45,7 +46,8 @@ export function AdminSidebar() {
       
       <nav className="grid gap-0.5 px-2.5 flex-1 overflow-y-auto vp-scroll">
         {nav.map(n => {
-          const isActive = pathname === n.href || (n.href !== '/admin' && pathname.startsWith(n.href));
+          const exactMatch = ['/', '/admin', '/admin/rss'];
+          const isActive = pathname === n.href || (!exactMatch.includes(n.href) && pathname.startsWith(n.href));
           return (
             <Link key={n.id} href={n.href} className={`flex items-center gap-2.5 px-3 py-2 rounded cursor-pointer no-underline ${isActive ? 'bg-vp-surface-2 text-vp-text border-l-2 border-vp-accent' : 'bg-transparent text-vp-text-2 border-l-2 border-transparent hover:bg-vp-surface transition-colors'}`}>
               <span className={`w-4 text-center ${isActive ? 'text-vp-accent' : 'text-vp-text-3'}`}>{n.icon}</span>
