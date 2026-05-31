@@ -419,10 +419,11 @@ model RSSFeed {
   maxItemsPerSync     Int       @default(10)
   keywordFilter       String[]  @default([])
   blacklistKeywords   String[]  @default([])
-  consecutiveFailures Int       @default(0)
+  consecutiveFailures Int             @default(0)
   disabledAt          DateTime?
   logs                RSSLog[]
-  createdAt           DateTime  @default(now())
+  deadLetters         RSSDeadLetter[]
+  createdAt           DateTime        @default(now())
 }
 
 enum RSSLogStatus {
@@ -445,4 +446,20 @@ model RSSLog {
   itemsFailed  Int          @default(0)
   durationMs   Int          @default(0)
   createdAt    DateTime     @default(now())
+}
+
+model RSSDeadLetter {
+  id          String    @id @default(cuid())
+  feedId      String
+  feed        RSSFeed   @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  url         String
+  title       String?
+  attempts    Int       @default(0)
+  lastError   String?
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([feedId, url])
+  @@index([feedId])
 }

@@ -163,6 +163,39 @@ export async function previewRSSFeed(url: string) {
   }
 }
 
+export async function getFeedDeadLetters(feedId: string) {
+  await requireAdmin();
+
+  return prisma.rSSDeadLetter.findMany({
+    where: { feedId, resolvedAt: null },
+    orderBy: { attempts: 'desc' },
+    select: {
+      id: true,
+      url: true,
+      title: true,
+      attempts: true,
+      lastError: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function retryDeadLetter(id: string) {
+  await requireAdmin();
+
+  const dl = await prisma.rSSDeadLetter.findUnique({ where: { id } });
+  if (!dl) return { success: false, error: 'Item não encontrado.' };
+
+  // Reset attempts so next sync picks it up again
+  await prisma.rSSDeadLetter.update({
+    where: { id },
+    data: { attempts: 0, lastError: null, resolvedAt: null },
+  });
+
+  revalidatePath('/admin/rss');
+  return { success: true };
+}
+
 export async function getFeedHealthStats(feedId: string) {
   await requireAdmin();
 
