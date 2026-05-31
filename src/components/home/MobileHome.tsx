@@ -108,8 +108,8 @@ export function MobileHome({
                   <Headline size="small" href={`/materia/${article.slug}`} className="mb-1.5 leading-[1.2]">
                     {article.title}
                   </Headline>
-                  <div className="byline text-[11px] text-vp-text-3 font-sans">
-                    {article.publishedAt ? `há ${Math.floor((Date.now() - new Date(article.publishedAt).getTime()) / 3600000)}h` : 'sem data'} · {article.readingTime || article.readTimeMin || 4} min
+                  <div className="byline text-[11px] text-vp-text-3 font-sans" suppressHydrationWarning>
+                    {article.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(article.publishedAt)) : 'sem data'} · {article.readingTime || article.readTimeMin || 4} min
                   </div>
                 </div>
                 {article.image || article.heroImage ? (
