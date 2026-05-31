@@ -10,6 +10,9 @@ const rssFeedSchema = z.object({
   url: z.string().trim().url('Informe uma URL válida para o feed RSS.'),
   targetSectionId: z.string().trim().min(1, 'Selecione uma editoria alvo.'),
   autoPublish: z.boolean(),
+  syncIntervalHours: z.number().int().min(1).max(168).default(6),
+  maxItemsPerSync: z.number().int().min(1).max(50).default(10),
+  keywordFilter: z.array(z.string()).default([]),
 });
 
 function isPrismaUniqueError(error: unknown) {
@@ -25,6 +28,9 @@ export async function createRSSFeed(data: {
   url: string;
   targetSectionId: string;
   autoPublish: boolean;
+  syncIntervalHours?: number;
+  maxItemsPerSync?: number;
+  keywordFilter?: string[];
 }) {
   await requireAdmin();
 
@@ -40,6 +46,9 @@ export async function createRSSFeed(data: {
         url: parsed.data.url,
         targetSectionId: parsed.data.targetSectionId,
         autoPublish: parsed.data.autoPublish,
+        syncIntervalHours: parsed.data.syncIntervalHours,
+        maxItemsPerSync: parsed.data.maxItemsPerSync,
+        keywordFilter: parsed.data.keywordFilter,
       }
     });
 
@@ -59,6 +68,9 @@ export async function updateRSSFeed(id: string, data: {
   url: string;
   targetSectionId: string;
   autoPublish: boolean;
+  syncIntervalHours?: number;
+  maxItemsPerSync?: number;
+  keywordFilter?: string[];
 }) {
   await requireAdmin();
 
@@ -75,6 +87,13 @@ export async function updateRSSFeed(id: string, data: {
         url: parsed.data.url,
         targetSectionId: parsed.data.targetSectionId,
         autoPublish: parsed.data.autoPublish,
+        syncIntervalHours: parsed.data.syncIntervalHours,
+        maxItemsPerSync: parsed.data.maxItemsPerSync,
+        keywordFilter: parsed.data.keywordFilter,
+        // Reativa feed se estava auto-desabilitado
+        isActive: true,
+        consecutiveFailures: 0,
+        disabledAt: null,
       }
     });
 
@@ -87,10 +106,14 @@ export async function updateRSSFeed(id: string, data: {
 
 export async function toggleRSSFeed(id: string, isActive: boolean) {
   await requireAdmin();
-  
+
   await prisma.rSSFeed.update({
     where: { id },
-    data: { isActive }
+    data: {
+      isActive,
+      // Ao reativar manualmente, reseta contador de falhas
+      ...(isActive ? { consecutiveFailures: 0, disabledAt: null } : {}),
+    }
   });
 
   revalidatePath('/admin/rss');
@@ -99,18 +122,15 @@ export async function toggleRSSFeed(id: string, isActive: boolean) {
 
 export async function deleteRSSFeed(id: string) {
   await requireAdmin();
-  
-  await prisma.rSSFeed.delete({
-    where: { id }
-  });
 
+  await prisma.rSSFeed.delete({ where: { id } });
   revalidatePath('/admin/rss');
   return { success: true };
 }
 
 export async function runRSSSync(id: string) {
   await requireAdmin();
-  
+
   try {
     const { syncFeed } = await import('@/lib/rss-engine');
     const summary = await syncFeed(id);
@@ -120,4 +140,46 @@ export async function runRSSSync(id: string) {
     console.error('runRSSSync failed:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Falha na sincronização manual.' };
   }
+}
+
+export async function previewRSSFeed(url: string) {
+  await requireAdmin();
+
+  try {
+    const { previewFeed } = await import('@/lib/rss-engine');
+    const items = await previewFeed(url);
+    return { success: true, items };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Não foi possível ler o feed.' };
+  }
+}
+
+export async function getFeedHealthStats(feedId: string) {
+  await requireAdmin();
+
+  const logs = await prisma.rSSLog.findMany({
+    where: { feedId, articleId: null }, // apenas logs de rodada, não por artigo
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+    select: {
+      status: true,
+      itemsTotal: true,
+      itemsCreated: true,
+      itemsSkipped: true,
+      itemsFailed: true,
+      durationMs: true,
+      message: true,
+      createdAt: true,
+    },
+  });
+
+  const total = logs.length;
+  const successes = logs.filter((l) => l.status === 'SUCCESS' || l.status === 'PARTIAL').length;
+  const successRate = total > 0 ? Math.round((successes / total) * 100) : null;
+  const lastError = logs.find((l) => l.status === 'FAILED')?.message ?? null;
+  const avgDuration = total > 0
+    ? Math.round(logs.reduce((sum, l) => sum + l.durationMs, 0) / total)
+    : 0;
+
+  return { successRate, lastError, avgDuration, recentLogs: logs.slice(0, 5) };
 }

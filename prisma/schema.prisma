@@ -405,24 +405,41 @@ model SiteMetric {
 }
 
 model RSSFeed {
-  id              String    @id @default(cuid())
-  name            String
-  url             String    @unique
-  targetSectionId String
-  targetSection   Section   @relation(fields: [targetSectionId], references: [id])
-  autoPublish     Boolean   @default(false)
-  lastSync        DateTime?
-  isActive        Boolean   @default(true)
-  logs            RSSLog[]
-  createdAt       DateTime  @default(now())
+  id                  String    @id @default(cuid())
+  name                String
+  url                 String    @unique
+  targetSectionId     String
+  targetSection       Section   @relation(fields: [targetSectionId], references: [id])
+  autoPublish         Boolean   @default(false)
+  lastSync            DateTime?
+  isActive            Boolean   @default(true)
+  syncIntervalHours   Int       @default(6)
+  maxItemsPerSync     Int       @default(10)
+  keywordFilter       String[]  @default([])
+  consecutiveFailures Int       @default(0)
+  disabledAt          DateTime?
+  logs                RSSLog[]
+  createdAt           DateTime  @default(now())
+}
+
+enum RSSLogStatus {
+  SUCCESS
+  FAILED
+  PARTIAL
+  SKIPPED
 }
 
 model RSSLog {
-  id          String   @id @default(cuid())
-  feedId      String
-  feed        RSSFeed  @relation(fields: [feedId], references: [id], onDelete: Cascade)
-  articleId   String?  @unique
-  status      String   // SUCCESS, FAILED, SKIPPED
-  message     String?
-  createdAt   DateTime @default(now())
+  id           String       @id @default(cuid())
+  feedId       String
+  feed         RSSFeed      @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  articleId    String?      @unique
+  status       RSSLogStatus
+  message      String?
+  itemsTotal   Int          @default(0)
+  itemsCreated Int          @default(0)
+  itemsSkipped Int          @default(0)
+  itemsFailed  Int          @default(0)
+  durationMs   Int          @default(0)
+  createdAt    DateTime     @default(now())
 }

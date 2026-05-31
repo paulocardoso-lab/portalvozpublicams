@@ -35,8 +35,9 @@ export default async function RSSDashboardPage() {
             <thead>
               <tr className="bg-vp-surface border-b border-vp-border">
                 <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Fonte</th>
-                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Editoria Alvo</th>
+                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Editoria</th>
                 <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Sincronismo</th>
+                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Saúde</th>
                 <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold text-right">Ações</th>
               </tr>
             </thead>
@@ -53,8 +54,22 @@ export default async function RSSDashboardPage() {
                     </span>
                   </td>
                   <td className="p-4">
-                    <div className="text-[12px]">{feed.lastSync ? feed.lastSync.toLocaleString() : 'Nunca'}</div>
-                    <div className="text-[10px] text-vp-text-3">{feed._count.logs} matérias capturadas</div>
+                    <div className="text-[12px]">{feed.lastSync ? new Date(feed.lastSync).toLocaleString('pt-BR') : 'Nunca'}</div>
+                    <div className="text-[10px] text-vp-text-3">a cada {feed.syncIntervalHours}h · máx {feed.maxItemsPerSync} itens</div>
+                    <div className="text-[10px] text-vp-text-3">{feed._count.logs} capturas no total</div>
+                  </td>
+                  <td className="p-4">
+                    {feed.disabledAt ? (
+                      <span className="text-[10px] text-vp-urgent border border-vp-urgent/30 px-1.5 py-0.5">
+                        desabilitado
+                      </span>
+                    ) : feed.consecutiveFailures >= 3 ? (
+                      <span className="text-[10px] text-yellow-400 border border-yellow-400/30 px-1.5 py-0.5">
+                        {feed.consecutiveFailures} falhas
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-green-400">ok</span>
+                    )}
                   </td>
                   <td className="p-4 text-right">
                     <RSSActions feed={feed} sections={sections} />
@@ -79,7 +94,7 @@ export default async function RSSDashboardPage() {
             <div className="space-y-4">
               {recentLogs.map(log => (
                 <div key={log.id} className="flex gap-3 items-start border-l-2 border-vp-border pl-3">
-                  <div className={`w-2 h-2 rounded-full mt-1.5 ${log.status === 'SUCCESS' ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <div className={`w-2 h-2 rounded-full mt-1.5 ${log.status === 'SUCCESS' ? 'bg-green-500' : log.status === 'PARTIAL' ? 'bg-yellow-400' : 'bg-red-500'}`} />
                   <div>
                     <div className="text-[13px] font-bold leading-tight line-clamp-2">{log.message}</div>
                     <div className="text-[10px] text-vp-text-3 mt-1 uppercase tracking-tighter">
