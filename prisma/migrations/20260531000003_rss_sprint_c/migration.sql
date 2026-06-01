@@ -18,6 +18,12 @@ CREATE TABLE IF NOT EXISTS "RSSDeadLetter" (
 CREATE INDEX IF NOT EXISTS "RSSDeadLetter_feedId_idx" ON "RSSDeadLetter"("feedId");
 CREATE UNIQUE INDEX IF NOT EXISTS "RSSDeadLetter_feedId_url_key" ON "RSSDeadLetter"("feedId", "url");
 
-ALTER TABLE "RSSDeadLetter"
-  ADD CONSTRAINT "RSSDeadLetter_feedId_fkey"
-  FOREIGN KEY ("feedId") REFERENCES "RSSFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'RSSDeadLetter_feedId_fkey'
+  ) THEN
+    ALTER TABLE "RSSDeadLetter"
+      ADD CONSTRAINT "RSSDeadLetter_feedId_fkey"
+      FOREIGN KEY ("feedId") REFERENCES "RSSFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
