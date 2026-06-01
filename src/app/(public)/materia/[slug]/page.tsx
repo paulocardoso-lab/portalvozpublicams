@@ -123,11 +123,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ViewLogger articleId={article.id} />
-      <div className="md:hidden">
+      <div className="md:hidden" suppressHydrationWarning>
         <MobileArticle article={serializedArticle} />
       </div>
-      <div className="hidden md:block">
-        <DesktopArticle article={article} />
+      <div className="hidden md:block" suppressHydrationWarning>
+        <DesktopArticle article={serializedArticle} />
       </div>
       <div className="max-w-[1200px] mx-auto px-4 pb-20">
         <CommentSection 

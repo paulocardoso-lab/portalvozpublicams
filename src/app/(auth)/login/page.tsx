@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { signIn } from "next-auth/react";
@@ -9,7 +9,7 @@ import { Eyebrow } from '@/components/shared/Eyebrow';
 
 type Mode = 'password' | 'magic';
 
-export default function LoginPage() {
+function LoginForm() {
   const [mode, setMode] = React.useState<Mode>('password');
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -200,5 +200,13 @@ export default function LoginPage() {
         Voz Pública MS · 2026
       </footer>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
