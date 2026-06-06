@@ -72,7 +72,7 @@ export async function SiteHeader() {
       </div>
 
       {/* 2. Logo row */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-0 gap-5">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-3 gap-5">
         <div className="flex items-center gap-3.5">
           <Link href="/menu" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-2 hover:text-vp-accent transition-colors">
             <span className="inline-block w-4 h-[11px] relative">
@@ -90,9 +90,9 @@ export async function SiteHeader() {
 
         <Link href="/" className="flex flex-col items-center gap-1 no-underline group">
           <Monogram
-            size={288}
+            size={56}
             className="transition-transform group-hover:scale-[1.02]"
-            src={settings['BRAND_LOGO_URL'] || '/logo.png'}
+            src={settings['BRAND_LOGO_URL'] || '/logo.webp'}
           />
           <div className="font-serif italic text-[13px] text-vp-text-2 tracking-[0.02em] mt-1">
             {settings['SITE_TAGLINE'] || 'Jornalismo independente de Mato Grosso do Sul'}
