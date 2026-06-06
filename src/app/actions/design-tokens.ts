@@ -6,7 +6,6 @@ import { requireAdmin } from '@/lib/auth-guard';
 import { DEFAULT_TOKENS, type DesignTokens, type DesignSnapshot, type ScheduledTheme } from '@/lib/design-tokens-types';
 
 export type { DesignTokens, DesignSnapshot, ScheduledTheme };
-export { DEFAULT_TOKENS };
 
 const DB_PREFIX = 'DESIGN_TOKEN_';
 const SCHED_PREFIX = 'DESIGN_SCHEDULED_';

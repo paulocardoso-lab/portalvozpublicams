@@ -10,11 +10,11 @@ import {
   scheduleTheme,
   listScheduledThemes,
   cancelScheduledTheme,
-  DEFAULT_TOKENS,
   type DesignTokens,
   type DesignSnapshot,
   type ScheduledTheme,
 } from '@/app/actions/design-tokens';
+import { DEFAULT_TOKENS } from '@/lib/design-tokens-types';
 
 type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'historico' | 'agendar';
 type Viewport = 'mobile' | 'tablet' | 'desktop';
