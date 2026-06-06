@@ -194,10 +194,89 @@ export async function deleteSnapshot(id: string): Promise<void> {
 export async function saveDesignTokensWithSnapshot(tokens: Partial<DesignTokens>, snapshotLabel: string) {
   await requireAdmin();
 
-  // Save current state as snapshot before overwriting
   const current = await getDesignTokens();
   await createSnapshot(snapshotLabel, current);
-
-  // Apply new tokens
   await saveDesignTokens(tokens);
+}
+
+// ── Agendamento ───────────────────────────────────────────────────────────────
+
+export interface ScheduledTheme {
+  id: string;
+  label: string;
+  tokens: DesignTokens;
+  scheduledFor: string; // ISO string
+  createdAt: string;
+}
+
+const SCHED_PREFIX = 'DESIGN_SCHEDULED_';
+
+export async function scheduleTheme(label: string, tokens: DesignTokens, scheduledFor: Date): Promise<void> {
+  await requireAdmin();
+
+  const key = `${SCHED_PREFIX}${scheduledFor.getTime()}`;
+  await prisma.siteSetting.upsert({
+    where: { key },
+    update: { value: JSON.stringify({ label, tokens, scheduledFor: scheduledFor.toISOString(), createdAt: new Date().toISOString() }) },
+    create: { key, value: JSON.stringify({ label, tokens, scheduledFor: scheduledFor.toISOString(), createdAt: new Date().toISOString() }) },
+  });
+}
+
+export async function listScheduledThemes(): Promise<ScheduledTheme[]> {
+  try {
+    const rows = await prisma.siteSetting.findMany({
+      where: { key: { startsWith: SCHED_PREFIX } },
+      orderBy: { key: 'asc' },
+    });
+    return rows.map(r => {
+      const data = JSON.parse(r.value) as Omit<ScheduledTheme, 'id'>;
+      return { id: r.key, ...data };
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function cancelScheduledTheme(id: string): Promise<void> {
+  await requireAdmin();
+  await prisma.siteSetting.delete({ where: { key: id } });
+}
+
+export async function applyDueScheduledThemes(): Promise<number> {
+  const now = new Date();
+  const rows = await prisma.siteSetting.findMany({
+    where: { key: { startsWith: SCHED_PREFIX } },
+  });
+
+  let applied = 0;
+  for (const row of rows) {
+    const data = JSON.parse(row.value) as Omit<ScheduledTheme, 'id'>;
+    if (new Date(data.scheduledFor) <= now) {
+      // Apply the theme
+      for (const [key, value] of Object.entries(data.tokens)) {
+        const dbKey = `${DB_PREFIX}${key}`;
+        await prisma.siteSetting.upsert({
+          where: { key: dbKey },
+          update: { value: String(value) },
+          create: { key: dbKey, value: String(value) },
+        });
+      }
+      // Snapshot for history
+      await prisma.siteSetting.create({
+        data: {
+          key: `DESIGN_SNAPSHOT_${Date.now()}_sched`,
+          value: JSON.stringify({ label: `Agendado: ${data.label}`, tokens: data.tokens, createdAt: now.toISOString() }),
+        },
+      });
+      // Remove the scheduled entry
+      await prisma.siteSetting.delete({ where: { key: row.key } });
+      applied++;
+    }
+  }
+
+  if (applied > 0) {
+    revalidatePath('/', 'layout');
+  }
+
+  return applied;
 }

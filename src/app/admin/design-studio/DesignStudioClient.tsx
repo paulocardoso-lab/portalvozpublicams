@@ -7,12 +7,16 @@ import {
   listSnapshots,
   deleteSnapshot,
   saveDesignTokensWithSnapshot,
+  scheduleTheme,
+  listScheduledThemes,
+  cancelScheduledTheme,
   DEFAULT_TOKENS,
   type DesignTokens,
   type DesignSnapshot,
+  type ScheduledTheme,
 } from '@/app/actions/design-tokens';
 
-type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'historico';
+type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'historico' | 'agendar';
 type Viewport = 'mobile' | 'tablet' | 'desktop';
 
 interface Props {
@@ -69,6 +73,78 @@ function formatDate(iso: string) {
   });
 }
 
+// ── Modo escuro automático ────────────────────────────────────────────────────
+
+function hexToHsl(hex: string): [number, number, number] {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const sl = s / 100, ll = l / 100;
+  const a = sl * Math.min(ll, 1 - ll);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = ll - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function invertLightness(hex: string, targetL?: number): string {
+  try {
+    const [h, s, l] = hexToHsl(hex);
+    const newL = targetL !== undefined ? targetL : Math.max(0, Math.min(100, 100 - l));
+    return hslToHex(h, s, newL);
+  } catch {
+    return hex;
+  }
+}
+
+function generateDarkPalette(tokens: DesignTokens): Partial<DesignTokens> {
+  return {
+    'color.bg':        invertLightness(tokens['color.bg'], 8),
+    'color.surface':   invertLightness(tokens['color.surface'], 13),
+    'color.surface-2': invertLightness(tokens['color.surface-2'], 18),
+    'color.surface-3': invertLightness(tokens['color.surface-3'], 22),
+    'color.border':    invertLightness(tokens['color.border'], 22),
+    'color.border-2':  invertLightness(tokens['color.border-2'], 28),
+    'color.text':      invertLightness(tokens['color.text'], 96),
+    'color.text-2':    invertLightness(tokens['color.text-2'], 80),
+    'color.text-3':    invertLightness(tokens['color.text-3'], 54),
+    'color.text-4':    invertLightness(tokens['color.text-4'], 36),
+  };
+}
+
+function generateLightPalette(tokens: DesignTokens): Partial<DesignTokens> {
+  return {
+    'color.bg':        '#faf9f5',
+    'color.surface':   '#f3f1eb',
+    'color.surface-2': '#eceae2',
+    'color.surface-3': '#e2e0d8',
+    'color.border':    '#d8d6ce',
+    'color.border-2':  '#c8c6bd',
+    'color.text':      '#1a1a19',
+    'color.text-2':    '#3a3a37',
+    'color.text-3':    '#6a6a64',
+    'color.text-4':    '#9a9a92',
+  };
+}
+
 // ── CSS map for live preview ──────────────────────────────────────────────────
 function buildCssMap(t: DesignTokens): Record<string, string> {
   const n = (k: keyof DesignTokens) => Number(t[k]) || 0;
@@ -107,6 +183,11 @@ export function DesignStudioClient({ initialTokens }: Props) {
   const [snapshotLabel, setSnapshotLabel] = useState('');
   const [diffTarget, setDiffTarget] = useState<DesignSnapshot | null>(null);
   const [snapshotsLoaded, setSnapshotsLoaded] = useState(false);
+  // Agendamento
+  const [scheduledThemes, setScheduledThemes] = useState<ScheduledTheme[]>([]);
+  const [schedLabel, setSchedLabel] = useState('');
+  const [schedDateTime, setSchedDateTime] = useState('');
+  const [schedLoaded, setSchedLoaded] = useState(false);
   const previewRef = useRef<HTMLIFrameElement>(null);
 
   const applyToPreview = useCallback((updated: DesignTokens) => {
@@ -136,7 +217,14 @@ export function DesignStudioClient({ initialTokens }: Props) {
 
   useEffect(() => {
     if (activeTab === 'historico' && !snapshotsLoaded) loadSnapshots();
-  }, [activeTab, snapshotsLoaded, loadSnapshots]);
+    if (activeTab === 'agendar' && !schedLoaded) {
+      startTransition(async () => {
+        const list = await listScheduledThemes();
+        setScheduledThemes(list);
+        setSchedLoaded(true);
+      });
+    }
+  }, [activeTab, snapshotsLoaded, loadSnapshots, schedLoaded]);
 
   const handleSave = () => {
     const label = snapshotLabel.trim() || `Versão ${new Date().toLocaleString('pt-BR')}`;
@@ -184,12 +272,49 @@ export function DesignStudioClient({ initialTokens }: Props) {
 
   const colorGroups = groupBy(COLOR_TOKENS, t => t.group);
 
+  const handleSchedule = () => {
+    if (!schedLabel.trim() || !schedDateTime) return;
+    startTransition(async () => {
+      await scheduleTheme(schedLabel.trim(), tokens, new Date(schedDateTime));
+      setScheduledThemes(await listScheduledThemes());
+      setSchedLabel('');
+      setSchedDateTime('');
+    });
+  };
+
+  const handleCancelSchedule = (id: string) => {
+    if (!confirm('Cancelar este tema agendado?')) return;
+    startTransition(async () => {
+      await cancelScheduledTheme(id);
+      setScheduledThemes(prev => prev.filter(s => s.id !== id));
+    });
+  };
+
+  const handleApplyDarkMode = () => {
+    const dark = generateDarkPalette(tokens);
+    const updated = { ...tokens, ...dark };
+    setTokens(updated);
+    applyToPreview(updated);
+    setIsDirty(true);
+    setSaved(false);
+  };
+
+  const handleApplyLightMode = () => {
+    const light = generateLightPalette(tokens);
+    const updated = { ...tokens, ...light };
+    setTokens(updated);
+    applyToPreview(updated);
+    setIsDirty(true);
+    setSaved(false);
+  };
+
   const TABS: { id: Tab; label: string }[] = [
     { id: 'cores',       label: 'Cores' },
     { id: 'tipografia',  label: 'Tipo' },
     { id: 'espacamento', label: 'Espaço' },
     { id: 'componentes', label: 'Comp.' },
     { id: 'historico',   label: 'Hist.' },
+    { id: 'agendar',     label: 'Agendar' },
   ];
 
   return (
@@ -344,10 +469,110 @@ export function DesignStudioClient({ initialTokens }: Props) {
               )}
             </div>
           )}
+
+          {/* ── Agendar ── */}
+          {activeTab === 'agendar' && (
+            <div className="flex flex-col gap-5">
+              {/* Modo claro/escuro automático */}
+              <div>
+                <SectionLabel>Modo claro / Modo escuro</SectionLabel>
+                <p className="text-[11px] text-vp-text-3 leading-relaxed mb-3 mt-1">
+                  Gera automaticamente a paleta de cores invertida com base nas cores atuais do portal. As outras configurações (tipografia, espaçamento) são mantidas.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleApplyDarkMode}
+                    className="vp-btn flex-1 text-[11px] py-2 flex items-center justify-center gap-1.5"
+                  >
+                    🌙 Gerar escuro
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyLightMode}
+                    className="vp-btn flex-1 text-[11px] py-2 flex items-center justify-center gap-1.5"
+                  >
+                    ☀️ Gerar claro
+                  </button>
+                </div>
+                <p className="text-[10px] text-vp-text-4 mt-2 italic">
+                  Após gerar, revise as cores na aba Cores e publique quando estiver satisfeito.
+                </p>
+              </div>
+
+              {/* Agendamento */}
+              <div>
+                <SectionLabel>Publicação agendada</SectionLabel>
+                <p className="text-[11px] text-vp-text-3 leading-relaxed mb-3 mt-1">
+                  Agenda o tema atual (com todas as alterações não publicadas) para ser aplicado automaticamente em uma data e hora específicas.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <div>
+                    <label htmlFor="sched-label" className="text-[10px] text-vp-text-4 font-bold uppercase tracking-wider block mb-1">Nome do tema</label>
+                    <input
+                      id="sched-label"
+                      type="text"
+                      placeholder="Ex: Tema de Natal"
+                      value={schedLabel}
+                      onChange={e => setSchedLabel(e.target.value)}
+                      className="vp-input text-[12px] py-1.5 w-full"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="sched-datetime" className="text-[10px] text-vp-text-4 font-bold uppercase tracking-wider block mb-1">Data e hora</label>
+                    <input
+                      id="sched-datetime"
+                      type="datetime-local"
+                      value={schedDateTime}
+                      onChange={e => setSchedDateTime(e.target.value)}
+                      className="vp-input text-[12px] py-1.5 w-full"
+                      title="Data e hora de publicação"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSchedule}
+                    disabled={isPending || !schedLabel.trim() || !schedDateTime}
+                    className="vp-btn vp-btn-primary w-full text-[12px] font-bold py-2 disabled:opacity-40"
+                  >
+                    {isPending ? 'Agendando...' : '📅 Agendar publicação'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Lista de agendamentos */}
+              {schedLoaded && scheduledThemes.length > 0 && (
+                <div>
+                  <SectionLabel>Agendamentos ativos</SectionLabel>
+                  <div className="flex flex-col gap-2 mt-2">
+                    {scheduledThemes.map(s => (
+                      <div key={s.id} className="border border-vp-border rounded-sm p-2.5 bg-vp-bg flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-[12px] font-bold text-vp-text leading-tight">{s.label}</p>
+                          <p className="text-[10px] text-vp-accent font-mono mt-0.5">📅 {formatDate(s.scheduledFor)}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleCancelSchedule(s.id)}
+                          className="text-[10px] text-vp-text-4 hover:text-vp-urgent transition-colors shrink-0"
+                          title="Cancelar agendamento"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {schedLoaded && scheduledThemes.length === 0 && (
+                <p className="text-[11px] text-vp-text-4 italic text-center py-4">Nenhum agendamento ativo.</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Action bar */}
-        {activeTab !== 'historico' && (
+        {activeTab !== 'historico' && activeTab !== 'agendar' && (
           <div className="border-t border-vp-border p-3 flex flex-col gap-2 flex-shrink-0 bg-vp-surface">
             <input
               type="text"
@@ -355,6 +580,8 @@ export function DesignStudioClient({ initialTokens }: Props) {
               value={snapshotLabel}
               onChange={e => setSnapshotLabel(e.target.value)}
               className="vp-input text-[11px] py-1.5"
+              aria-label="Nome do snapshot"
+              title="Nome do snapshot"
             />
             <button
               type="button"
