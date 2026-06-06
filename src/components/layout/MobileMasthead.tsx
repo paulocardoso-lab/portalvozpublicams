@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
 import useSWR from 'swr';
+import type { HeaderIndicator } from '@/lib/market-indicators';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -21,7 +22,10 @@ export function MobileMasthead({ title }: { title?: string }) {
     refreshInterval: 600000, // 10 min
   });
 
-  const market = data?.market || { usd: '5,12', boi: '353,80' };
+  const mobileIndicators: HeaderIndicator[] = data?.indicators?.filter((item: HeaderIndicator) => item.showInMobile).slice(0, 3) || [
+    { key: 'usd', label: 'USD', value: '5,12', unit: 'R$', showInMobile: true, displayOrder: 10 },
+    { key: 'boi', label: 'BOI', value: '353,80', unit: 'R$/@', showInMobile: true, displayOrder: 20 },
+  ];
 
   return (
     <div className="sticky top-0 z-50 bg-vp-bg border-b border-vp-border">
@@ -47,9 +51,10 @@ export function MobileMasthead({ title }: { title?: string }) {
       {/* Edition strip */}
       <div className="px-4 py-[6px] border-t border-vp-border font-sans text-[10px] text-vp-text-3 flex justify-between tracking-[0.06em] uppercase">
         <span className="font-semibold" suppressHydrationWarning>{formatted}</span>
-        <span className="font-mono text-vp-text-4">USD {market.usd} · BOI {market.boi}</span>
+        <span className="font-mono text-vp-text-4 truncate">
+          {mobileIndicators.map((item) => `${item.label} ${item.value}`).join(' · ')}
+        </span>
       </div>
     </div>
   );
 }
-

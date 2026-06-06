@@ -31,7 +31,7 @@ export async function SiteFooter() {
     <footer className="hidden md:block border-t-2 border-vp-text bg-vp-surface-2 font-sans text-[12px] text-vp-text-3 px-7 pt-8 pb-6">
       <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-7 mb-7">
         <div>
-          <Monogram size="md" className="mb-3" />
+          <Monogram size="md" className="mb-3" src={settings['BRAND_LOGO_URL'] || '/logo.png'} />
           <p className="leading-[1.6] text-vp-text-2 font-serif text-[14px] mt-3">
             {settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
           </p>

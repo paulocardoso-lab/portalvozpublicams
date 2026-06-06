@@ -2,7 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
 import { HeaderTicker } from './HeaderTicker';
-import { getMarketData, getWeatherData } from '@/lib/external-data';
+import { getHeaderIndicators, getMarketData, getWeatherData } from '@/lib/external-data';
+import { fallbackHeaderIndicators } from '@/lib/market-indicators';
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 import type { Section } from '@prisma/client';
@@ -22,15 +23,17 @@ export async function SiteHeader() {
 
   let initialTickerData = { 
     market: { usd: '5,12', boi: '353,80', soja: '122,51', milho: '65,98', trigo: '1.250,00' }, 
+    indicators: fallbackHeaderIndicators(),
     weather: { temp: 28 } 
   };
   let settings: Record<string, string> = {};
   let dbSections: Section[] = [];
 
   try {
-    const [market, weather, siteSettings, sections] = await Promise.all([
+    const [market, weather, indicators, siteSettings, sections] = await Promise.all([
       getMarketData().catch(() => initialTickerData.market),
       getWeatherData().catch(() => initialTickerData.weather),
+      getHeaderIndicators().catch(() => initialTickerData.indicators),
       getSiteSettings().catch(() => ({})),
       prisma.section.findMany({
         where: { showInMenu: true },
@@ -38,7 +41,7 @@ export async function SiteHeader() {
       }).catch(() => [])
     ]);
 
-    initialTickerData = { market, weather };
+    initialTickerData = { market, indicators, weather };
     settings = siteSettings;
     dbSections = sections;
   } catch (error) {
@@ -86,7 +89,11 @@ export async function SiteHeader() {
         </div>
 
         <Link href="/" className="flex flex-col items-center gap-1 no-underline group">
-          <Monogram size="xl" className="transition-transform group-hover:scale-[1.02]" />
+          <Monogram
+            size={288}
+            className="transition-transform group-hover:scale-[1.02]"
+            src={settings['BRAND_LOGO_URL'] || '/logo.png'}
+          />
           <div className="font-serif italic text-[13px] text-vp-text-2 tracking-[0.02em] mt-1">
             {settings['SITE_TAGLINE'] || 'Jornalismo independente de Mato Grosso do Sul'}
           </div>
