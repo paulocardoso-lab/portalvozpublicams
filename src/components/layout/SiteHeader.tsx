@@ -51,15 +51,15 @@ export async function SiteHeader() {
   return (
     <header className="hidden md:block border-b border-vp-border bg-vp-bg/95 backdrop-blur sticky top-0 z-50">
       {/* 1. Top utility bar */}
-      <div className="flex items-center justify-between px-7 py-2 border-b border-vp-border font-sans text-[11px] text-vp-text-3">
+      <div className="flex items-center justify-between px-7 py-2 border-b border-vp-border font-mono text-[11px] text-vp-text-3 tracking-tighter uppercase">
         <div className="flex gap-4.5 items-center">
-          <span className="tracking-[0.08em] uppercase">{formattedDate}</span>
+          <span>{formattedDate}</span>
           <span className="text-vp-text-4">·</span>
           <span>Campo Grande 28°C</span>
           <span className="text-vp-text-4">·</span>
           <HeaderTicker initialData={initialTickerData} />
         </div>
-        <div className="flex gap-4 items-center font-semibold">
+        <div className="flex gap-4 items-center font-bold">
           <Link href="/newsletter" className="hover:text-vp-accent transition-colors">Newsletter</Link>
           <Link href="/podcasts" className="hover:text-vp-accent transition-colors">Podcast</Link>
           <Link href="/denuncia" className="hover:text-vp-accent transition-colors">Envie sua denúncia</Link>
@@ -72,7 +72,7 @@ export async function SiteHeader() {
       </div>
 
       {/* 2. Logo row */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-3 gap-5">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-2 gap-5">
         <div className="flex items-center gap-3.5">
           <Link href="/menu" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-2 hover:text-vp-accent transition-colors">
             <span className="inline-block w-4 h-[11px] relative">
@@ -90,7 +90,7 @@ export async function SiteHeader() {
 
         <Link href="/" className="flex flex-col items-center gap-1 no-underline group">
           <Monogram
-            size={56}
+            size={168}
             className="transition-transform group-hover:scale-[1.02]"
             src={settings['BRAND_LOGO_URL'] || '/logo.webp'}
           />
