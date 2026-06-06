@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useTransition, useRef, useEffect } from 'react';
 import {
-  saveDesignTokens,
   resetDesignTokens,
   listSnapshots,
   deleteSnapshot,
@@ -130,7 +129,7 @@ function generateDarkPalette(tokens: DesignTokens): Partial<DesignTokens> {
   };
 }
 
-function generateLightPalette(tokens: DesignTokens): Partial<DesignTokens> {
+function generateLightPalette(): Partial<DesignTokens> {
   return {
     'color.bg':        '#faf9f5',
     'color.surface':   '#f3f1eb',
@@ -300,7 +299,7 @@ export function DesignStudioClient({ initialTokens }: Props) {
   };
 
   const handleApplyLightMode = () => {
-    const light = generateLightPalette(tokens);
+    const light = generateLightPalette();
     const updated = { ...tokens, ...light };
     setTokens(updated);
     applyToPreview(updated);
@@ -504,7 +503,7 @@ export function DesignStudioClient({ initialTokens }: Props) {
               <div>
                 <SectionLabel>Publicação agendada</SectionLabel>
                 <p className="text-[11px] text-vp-text-3 leading-relaxed mb-3 mt-1">
-                  Agenda o tema atual (com todas as alterações não publicadas) para ser aplicado automaticamente em uma data e hora específicas.
+                  Agenda o tema atual para ser aplicado automaticamente no próximo cron diário após a data e hora escolhidas.
                 </p>
                 <div className="flex flex-col gap-2">
                   <div>

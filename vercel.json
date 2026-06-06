@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/cron/apply-scheduled-theme",
-      "schedule": "0 * * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }

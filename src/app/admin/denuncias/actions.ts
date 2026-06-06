@@ -8,7 +8,6 @@ import { requireAdmin } from "@/lib/auth-guard";
 
 import { tipStatusTemplate } from "@/lib/email-templates";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const EMAIL_FROM = process.env.EMAIL_FROM || "Voz Pública MS <onboarding@resend.dev>";
 
 type TipStatus = "NEW" | "INVESTIGATING" | "PUBLISHED" | "ARCHIVED";
@@ -39,6 +38,16 @@ export async function updateTipStatus(id: string, status: TipStatus, _formData?:
   // 2. E-mail ao denunciante (se tiver e-mail e status relevante)
   if (tip.email && (status === "INVESTIGATING" || status === "PUBLISHED")) {
     const isInvestigating = status === "INVESTIGATING";
+    const resendApiKey = process.env.RESEND_API_KEY;
+
+    if (!resendApiKey) {
+      console.warn("RESEND_API_KEY ausente; e-mail de status da denúncia não enviado.");
+      revalidatePath("/admin/denuncias");
+      return;
+    }
+
+    const resend = new Resend(resendApiKey);
+
     try {
       await resend.emails.send({
         from: EMAIL_FROM,

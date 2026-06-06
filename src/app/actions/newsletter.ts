@@ -5,8 +5,6 @@ import { Resend } from 'resend';
 import { z } from 'zod';
 import { rateLimitAction } from '@/lib/rate-limit';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const subscribeSchema = z.object({
   email: z.string().email('E-mail inválido'),
 });
@@ -68,7 +66,10 @@ export async function subscribeToNewsletter(formData: FormData) {
     }
 
     // 4. Enviar e-mail de boas-vindas
-    if (process.env.RESEND_API_KEY) {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (resendApiKey) {
+      const resend = new Resend(resendApiKey);
+
       try {
         await resend.emails.send({
           from: 'Voz Pública MS <onboarding@resend.dev>',

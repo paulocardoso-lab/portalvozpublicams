@@ -165,7 +165,7 @@ Painel visual em `/admin/design-studio` que permite alterar a aparência do port
 - **Histórico** — até 20 snapshots com nome, data, diff visual e rollback com 1 clique
 - **Modo escuro automático** — algoritmo HSL inverte lightness das cores de fundo/borda/texto
 - **Modo claro automático** — aplica paleta editorial clara canônica (#faf9f5)
-- **Agendamento** — publica um tema em data/hora futura; cron `/api/cron/apply-scheduled-theme` roda a cada hora
+- **Agendamento** — publica um tema em data/hora futura; no plano Hobby da Vercel, cron `/api/cron/apply-scheduled-theme` roda diariamente às 12h UTC
 
 ---
 
@@ -191,7 +191,7 @@ Buckets no Supabase: `brand`, `articles`, `ads`, `profiles`
 | Path | Schedule | Função |
 |---|---|---|
 | `/api/cron/fetch-agri` | `0 21 * * 1-5` | Atualiza indicadores agro (dólar, boi, soja, milho, trigo) — dias úteis às 21h |
-| `/api/cron/apply-scheduled-theme` | `0 * * * *` | Aplica temas de design agendados — todo início de hora |
+| `/api/cron/apply-scheduled-theme` | `0 12 * * *` | Aplica temas de design agendados — diariamente às 12h UTC (compatível com Vercel Hobby) |
 
 Autenticação dos crons: header `Authorization: Bearer $CRON_SECRET`
 
@@ -293,7 +293,7 @@ CRON_SECRET=
 |---|---|---|
 | Fases 1 e 2 | `3f93e35` | Server Component `DesignTokensStyle`, painel admin com editor de cores/tipografia/layout e preview ao vivo em iframe |
 | Fases 3 e 4 | `d88efb7` | Aba Componentes (botões, cards, header, artigo), aba Espaçamento, histórico de versões com diff e rollback |
-| Fase 5 | `a175b4d` | Agendamento de publicação (cron horário), gerador de modo escuro/claro automático via algoritmo HSL |
+| Fase 5 | `a175b4d` | Agendamento de publicação, gerador de modo escuro/claro automático via algoritmo HSL |
 
 ---
 
