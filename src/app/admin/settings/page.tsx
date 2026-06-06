@@ -62,7 +62,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
              <span className="text-[10px] bg-vp-accent/10 text-vp-accent px-2 py-0.5 rounded border border-vp-accent/20 font-bold uppercase tracking-widest">Atualização Manual</span>
           </div>
           <p className="text-vp-text-4 text-[12px] mb-4 italic">Valores exibidos no topo do site para cotação rápida.</p>
-          <div className="grid sm:grid-cols-3 gap-3">
+          <div className="grid sm:grid-cols-4 gap-3">
              <label className="grid gap-1">
                <span className="text-[11px] text-vp-text-3 uppercase font-semibold">Arroba do Boi (R$)</span>
                <input name="boi" className="vp-input text-[13px] font-mono" defaultValue={s["boi"] ?? ""} placeholder="Sem valor manual" />
@@ -70,6 +70,10 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
              <label className="grid gap-1">
                <span className="text-[11px] text-vp-text-3 uppercase font-semibold">Saca da Soja (R$)</span>
                <input name="soja" className="vp-input text-[13px] font-mono" defaultValue={s["soja"] ?? ""} placeholder="Sem valor manual" />
+             </label>
+             <label className="grid gap-1">
+               <span className="text-[11px] text-vp-text-3 uppercase font-semibold">Saca do Milho (R$)</span>
+               <input name="milho" className="vp-input text-[13px] font-mono" defaultValue={s["milho"] ?? ""} placeholder="Sem valor manual" />
              </label>
              <label className="grid gap-1">
                <span className="text-[11px] text-vp-text-3 uppercase font-semibold">Dólar (USD/BRL)</span>

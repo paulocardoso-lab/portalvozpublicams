@@ -28,6 +28,7 @@ const nav: NavItem[] = [
   { id: 'podcasts',  label: 'Podcasts', icon: '🎙', href: '/admin/podcasts' },
   { id: 'social',    label: 'Redes sociais', icon: '#', href: '/admin/social' },
   { id: 'metrics',   label: 'Métricas & tráfego', icon: '↗', href: '/admin/metrics' },
+  { id: 'market',    label: 'Indicadores do cabeçalho', icon: '$', href: '/admin/metrics/market' },
   { id: 'subscriptions', label: 'Assinaturas & doações', icon: '♥', href: '/admin/subscriptions' },
   { id: 'audit',     label: 'Logs de auditoria', icon: '⎆', href: '/admin/audit' },
   { id: 'health',    label: 'Saúde do sistema', icon: '✓', href: '/admin/health' },

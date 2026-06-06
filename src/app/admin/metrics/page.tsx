@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,12 @@ export default async function AdminMetricsPage() {
       <div className="mb-6">
         <h1 className="text-[22px] font-semibold mb-1">Métricas & Tráfego</h1>
         <p className="text-vp-text-3 text-[13px]">Dados consolidados do banco de dados.</p>
+      </div>
+
+      <div className="mb-6">
+        <Link href="/admin/metrics/market" className="vp-btn vp-btn-primary px-4 py-2 text-[12px]">
+          Configurar indicadores do cabeçalho
+        </Link>
       </div>
 
       {/* KPI cards */}

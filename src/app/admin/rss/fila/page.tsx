@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-guard';
 import Link from 'next/link';
 import { ReviewQueueClient } from './ReviewQueueClient';
+import { classifyRSSHeroImage } from '@/lib/rss-image-extractor';
 
 export default async function RSSReviewQueuePage() {
   await requireAdmin();
@@ -35,6 +36,7 @@ export default async function RSSReviewQueuePage() {
     lead: a.lead,
     sourceUrl: a.sourceUrl,
     heroImage: a.heroImage,
+    imageStatus: classifyRSSHeroImage({ heroImage: a.heroImage, sourceUrl: a.sourceUrl }),
     createdAt: a.createdAt,
     section: a.section,
     deadLetter: a.sourceUrl ? deadLetterUrls.has(a.sourceUrl) : false,

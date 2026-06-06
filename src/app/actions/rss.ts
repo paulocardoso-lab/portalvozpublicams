@@ -4,6 +4,9 @@ import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { parseHTML } from 'linkedom';
+import { classifyRSSHeroImage, selectRSSHeroImage } from '@/lib/rss-image-extractor';
+import { downloadAndUploadImage } from '@/lib/storage';
 
 const rssFeedSchema = z.object({
   name: z.string().trim().min(2, 'Informe o nome da fonte RSS.'),
@@ -24,6 +27,8 @@ function isPrismaUniqueError(error: unknown) {
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Erro interno no servidor';
 }
+
+const RSS_SYSTEM_USER_ID = 'rss-system-user-0000000000000001';
 
 export async function createRSSFeed(data: {
   name: string;
@@ -205,6 +210,99 @@ export async function bulkDeleteArticles(ids: string[]) {
   revalidatePath('/admin/rss/fila');
   revalidatePath('/admin/posts');
   return { success: true };
+}
+
+export async function reprocessRSSArticleHeroImage(articleId: string) {
+  await requireAdmin();
+
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      authors: { some: { id: RSS_SYSTEM_USER_ID } },
+    },
+    select: {
+      id: true,
+      sourceUrl: true,
+      heroImage: true,
+    },
+  });
+
+  if (!article) {
+    return { success: false, error: 'Artigo RSS não encontrado.' };
+  }
+
+  if (!article.sourceUrl) {
+    return { success: false, error: 'Artigo sem URL de fonte para reprocessar imagem.' };
+  }
+
+  try {
+    const response = await fetch(article.sourceUrl, {
+      signal: AbortSignal.timeout(20000),
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+      },
+    });
+
+    if (!response.ok) {
+      return { success: false, error: `Fonte retornou HTTP ${response.status}.` };
+    }
+
+    const html = await response.text();
+    const { document } = parseHTML(html);
+    const selected = selectRSSHeroImage({
+      item: {
+        link: article.sourceUrl,
+      },
+      document: document as unknown as Document,
+      sourceUrl: article.sourceUrl,
+    });
+
+    if (!selected.url) {
+      return {
+        success: true,
+        heroImage: null,
+        imageStatus: classifyRSSHeroImage({ heroImage: article.heroImage, sourceUrl: article.sourceUrl }),
+      };
+    }
+
+    const heroImage = await downloadAndUploadImage(selected.url);
+    await prisma.article.update({
+      where: { id: article.id },
+      data: { heroImage },
+    });
+
+    const rssLog = await prisma.rSSLog.findFirst({
+      where: { articleId: article.id },
+      select: { feedId: true },
+    });
+
+    if (rssLog?.feedId) {
+      await prisma.rSSLog.create({
+        data: {
+          feedId: rssLog.feedId,
+          status: 'SUCCESS',
+          message: `${article.sourceUrl} | heroImageReprocess=${selected.source ?? 'none'} | rejectedImages=${selected.rejected.length}`,
+          itemsTotal: 1,
+          itemsCreated: 0,
+        },
+      }).catch(() => null);
+    }
+
+    revalidatePath('/admin/rss/fila');
+    revalidatePath('/admin/posts');
+    revalidatePath('/');
+
+    return {
+      success: true,
+      heroImage,
+      imageStatus: classifyRSSHeroImage({ heroImage, sourceUrl: article.sourceUrl }),
+    };
+  } catch (error) {
+    console.error('reprocessRSSArticleHeroImage failed:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Falha ao reprocessar imagem.' };
+  }
 }
 
 export async function getFeedDeadLetters(feedId: string) {

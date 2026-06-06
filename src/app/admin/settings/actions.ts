@@ -46,7 +46,7 @@ export async function saveSiteSettings(formData: FormData) {
   
   for (const [key, value] of Object.entries(settings)) {
     // Se for um indicador de mercado, salva na tabela MarketIndicator
-    if (['boi', 'soja', 'usd'].includes(key)) {
+    if (['boi', 'soja', 'milho', 'usd'].includes(key)) {
       await prisma.marketIndicator.upsert({
         where: { key },
         update: { value: String(value) },

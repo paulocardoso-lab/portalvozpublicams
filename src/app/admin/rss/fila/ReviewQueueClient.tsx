@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { bulkApproveArticles, bulkRejectArticles, bulkDeleteArticles } from '@/app/actions/rss';
+import { bulkApproveArticles, bulkRejectArticles, bulkDeleteArticles, reprocessRSSArticleHeroImage } from '@/app/actions/rss';
+import type { RSSHeroImageStatusInfo } from '@/lib/rss-image-extractor';
 
 type QueueArticle = {
   id: string;
@@ -9,22 +10,26 @@ type QueueArticle = {
   lead: string | null;
   sourceUrl: string | null;
   heroImage: string | null;
+  imageStatus: RSSHeroImageStatusInfo;
   createdAt: Date;
   section: { name: string };
   deadLetter: boolean;
 };
 
-type Filter = 'all' | 'dead';
+type Filter = 'all' | 'dead' | 'image';
 
 export function ReviewQueueClient({ articles: initial }: { articles: QueueArticle[] }) {
   const [articles, setArticles] = useState(initial);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<Filter>('all');
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [reprocessingId, setReprocessingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const visible = filter === 'dead'
     ? articles.filter((a) => a.deadLetter)
+    : filter === 'image'
+    ? articles.filter((a) => a.imageStatus.status === 'missing' || a.imageStatus.status === 'suspect' || a.imageStatus.status === 'fallback')
     : articles;
 
   const allSelected = visible.length > 0 && visible.every((a) => selected.has(a.id));
@@ -93,6 +98,48 @@ export function ReviewQueueClient({ articles: initial }: { articles: QueueArticl
   }
 
   const deadCount = articles.filter((a) => a.deadLetter).length;
+  const imageIssueCount = articles.filter((a) => a.imageStatus.status === 'missing' || a.imageStatus.status === 'suspect' || a.imageStatus.status === 'fallback').length;
+
+  function statusClasses(status: RSSHeroImageStatusInfo['status']) {
+    if (status === 'original') return 'border-vp-ok/30 bg-vp-ok/10 text-vp-ok';
+    if (status === 'missing') return 'border-vp-text-4/30 bg-vp-text-4/10 text-vp-text-3';
+    if (status === 'fallback') return 'border-yellow-400/30 bg-yellow-400/10 text-yellow-400';
+    return 'border-vp-urgent/30 bg-vp-urgent/10 text-vp-urgent';
+  }
+
+  async function handleReprocessImage(article: QueueArticle) {
+    if (!article.sourceUrl) {
+      setFeedback({ type: 'err', text: 'Este artigo não possui URL da fonte.' });
+      return;
+    }
+
+    setReprocessingId(article.id);
+    setFeedback(null);
+
+    const result = await reprocessRSSArticleHeroImage(article.id);
+    setReprocessingId(null);
+
+    if (!result.success) {
+      setFeedback({ type: 'err', text: result.error ?? 'Não foi possível reprocessar a imagem.' });
+      return;
+    }
+
+    setArticles((prev) => prev.map((item) => (
+      item.id === article.id
+        ? {
+            ...item,
+            heroImage: result.heroImage ?? item.heroImage,
+            imageStatus: result.imageStatus ?? item.imageStatus,
+          }
+        : item
+    )));
+    setFeedback({
+      type: 'ok',
+      text: result.heroImage
+        ? `Imagem reprocessada: ${result.imageStatus?.label ?? 'atualizada'}.`
+        : 'Nenhuma imagem original válida foi encontrada para este artigo.',
+    });
+  }
 
   return (
     <div className="space-y-4">
@@ -112,6 +159,13 @@ export function ReviewQueueClient({ articles: initial }: { articles: QueueArticl
             className={`px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold transition-colors ${filter === 'dead' ? 'bg-vp-urgent text-white' : 'text-vp-text-3 hover:text-vp-text'}`}
           >
             Problema ({deadCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter('image')}
+            className={`px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold transition-colors ${filter === 'image' ? 'bg-yellow-500 text-black' : 'text-vp-text-3 hover:text-vp-text'}`}
+          >
+            Imagem ({imageIssueCount})
           </button>
         </div>
 
@@ -155,7 +209,11 @@ export function ReviewQueueClient({ articles: initial }: { articles: QueueArticl
       {visible.length === 0 ? (
         <div className="bg-[#141413] border border-vp-border p-12 text-center">
           <p className="text-vp-text-3 font-serif italic">
-            {filter === 'dead' ? 'Nenhum artigo com problema.' : 'Fila vazia — nenhum artigo aguarda revisão.'}
+            {filter === 'dead'
+              ? 'Nenhum artigo com problema.'
+              : filter === 'image'
+              ? 'Nenhum artigo com imagem pendente de revisão.'
+              : 'Fila vazia — nenhum artigo aguarda revisão.'}
           </p>
         </div>
       ) : (
@@ -175,6 +233,7 @@ export function ReviewQueueClient({ articles: initial }: { articles: QueueArticl
                 <th className="p-3 text-[10px] uppercase tracking-wider text-vp-text-3 font-bold">Artigo</th>
                 <th className="p-3 text-[10px] uppercase tracking-wider text-vp-text-3 font-bold hidden md:table-cell">Editoria</th>
                 <th className="p-3 text-[10px] uppercase tracking-wider text-vp-text-3 font-bold hidden lg:table-cell">Importado em</th>
+                <th className="p-3 text-[10px] uppercase tracking-wider text-vp-text-3 font-bold hidden xl:table-cell">Imagem</th>
                 <th className="p-3 text-[10px] uppercase tracking-wider text-vp-text-3 font-bold">Status</th>
               </tr>
             </thead>
@@ -229,6 +288,29 @@ export function ReviewQueueClient({ articles: initial }: { articles: QueueArticl
                   </td>
                   <td className="p-3 text-[11px] text-vp-text-3 hidden lg:table-cell whitespace-nowrap">
                     {new Date(article.createdAt).toLocaleString('pt-BR')}
+                  </td>
+                  <td className="p-3 hidden xl:table-cell">
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className={`w-fit border px-1.5 py-0.5 text-[10px] ${statusClasses(article.imageStatus.status)}`}
+                        title={article.imageStatus.detail}
+                      >
+                        {article.imageStatus.label}
+                      </span>
+                      {(article.imageStatus.status !== 'original' || article.heroImage === null) && (
+                        <button
+                          type="button"
+                          disabled={reprocessingId === article.id || isPending}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReprocessImage(article);
+                          }}
+                          className="w-fit text-[10px] text-vp-accent hover:text-vp-accent-hover disabled:opacity-50"
+                        >
+                          {reprocessingId === article.id ? 'reprocessando...' : 'reprocessar'}
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="p-3">
                     {article.deadLetter ? (
