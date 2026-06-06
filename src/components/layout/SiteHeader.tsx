@@ -72,7 +72,7 @@ export async function SiteHeader() {
       </div>
 
       {/* 2. Logo row */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-4.5 gap-5">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-1 gap-5">
         <div className="flex items-center gap-3.5">
           <Link href="/menu" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-2 hover:text-vp-accent transition-colors">
             <span className="inline-block w-4 h-[11px] relative">
