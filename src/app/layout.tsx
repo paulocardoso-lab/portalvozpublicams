@@ -76,6 +76,7 @@ export const metadata: Metadata = {
 
 
 import { Providers } from "@/components/shared/Providers";
+import { DesignTokensStyle } from "@/components/shared/DesignTokensStyle";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
@@ -92,6 +93,9 @@ export default function RootLayout({
 
   return (
     <html lang="pt-BR" className="dark">
+      <head>
+        <DesignTokensStyle />
+      </head>
       <body className={`vp-root ${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} min-h-screen`}>
         <Providers>
           {children}

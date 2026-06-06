@@ -32,6 +32,7 @@ const nav: NavItem[] = [
   { id: 'subscriptions', label: 'Assinaturas & doações', icon: '♥', href: '/admin/subscriptions' },
   { id: 'audit',     label: 'Logs de auditoria', icon: '⎆', href: '/admin/audit' },
   { id: 'health',    label: 'Saúde do sistema', icon: '✓', href: '/admin/health' },
+  { id: 'design-studio', label: 'Design Studio', icon: '◈', href: '/admin/design-studio' },
   { id: 'settings',  label: 'Configurações', icon: '⚙', href: '/admin/settings' },
 ];
 
