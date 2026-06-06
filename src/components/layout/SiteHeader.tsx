@@ -59,10 +59,10 @@ export async function SiteHeader() {
           <span className="text-vp-text-4">·</span>
           <HeaderTicker initialData={initialTickerData} />
         </div>
-        <div className="flex gap-4 items-center font-bold">
-          <Link href="/newsletter" className="hover:text-vp-accent transition-colors">Newsletter</Link>
-          <Link href="/podcasts" className="hover:text-vp-accent transition-colors">Podcast</Link>
-          <Link href="/denuncia" className="hover:text-vp-accent transition-colors">Envie sua denúncia</Link>
+        <div className="flex gap-4 items-center font-bold whitespace-nowrap">
+          <Link href="/newsletter" className="hover:text-vp-accent transition-colors font-sans normal-case tracking-normal font-semibold">Newsletter</Link>
+          <Link href="/podcasts" className="hover:text-vp-accent transition-colors font-sans normal-case tracking-normal font-semibold">Podcast</Link>
+          <Link href="/denuncia" className="hover:text-vp-accent transition-colors font-sans normal-case tracking-normal font-semibold">Envie sua denúncia</Link>
           <span className="text-vp-text-4">·</span>
           <Link href="/login" className="hover:text-vp-accent transition-colors">Entrar</Link>
           <Link href="/apoiar">
