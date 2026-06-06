@@ -8,7 +8,7 @@ interface MonogramProps {
   src?: string;
 }
 
-export function Monogram({ size = 'md', className = '', src = '/logo.png' }: MonogramProps) {
+export function Monogram({ size = 'md', className = '', src = '/logo.webp' }: MonogramProps) {
   const height = typeof size === 'number' ? size : SIZE_MAP[size];
 
   return (
