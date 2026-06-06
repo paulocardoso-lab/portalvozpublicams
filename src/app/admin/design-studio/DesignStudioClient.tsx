@@ -1,9 +1,18 @@
 'use client';
 
-import React, { useState, useCallback, useTransition, useRef } from 'react';
-import { saveDesignTokens, resetDesignTokens, DEFAULT_TOKENS, type DesignTokens } from '@/app/actions/design-tokens';
+import React, { useState, useCallback, useTransition, useRef, useEffect } from 'react';
+import {
+  saveDesignTokens,
+  resetDesignTokens,
+  listSnapshots,
+  deleteSnapshot,
+  saveDesignTokensWithSnapshot,
+  DEFAULT_TOKENS,
+  type DesignTokens,
+  type DesignSnapshot,
+} from '@/app/actions/design-tokens';
 
-type Tab = 'cores' | 'tipografia' | 'layout';
+type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'historico';
 type Viewport = 'mobile' | 'tablet' | 'desktop';
 
 interface Props {
@@ -17,53 +26,26 @@ const VIEWPORT_WIDTHS: Record<Viewport, string> = {
 };
 
 const COLOR_TOKENS: { key: keyof DesignTokens; label: string; group: string }[] = [
-  { key: 'color.bg',       label: 'Fundo principal',     group: 'Fundos' },
-  { key: 'color.surface',  label: 'Surface',             group: 'Fundos' },
-  { key: 'color.surface-2',label: 'Surface 2',           group: 'Fundos' },
-  { key: 'color.surface-3',label: 'Surface 3',           group: 'Fundos' },
-  { key: 'color.border',   label: 'Borda',               group: 'Bordas' },
-  { key: 'color.border-2', label: 'Borda 2',             group: 'Bordas' },
-  { key: 'color.text',     label: 'Texto principal',     group: 'Texto' },
-  { key: 'color.text-2',   label: 'Texto secundário',    group: 'Texto' },
-  { key: 'color.text-3',   label: 'Texto terciário',     group: 'Texto' },
-  { key: 'color.text-4',   label: 'Texto sutil',         group: 'Texto' },
-  { key: 'color.accent',   label: 'Cor de destaque',     group: 'Acento' },
-  { key: 'color.accent-hover', label: 'Destaque hover',  group: 'Acento' },
-  { key: 'color.urgent',   label: 'Urgente / Ao vivo',   group: 'Semântico' },
+  { key: 'color.bg',        label: 'Fundo principal',   group: 'Fundos' },
+  { key: 'color.surface',   label: 'Surface',           group: 'Fundos' },
+  { key: 'color.surface-2', label: 'Surface 2',         group: 'Fundos' },
+  { key: 'color.surface-3', label: 'Surface 3',         group: 'Fundos' },
+  { key: 'color.border',    label: 'Borda',             group: 'Bordas' },
+  { key: 'color.border-2',  label: 'Borda 2',           group: 'Bordas' },
+  { key: 'color.text',      label: 'Texto principal',   group: 'Texto' },
+  { key: 'color.text-2',    label: 'Texto secundário',  group: 'Texto' },
+  { key: 'color.text-3',    label: 'Texto terciário',   group: 'Texto' },
+  { key: 'color.text-4',    label: 'Texto sutil',       group: 'Texto' },
+  { key: 'color.accent',    label: 'Cor de destaque',   group: 'Acento' },
+  { key: 'color.accent-hover', label: 'Destaque hover', group: 'Acento' },
+  { key: 'color.urgent',    label: 'Urgente / Ao vivo', group: 'Semântico' },
 ];
 
-const FONT_DISPLAY_OPTIONS = [
-  'Playfair Display',
-  'Merriweather',
-  'Lora',
-  'EB Garamond',
-  'Cormorant Garamond',
-  'PT Serif',
-];
-const FONT_SERIF_OPTIONS = [
-  'Source Serif 4',
-  'Merriweather',
-  'Lora',
-  'Georgia',
-  'PT Serif',
-  'Noto Serif',
-];
-const FONT_SANS_OPTIONS = [
-  'Inter',
-  'DM Sans',
-  'IBM Plex Sans',
-  'Nunito Sans',
-  'Roboto',
-  'Open Sans',
-];
-
-function hexToRgbContrast(hex: string): 'dark' | 'light' {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5 ? 'dark' : 'light';
-}
+const FONT_DISPLAY_OPTIONS = ['Playfair Display', 'Merriweather', 'Lora', 'EB Garamond', 'Cormorant Garamond', 'PT Serif'];
+const FONT_SERIF_OPTIONS   = ['Source Serif 4', 'Merriweather', 'Lora', 'Georgia', 'PT Serif', 'Noto Serif'];
+const FONT_SANS_OPTIONS    = ['Inter', 'DM Sans', 'IBM Plex Sans', 'Nunito Sans', 'Roboto', 'Open Sans'];
+const TEXT_ALIGN_OPTIONS   = ['left', 'justify', 'center'];
+const FONT_WEIGHT_OPTIONS  = ['400', '500', '600', '700', '800'];
 
 function groupBy<T>(arr: T[], fn: (item: T) => string): Record<string, T[]> {
   return arr.reduce((acc, item) => {
@@ -74,6 +56,46 @@ function groupBy<T>(arr: T[], fn: (item: T) => string): Record<string, T[]> {
   }, {} as Record<string, T[]>);
 }
 
+function diffTokens(a: DesignTokens, b: DesignTokens): Array<{ key: string; from: string; to: string }> {
+  return Object.keys(a)
+    .filter(k => a[k as keyof DesignTokens] !== b[k as keyof DesignTokens])
+    .map(k => ({ key: k, from: a[k as keyof DesignTokens], to: b[k as keyof DesignTokens] }));
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
+// ── CSS map for live preview ──────────────────────────────────────────────────
+function buildCssMap(t: DesignTokens): Record<string, string> {
+  const n = (k: keyof DesignTokens) => Number(t[k]) || 0;
+  return {
+    '--vp-bg': t['color.bg'],
+    '--vp-surface': t['color.surface'],
+    '--vp-surface-2': t['color.surface-2'],
+    '--vp-surface-3': t['color.surface-3'],
+    '--vp-border': t['color.border'],
+    '--vp-border-2': t['color.border-2'],
+    '--vp-text': t['color.text'],
+    '--vp-text-2': t['color.text-2'],
+    '--vp-text-3': t['color.text-3'],
+    '--vp-text-4': t['color.text-4'],
+    '--vp-accent': t['color.accent'],
+    '--vp-accent-hover': t['color.accent-hover'],
+    '--vp-urgent': t['color.urgent'],
+    '--radius-md': `${n('layout.border-radius')}px`,
+    '--vp-btn-radius': `${n('comp.btn-radius')}px`,
+    '--vp-card-radius': `${n('comp.card-radius')}px`,
+    '--vp-content-gap': `${n('layout.content-gap')}px`,
+    '--vp-article-text-align': t['comp.article-text-align'],
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function DesignStudioClient({ initialTokens }: Props) {
   const [tokens, setTokens] = useState<DesignTokens>({ ...initialTokens });
   const [activeTab, setActiveTab] = useState<Tab>('cores');
@@ -81,30 +103,17 @@ export function DesignStudioClient({ initialTokens }: Props) {
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [snapshots, setSnapshots] = useState<DesignSnapshot[]>([]);
+  const [snapshotLabel, setSnapshotLabel] = useState('');
+  const [diffTarget, setDiffTarget] = useState<DesignSnapshot | null>(null);
+  const [snapshotsLoaded, setSnapshotsLoaded] = useState(false);
   const previewRef = useRef<HTMLIFrameElement>(null);
 
   const applyToPreview = useCallback((updated: DesignTokens) => {
     const frame = previewRef.current;
-    if (!frame?.contentWindow) return;
-    const cssMap: Record<string, string> = {
-      '--vp-bg': updated['color.bg'],
-      '--vp-surface': updated['color.surface'],
-      '--vp-surface-2': updated['color.surface-2'],
-      '--vp-surface-3': updated['color.surface-3'],
-      '--vp-border': updated['color.border'],
-      '--vp-border-2': updated['color.border-2'],
-      '--vp-text': updated['color.text'],
-      '--vp-text-2': updated['color.text-2'],
-      '--vp-text-3': updated['color.text-3'],
-      '--vp-text-4': updated['color.text-4'],
-      '--vp-accent': updated['color.accent'],
-      '--vp-accent-hover': updated['color.accent-hover'],
-      '--vp-urgent': updated['color.urgent'],
-    };
-    const root = frame.contentDocument?.documentElement;
-    if (root) {
-      Object.entries(cssMap).forEach(([k, v]) => root.style.setProperty(k, v));
-    }
+    const root = frame?.contentDocument?.documentElement;
+    if (!root) return;
+    Object.entries(buildCssMap(updated)).forEach(([k, v]) => root.style.setProperty(k, v));
   }, []);
 
   const updateToken = useCallback((key: keyof DesignTokens, value: string) => {
@@ -117,16 +126,31 @@ export function DesignStudioClient({ initialTokens }: Props) {
     setSaved(false);
   }, [applyToPreview]);
 
-  const handleSave = () => {
+  const loadSnapshots = useCallback(() => {
     startTransition(async () => {
-      await saveDesignTokens(tokens);
+      const list = await listSnapshots();
+      setSnapshots(list);
+      setSnapshotsLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'historico' && !snapshotsLoaded) loadSnapshots();
+  }, [activeTab, snapshotsLoaded, loadSnapshots]);
+
+  const handleSave = () => {
+    const label = snapshotLabel.trim() || `Versão ${new Date().toLocaleString('pt-BR')}`;
+    startTransition(async () => {
+      await saveDesignTokensWithSnapshot(tokens, label);
       setSaved(true);
       setIsDirty(false);
+      setSnapshotLabel('');
+      setSnapshotsLoaded(false); // invalidate cache
     });
   };
 
   const handleReset = () => {
-    if (!confirm('Restaurar todos os tokens para os valores padrão?')) return;
+    if (!confirm('Restaurar todos os tokens para os valores padrão? O estado atual será perdido.')) return;
     startTransition(async () => {
       await resetDesignTokens();
       setTokens({ ...DEFAULT_TOKENS });
@@ -136,151 +160,225 @@ export function DesignStudioClient({ initialTokens }: Props) {
     });
   };
 
+  const handleRollback = (snap: DesignSnapshot) => {
+    if (!confirm(`Restaurar "${snap.label}"? O estado atual será salvo como snapshot antes do rollback.`)) return;
+    startTransition(async () => {
+      await saveDesignTokensWithSnapshot(snap.tokens, `Rollback → ${snap.label}`);
+      setTokens({ ...snap.tokens });
+      applyToPreview(snap.tokens);
+      setIsDirty(false);
+      setSaved(false);
+      setDiffTarget(null);
+      setSnapshotsLoaded(false);
+    });
+  };
+
+  const handleDeleteSnapshot = (id: string) => {
+    if (!confirm('Apagar este snapshot?')) return;
+    startTransition(async () => {
+      await deleteSnapshot(id);
+      setSnapshots(prev => prev.filter(s => s.id !== id));
+      if (diffTarget?.id === id) setDiffTarget(null);
+    });
+  };
+
   const colorGroups = groupBy(COLOR_TOKENS, t => t.group);
 
+  const TABS: { id: Tab; label: string }[] = [
+    { id: 'cores',       label: 'Cores' },
+    { id: 'tipografia',  label: 'Tipo' },
+    { id: 'espacamento', label: 'Espaço' },
+    { id: 'componentes', label: 'Comp.' },
+    { id: 'historico',   label: 'Hist.' },
+  ];
+
   return (
-    <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 130px)' }}>
-      {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className="w-[300px] flex-shrink-0 border-r border-vp-border flex flex-col bg-vp-surface overflow-y-auto">
+    <div className="flex flex-1 overflow-hidden min-h-0" style={{ height: 'calc(100vh - 130px)' }}>
+
+      {/* ── Sidebar ──────────────────────────────────────────────── */}
+      <aside className="w-[300px] shrink-0 border-r border-vp-border flex flex-col bg-vp-surface overflow-hidden">
+
         {/* Tabs */}
-        <div className="flex border-b border-vp-border sticky top-0 bg-vp-surface z-10">
-          {(['cores', 'tipografia', 'layout'] as Tab[]).map(tab => (
+        <div className="flex border-b border-vp-border sticky top-0 bg-vp-surface z-10 shrink-0">
+          {TABS.map(tab => (
             <button
-              key={tab}
+              key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-3 text-[11px] font-bold uppercase tracking-wider transition-colors ${
-                activeTab === tab
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                activeTab === tab.id
                   ? 'text-vp-accent border-b-2 border-vp-accent'
                   : 'text-vp-text-3 hover:text-vp-text-2'
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
 
-        <div className="flex-1 p-4 flex flex-col gap-6">
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-5">
+
           {/* ── Cores ── */}
           {activeTab === 'cores' && (
-            <div className="flex flex-col gap-5">
+            <>
               {Object.entries(colorGroups).map(([group, items]) => (
                 <div key={group}>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-vp-text-4 mb-2">{group}</p>
                   <div className="flex flex-col gap-2">
                     {items.map(({ key, label }) => (
-                      <ColorRow
-                        key={key}
-                        label={label}
-                        value={tokens[key] as string}
-                        onChange={v => updateToken(key, v)}
-                      />
+                      <ColorRow key={key} label={label} value={tokens[key] as string} onChange={v => updateToken(key, v)} />
                     ))}
                   </div>
                 </div>
               ))}
-            </div>
+            </>
           )}
 
           {/* ── Tipografia ── */}
           {activeTab === 'tipografia' && (
-            <div className="flex flex-col gap-5">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-vp-text-4 mb-2">Famílias</p>
-                <div className="flex flex-col gap-3">
-                  <SelectRow
-                    label="Título / Display"
-                    value={tokens['type.font-display']}
-                    options={FONT_DISPLAY_OPTIONS}
-                    onChange={v => updateToken('type.font-display', v)}
-                  />
-                  <SelectRow
-                    label="Corpo / Artigo"
-                    value={tokens['type.font-serif']}
-                    options={FONT_SERIF_OPTIONS}
-                    onChange={v => updateToken('type.font-serif', v)}
-                  />
-                  <SelectRow
-                    label="Interface / Sans"
-                    value={tokens['type.font-sans']}
-                    options={FONT_SANS_OPTIONS}
-                    onChange={v => updateToken('type.font-sans', v)}
-                  />
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-vp-text-4 mb-2">Escala</p>
-                <div className="flex flex-col gap-3">
-                  <SliderRow
-                    label="Tamanho base"
-                    value={Number(tokens['type.size-base'])}
-                    min={13} max={20} step={1}
-                    unit="px"
-                    onChange={v => updateToken('type.size-base', String(v))}
-                  />
-                  <SliderRow
-                    label="Altura de linha"
-                    value={Number(tokens['type.line-height'])}
-                    min={1.2} max={2.0} step={0.05}
-                    decimals={2}
-                    onChange={v => updateToken('type.line-height', String(v))}
-                  />
-                </div>
-              </div>
-            </div>
+            <>
+              <SectionLabel>Famílias</SectionLabel>
+              <SelectRow label="Título / Display" value={tokens['type.font-display']} options={FONT_DISPLAY_OPTIONS} onChange={v => updateToken('type.font-display', v)} />
+              <SelectRow label="Corpo / Artigo"   value={tokens['type.font-serif']}   options={FONT_SERIF_OPTIONS}   onChange={v => updateToken('type.font-serif', v)} />
+              <SelectRow label="Interface / Sans"  value={tokens['type.font-sans']}    options={FONT_SANS_OPTIONS}    onChange={v => updateToken('type.font-sans', v)} />
+              <SectionLabel>Escala global</SectionLabel>
+              <SliderRow label="Tamanho base" value={Number(tokens['type.size-base'])} min={13} max={20} step={1} unit="px" onChange={v => updateToken('type.size-base', String(v))} />
+              <SliderRow label="Altura de linha" value={Number(tokens['type.line-height'])} min={1.2} max={2.0} step={0.05} decimals={2} onChange={v => updateToken('type.line-height', String(v))} />
+            </>
           )}
 
-          {/* ── Layout ── */}
-          {activeTab === 'layout' && (
-            <div className="flex flex-col gap-5">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-vp-text-4 mb-2">Estrutura</p>
-                <div className="flex flex-col gap-3">
-                  <SliderRow
-                    label="Border radius"
-                    value={Number(tokens['layout.border-radius'])}
-                    min={0} max={16} step={1}
-                    unit="px"
-                    onChange={v => updateToken('layout.border-radius', String(v))}
-                  />
-                  <SliderRow
-                    label="Largura máx. container"
-                    value={Number(tokens['layout.container-max'])}
-                    min={960} max={1600} step={40}
-                    unit="px"
-                    onChange={v => updateToken('layout.container-max', String(v))}
-                  />
+          {/* ── Espaçamento ── */}
+          {activeTab === 'espacamento' && (
+            <>
+              <SectionLabel>Grid & Container</SectionLabel>
+              <SliderRow label="Unidade de espaço" value={Number(tokens['layout.spacing-unit'])} min={2} max={8} step={1} unit="px" onChange={v => updateToken('layout.spacing-unit', String(v))} />
+              <SliderRow label="Container máximo" value={Number(tokens['layout.container-max'])} min={960} max={1600} step={40} unit="px" onChange={v => updateToken('layout.container-max', String(v))} />
+              <SliderRow label="Gap entre colunas" value={Number(tokens['layout.content-gap'])} min={8} max={64} step={4} unit="px" onChange={v => updateToken('layout.content-gap', String(v))} />
+              <SectionLabel>Elementos globais</SectionLabel>
+              <SliderRow label="Border radius global" value={Number(tokens['layout.border-radius'])} min={0} max={16} step={1} unit="px" onChange={v => updateToken('layout.border-radius', String(v))} />
+              <SliderRow label="Altura do header" value={Number(tokens['layout.header-height'])} min={40} max={120} step={4} unit="px" onChange={v => updateToken('layout.header-height', String(v))} />
+              <SliderRow label="Largura da sidebar" value={Number(tokens['layout.sidebar-width'])} min={200} max={400} step={8} unit="px" onChange={v => updateToken('layout.sidebar-width', String(v))} />
+            </>
+          )}
+
+          {/* ── Componentes ── */}
+          {activeTab === 'componentes' && (
+            <>
+              <SectionLabel>Botões</SectionLabel>
+              <SliderRow label="Border radius" value={Number(tokens['comp.btn-radius'])} min={0} max={24} step={1} unit="px" onChange={v => updateToken('comp.btn-radius', String(v))} />
+              <SliderRow label="Tamanho da fonte" value={Number(tokens['comp.btn-font-size'])} min={10} max={18} step={1} unit="px" onChange={v => updateToken('comp.btn-font-size', String(v))} />
+              <SelectRow label="Peso da fonte" value={tokens['comp.btn-font-weight']} options={FONT_WEIGHT_OPTIONS} onChange={v => updateToken('comp.btn-font-weight', v)} />
+              <SliderRow label="Padding horizontal" value={Number(tokens['comp.btn-padding-x'])} min={6} max={40} step={2} unit="px" onChange={v => updateToken('comp.btn-padding-x', String(v))} />
+              <SliderRow label="Padding vertical" value={Number(tokens['comp.btn-padding-y'])} min={4} max={20} step={1} unit="px" onChange={v => updateToken('comp.btn-padding-y', String(v))} />
+
+              <SectionLabel>Cards de matéria</SectionLabel>
+              <SliderRow label="Border radius" value={Number(tokens['comp.card-radius'])} min={0} max={16} step={1} unit="px" onChange={v => updateToken('comp.card-radius', String(v))} />
+              <SliderRow label="Espessura da borda" value={Number(tokens['comp.card-border-width'])} min={0} max={4} step={1} unit="px" onChange={v => updateToken('comp.card-border-width', String(v))} />
+              <SliderRow label="Gap entre cards" value={Number(tokens['comp.card-gap'])} min={4} max={48} step={4} unit="px" onChange={v => updateToken('comp.card-gap', String(v))} />
+              <SliderRow label="Proporção da imagem (%)" value={Number(tokens['comp.card-image-ratio'])} min={40} max={75} step={5} unit="%" onChange={v => updateToken('comp.card-image-ratio', String(v))} />
+
+              <SectionLabel>Cabeçalho</SectionLabel>
+              <SliderRow label="Tamanho da logo" value={Number(tokens['comp.header-logo-size'])} min={24} max={80} step={4} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+              <SliderRow label="Fonte da nav" value={Number(tokens['comp.header-nav-font-size'])} min={10} max={16} step={1} unit="px" onChange={v => updateToken('comp.header-nav-font-size', String(v))} />
+              <SelectRow label="Peso da nav" value={tokens['comp.header-nav-font-weight']} options={FONT_WEIGHT_OPTIONS} onChange={v => updateToken('comp.header-nav-font-weight', v)} />
+
+              <SectionLabel>Corpo do artigo</SectionLabel>
+              <SliderRow label="Largura máxima" value={Number(tokens['comp.article-max-width'])} min={480} max={960} step={16} unit="px" onChange={v => updateToken('comp.article-max-width', String(v))} />
+              <SliderRow label="Tamanho da fonte" value={Number(tokens['comp.article-font-size'])} min={14} max={24} step={1} unit="px" onChange={v => updateToken('comp.article-font-size', String(v))} />
+              <SelectRow label="Alinhamento do texto" value={tokens['comp.article-text-align']} options={TEXT_ALIGN_OPTIONS} onChange={v => updateToken('comp.article-text-align', v)} />
+              <SliderRow label="Espaço entre parágrafos" value={Number(tokens['comp.article-paragraph-gap'])} min={12} max={48} step={4} unit="px" onChange={v => updateToken('comp.article-paragraph-gap', String(v))} />
+            </>
+          )}
+
+          {/* ── Histórico ── */}
+          {activeTab === 'historico' && (
+            <div className="flex flex-col gap-4">
+              {!snapshotsLoaded ? (
+                <p className="text-[12px] text-vp-text-3 italic">Carregando histórico...</p>
+              ) : snapshots.length === 0 ? (
+                <div className="text-[12px] text-vp-text-3 italic text-center py-8">
+                  Nenhum snapshot salvo ainda.<br />
+                  <span className="text-[11px]">Ao publicar alterações um snapshot é criado automaticamente.</span>
                 </div>
-              </div>
+              ) : (
+                snapshots.map(snap => (
+                  <div key={snap.id} className={`border rounded-sm p-3 flex flex-col gap-2 ${diffTarget?.id === snap.id ? 'border-vp-accent bg-vp-accent/5' : 'border-vp-border bg-vp-bg'}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-[12px] font-bold text-vp-text leading-tight">{snap.label}</p>
+                        <p className="text-[10px] text-vp-text-4 font-mono mt-0.5">{formatDate(snap.createdAt)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSnapshot(snap.id)}
+                        className="text-[10px] text-vp-text-4 hover:text-vp-urgent transition-colors shrink-0"
+                        title="Apagar snapshot"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setDiffTarget(diffTarget?.id === snap.id ? null : snap)}
+                        className="vp-btn text-[10px] py-1 px-2 flex-1"
+                      >
+                        {diffTarget?.id === snap.id ? 'Fechar diff' : 'Ver diff'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRollback(snap)}
+                        disabled={isPending}
+                        className="vp-btn vp-btn-primary text-[10px] py-1 px-2 flex-1"
+                      >
+                        Restaurar
+                      </button>
+                    </div>
+                    {/* Diff view */}
+                    {diffTarget?.id === snap.id && (
+                      <DiffPanel current={tokens} snapshot={snap} />
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
 
         {/* Action bar */}
-        <div className="border-t border-vp-border p-3 flex flex-col gap-2 sticky bottom-0 bg-vp-surface">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isPending || !isDirty}
-            className={`vp-btn vp-btn-primary w-full text-[12px] font-bold py-2 ${!isDirty ? 'opacity-40' : ''}`}
-          >
-            {isPending ? 'Publicando...' : saved ? '✓ Publicado' : 'Publicar alterações'}
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            disabled={isPending}
-            className="vp-btn w-full text-[11px] text-vp-text-3 py-1.5"
-          >
-            Restaurar padrão
-          </button>
-        </div>
+        {activeTab !== 'historico' && (
+          <div className="border-t border-vp-border p-3 flex flex-col gap-2 flex-shrink-0 bg-vp-surface">
+            <input
+              type="text"
+              placeholder="Nome do snapshot (opcional)"
+              value={snapshotLabel}
+              onChange={e => setSnapshotLabel(e.target.value)}
+              className="vp-input text-[11px] py-1.5"
+            />
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isPending || !isDirty}
+              className={`vp-btn vp-btn-primary w-full text-[12px] font-bold py-2 ${!isDirty ? 'opacity-40' : ''}`}
+            >
+              {isPending ? 'Publicando...' : saved ? '✓ Publicado' : 'Publicar alterações'}
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={isPending}
+              className="vp-btn w-full text-[11px] text-vp-text-3 py-1.5"
+            >
+              Restaurar padrão
+            </button>
+          </div>
+        )}
       </aside>
 
-      {/* ── Preview ─────────────────────────────────────────────── */}
+      {/* ── Preview ──────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col bg-[#111110] overflow-hidden">
-        {/* Viewport controls */}
-        <div className="flex items-center gap-3 px-5 py-2.5 border-b border-vp-border bg-vp-surface">
+        <div className="flex items-center gap-3 px-5 py-2.5 border-b border-vp-border bg-vp-surface shrink-0">
           <span className="text-[11px] text-vp-text-4 font-mono uppercase tracking-wider">Preview</span>
           <div className="flex gap-1 ml-2">
             {(['mobile', 'tablet', 'desktop'] as Viewport[]).map(v => (
@@ -305,10 +403,9 @@ export function DesignStudioClient({ initialTokens }: Props) {
           )}
         </div>
 
-        {/* iframe wrapper */}
         <div className="flex-1 flex items-start justify-center overflow-auto p-6">
           <div
-            className="transition-all duration-300 bg-white shadow-2xl"
+            className="transition-all duration-300 shadow-2xl"
             style={{ width: VIEWPORT_WIDTHS[viewport], maxWidth: '100%', minHeight: '600px', height: '100%' }}
           >
             <iframe
@@ -325,51 +422,76 @@ export function DesignStudioClient({ initialTokens }: Props) {
   );
 }
 
+// ── DiffPanel ─────────────────────────────────────────────────────────────────
+
+function DiffPanel({ current, snapshot }: { current: DesignTokens; snapshot: DesignSnapshot }) {
+  const diffs = diffTokens(snapshot.tokens, current);
+  if (diffs.length === 0) {
+    return <p className="text-[11px] text-vp-text-3 italic">Sem diferenças em relação ao estado atual.</p>;
+  }
+  return (
+    <div className="flex flex-col gap-1 mt-1">
+      <p className="text-[10px] text-vp-text-4 font-mono uppercase tracking-wider mb-1">
+        {diffs.length} token{diffs.length > 1 ? 's' : ''} diferente{diffs.length > 1 ? 's' : ''}
+      </p>
+      {diffs.map(d => (
+        <div key={d.key} className="text-[10px] font-mono grid grid-cols-[1fr_auto_auto] gap-1 items-center">
+          <span className="text-vp-text-3 truncate">{d.key}</span>
+          <span className="text-red-400 truncate max-w-15" title={d.from}>{d.from.length > 8 ? d.from.slice(0, 7) + '…' : d.from}</span>
+          <span className="text-green-400 truncate max-w-15" title={d.to}>{d.to.length > 8 ? d.to.slice(0, 7) + '…' : d.to}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-vp-text-4 mt-1">{children}</p>;
+}
+
 function ColorRow({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  const contrast = value?.startsWith('#') ? hexToRgbContrast(value) : 'light';
+  const id = `color-${label.replace(/\s+/g, '-').toLowerCase()}`;
   return (
     <div className="flex items-center gap-2.5">
       <label
-        className="w-4 h-4 rounded-sm border border-vp-border-2 flex-shrink-0 cursor-pointer relative overflow-hidden"
+        htmlFor={id}
+        className="w-4 h-4 rounded-sm border border-vp-border-2 shrink-0 cursor-pointer relative overflow-hidden"
         style={{ backgroundColor: value }}
-        title={value}
+        title={`${label}: ${value}`}
       >
         <input
+          id={id}
           type="color"
           value={value || '#000000'}
           onChange={e => onChange(e.target.value)}
           className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+          aria-label={label}
         />
       </label>
       <span className="text-[12px] text-vp-text-2 flex-1 truncate">{label}</span>
       <input
         type="text"
         value={value}
-        onChange={e => {
-          const v = e.target.value;
-          if (/^#[0-9a-fA-F]{0,6}$/.test(v)) onChange(v);
-        }}
-        className="w-[76px] text-[11px] font-mono bg-vp-bg border border-vp-border rounded-sm px-1.5 py-0.5 text-vp-text-2 focus:outline-none focus:border-vp-accent"
+        onChange={e => { const v = e.target.value; if (/^#[0-9a-fA-F]{0,6}$/.test(v)) onChange(v); }}
+        className="w-19 text-[11px] font-mono bg-vp-bg border border-vp-border rounded-sm px-1.5 py-0.5 text-vp-text-2 focus:outline-none focus:border-vp-accent"
         maxLength={7}
         spellCheck={false}
+        aria-label={`${label} hex`}
+        title={`${label} hex`}
+        placeholder="#000000"
       />
     </div>
   );
 }
 
-function SelectRow({ label, value, options, onChange }: {
-  label: string; value: string; options: string[]; onChange: (v: string) => void;
-}) {
+function SelectRow({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (v: string) => void }) {
+  const id = `select-${label.replace(/\s+/g, '-').toLowerCase()}`;
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] text-vp-text-3 font-bold">{label}</span>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="vp-input text-[12px] py-1.5"
-      >
+      <label htmlFor={id} className="text-[11px] text-vp-text-3 font-bold">{label}</label>
+      <select id={id} value={value} onChange={e => onChange(e.target.value)} className="vp-input text-[12px] py-1.5" title={label}>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
     </div>
@@ -377,21 +499,21 @@ function SelectRow({ label, value, options, onChange }: {
 }
 
 function SliderRow({ label, value, min, max, step, unit = '', decimals = 0, onChange }: {
-  label: string; value: number; min: number; max: number; step: number;
-  unit?: string; decimals?: number; onChange: (v: number) => void;
+  label: string; value: number; min: number; max: number; step: number; unit?: string; decimals?: number; onChange: (v: number) => void;
 }) {
+  const id = `slider-${label.replace(/\s+/g, '-').toLowerCase()}`;
   return (
     <div className="flex flex-col gap-1">
       <div className="flex justify-between items-center">
-        <span className="text-[11px] text-vp-text-3 font-bold">{label}</span>
+        <label htmlFor={id} className="text-[11px] text-vp-text-3 font-bold">{label}</label>
         <span className="text-[11px] font-mono text-vp-text-2">{value.toFixed(decimals)}{unit}</span>
       </div>
       <input
-        type="range"
-        min={min} max={max} step={step}
-        value={value}
+        id={id}
+        type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(Number(e.target.value))}
         className="w-full accent-[var(--vp-accent)] h-1.5 cursor-pointer"
+        title={`${label}: ${value.toFixed(decimals)}${unit}`}
       />
     </div>
   );

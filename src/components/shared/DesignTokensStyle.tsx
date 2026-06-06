@@ -7,7 +7,10 @@ import { getDesignTokens } from '@/app/actions/design-tokens';
 export async function DesignTokensStyle() {
   const t = await getDesignTokens();
 
+  const r = (key: string) => Number(t[key as keyof typeof t]) || 0;
+
   const css = `:root {
+  /* Colors */
   --vp-bg: ${t['color.bg']};
   --vp-surface: ${t['color.surface']};
   --vp-surface-2: ${t['color.surface-2']};
@@ -24,9 +27,41 @@ export async function DesignTokensStyle() {
   --vp-urgent: ${t['color.urgent']};
   --vp-live: ${t['color.urgent']};
   --vp-ok: #7aa37a;
-  --radius-sm: ${Math.max(0, Number(t['layout.border-radius']) - 2)}px;
-  --radius-md: ${t['layout.border-radius']}px;
-  --radius-lg: ${Math.min(24, Number(t['layout.border-radius']) + 2)}px;
+
+  /* Radii */
+  --radius-sm: ${Math.max(0, r('layout.border-radius') - 2)}px;
+  --radius-md: ${r('layout.border-radius')}px;
+  --radius-lg: ${r('layout.border-radius') + 2}px;
+
+  /* Spacing */
+  --vp-spacing-unit: ${r('layout.spacing-unit')}px;
+  --vp-header-height: ${r('layout.header-height')}px;
+  --vp-sidebar-width: ${r('layout.sidebar-width')}px;
+  --vp-content-gap: ${r('layout.content-gap')}px;
+  --vp-container-max: ${r('layout.container-max')}px;
+
+  /* Buttons */
+  --vp-btn-radius: ${r('comp.btn-radius')}px;
+  --vp-btn-font-size: ${r('comp.btn-font-size')}px;
+  --vp-btn-font-weight: ${t['comp.btn-font-weight']};
+  --vp-btn-px: ${r('comp.btn-padding-x')}px;
+  --vp-btn-py: ${r('comp.btn-padding-y')}px;
+
+  /* Cards */
+  --vp-card-radius: ${r('comp.card-radius')}px;
+  --vp-card-border: ${r('comp.card-border-width')}px;
+  --vp-card-gap: ${r('comp.card-gap')}px;
+
+  /* Header */
+  --vp-header-logo-size: ${r('comp.header-logo-size')}px;
+  --vp-header-nav-size: ${r('comp.header-nav-font-size')}px;
+  --vp-header-nav-weight: ${t['comp.header-nav-font-weight']};
+
+  /* Article */
+  --vp-article-max: ${r('comp.article-max-width')}px;
+  --vp-article-font-size: ${r('comp.article-font-size')}px;
+  --vp-article-text-align: ${t['comp.article-text-align']};
+  --vp-article-gap: ${r('comp.article-paragraph-gap')}px;
 }`;
 
   return (
