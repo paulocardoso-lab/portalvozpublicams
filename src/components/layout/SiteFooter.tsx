@@ -31,7 +31,7 @@ export async function SiteFooter() {
     <footer className="border-t-2 border-vp-text bg-vp-surface-2 font-sans text-[11px] sm:text-[12px] text-vp-text-3 px-4 sm:px-7 pt-6 sm:pt-8 pb-4 sm:pb-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] gap-6 sm:gap-7 mb-6 sm:mb-7">
         <div>
-          <Monogram size="md" className="mb-3" src={settings['BRAND_LOGO_URL'] || '/logo.png'} />
+          <Monogram size="md" className="mb-3" src={settings['BRAND_LOGO_URL'] || '/logo.webp'} />
           <p className="leading-[1.6] text-vp-text-2 font-serif text-[14px] mt-3">
             {settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
           </p>

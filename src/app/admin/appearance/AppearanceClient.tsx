@@ -113,7 +113,7 @@ export function AppearanceClient({
               </p>
               <BrandUploader
                 type="logo"
-                currentUrl={initialSettings['BRAND_LOGO_URL'] || '/logo.png'}
+                currentUrl={initialSettings['BRAND_LOGO_URL'] || '/logo.webp'}
                 label="Logo do portal"
                 hint="Exibida no cabeçalho desktop (altura 96 px) e mobile (altura 32 px)."
                 dimensionHint="Recomendado: proporção ~6:1 · ex. 600×100 px · fundo transparente"
