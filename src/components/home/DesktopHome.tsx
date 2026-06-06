@@ -97,19 +97,19 @@ export function DesktopHome({
       </div>
 
       {/* 3. Main grid */}
-      <div className="grid grid-cols-[1fr_320px] gap-8 px-7 py-6">
+      <div className="grid grid-cols-[1fr_300px] gap-6 px-5 xl:px-7 py-5 max-w-350 mx-auto w-full">
         {/* Left column */}
         <div className="flex flex-col">
           {/* Hero Section */}
-          <section className="grid grid-cols-[1.1fr_1fr] gap-8 pb-8 border-b border-vp-border">
+          <section className="grid grid-cols-[1.1fr_1fr] gap-6 pb-6 border-b border-vp-border">
             {hero && (
               <>
                 <div>
                   <Eyebrow className="mb-2">{hero.eyebrow || `${hero.section?.name} · Exclusivo`}</Eyebrow>
-                  <Headline as="h1" size="hero" href={`/materia/${hero.slug}`} className="mb-3.5">
+                  <Headline as="h1" size="article" href={`/materia/${hero.slug}`} className="mb-3">
                     {hero.title}
                   </Headline>
-                  <p className="font-serif text-[17px] text-vp-text-2 leading-[1.5] mb-4">
+                  <p className="font-serif text-[15px] xl:text-[17px] text-vp-text-2 leading-relaxed mb-4">
                     {hero.lead}
                   </p>
                   <div className="byline">
@@ -133,7 +133,7 @@ export function DesktopHome({
           </section>
 
           {/* Secondary 3-up row */}
-          <section className="grid grid-cols-3 gap-8 py-8 border-b border-vp-border">
+          <section className="grid grid-cols-3 gap-5 py-6 border-b border-vp-border">
             {secondary.map((art, i) => (
               <article key={art.id}>
                 <div className="relative h-[150px] mb-3 overflow-hidden rounded-sm group">
@@ -211,7 +211,7 @@ export function DesktopHome({
           )}
 
           {/* Topical Columns (Politics, Econ, Cities) */}
-          <section className="grid grid-cols-3 gap-8 py-8 border-b border-vp-border">
+          <section className="grid grid-cols-3 gap-5 py-6 border-b border-vp-border">
             {[
               { label: 'Política', data: politica },
               { label: 'Economia', data: economia },

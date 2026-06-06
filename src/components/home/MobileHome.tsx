@@ -62,21 +62,21 @@ export function MobileHome({
       <main className="flex-1 overflow-y-auto vp-scroll pb-16">
         {/* 2. Hero Article */}
         {hero && (
-          <article className="px-4 py-[18px] border-b border-vp-border">
+          <article className="px-4 py-4 border-b border-vp-border">
             {heroImage && (
-              <div className="relative aspect-[16/9] mb-3 overflow-hidden bg-vp-surface">
+              <div className="relative aspect-video mb-3 overflow-hidden bg-vp-surface">
                 <SafeImage src={heroImage} alt={hero.title} fill sizes="100vw" className="object-cover" />
               </div>
             )}
-            {!heroImage && <ImgPH label="capa" height={200} className="mb-3" />}
-            
+            {!heroImage && <ImgPH label="capa" height={190} className="mb-3" />}
+
             <Eyebrow className="text-[10px]">
               {hero.section?.name || 'Geral'} {hero.isExclusive ? '· Exclusivo' : ''}
             </Eyebrow>
-            <Headline as="h1" size="h3" href={`/materia/${hero.slug}`} className="my-2">
+            <Headline as="h1" size="card" href={`/materia/${hero.slug}`} className="my-2">
               {hero.title}
             </Headline>
-            <p className="font-serif text-[14px] text-vp-text-2 leading-[1.5] mb-2.5">
+            <p className="font-serif text-[13px] text-vp-text-2 leading-relaxed mb-2.5">
               {hero.subtitle || hero.excerpt || hero.lead}
             </p>
             <div className="byline text-[11px] text-vp-text-3 font-sans">
