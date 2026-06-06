@@ -18,7 +18,7 @@ export function Monogram({ size = 'md', className = '', src = '/logo.png' }: Mon
       height={height}
       width={height * 6}
       className={className}
-      style={{ height: `${height}px`, width: 'auto', objectFit: 'contain' }}
+      style={{ height: `${height}px`, maxWidth: '100%', width: 'auto', objectFit: 'contain' }}
       priority
       unoptimized={src.startsWith('http')}
     />

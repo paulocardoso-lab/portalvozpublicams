@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function DonateSuccessPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-vp-bg w-full items-center justify-center p-6 text-center">
+    <div className="flex flex-col min-h-screen bg-vp-bg w-full items-center justify-center p-4 sm:p-6 text-center">
       <div className="w-[100px] h-[100px] rounded-full bg-vp-accent flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(217,119,87,0.3)]">
         <span className="text-vp-bg text-[56px] font-black leading-none">✓</span>
       </div>
@@ -12,7 +12,7 @@ export default function DonateSuccessPage() {
         Apoio registrado
       </span>
       
-      <h1 className="font-display text-[42px] lg:text-[56px] leading-[1.05] mb-6 tracking-tight font-black max-w-[600px]">
+      <h1 className="font-display text-[28px] sm:text-[42px] lg:text-[56px] leading-[1.05] mb-6 tracking-tight font-black max-w-150">
         Obrigado por sustentar o Voz Pública.
       </h1>
       

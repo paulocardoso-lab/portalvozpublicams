@@ -46,22 +46,22 @@ export default async function SearchPage({
       <div className="lg:hidden flex flex-col min-h-screen bg-vp-bg w-full">
         <MobileMasthead />
         
-        <div className="px-4 py-8 border-b border-vp-border">
-          <h1 className="font-display text-[32px] mb-4">Busca</h1>
+        <div className="px-4 py-6 sm:py-8 border-b border-vp-border">
+          <h1 className="font-display text-[26px] sm:text-[32px] mb-4">Busca</h1>
           <form action="/busca" method="GET" className="flex gap-2">
-            <input 
-              name="q" 
+            <input
+              name="q"
               defaultValue={q}
-              placeholder="Pesquisar..." 
-              className="vp-input text-[16px] py-2.5 px-4 flex-1"
+              placeholder="Pesquisar..."
+              className="vp-input text-[16px] py-2.5 px-4 flex-1 min-h-11"
             />
-            <button type="submit" className="vp-btn vp-btn-primary px-5 text-[12px] font-bold">
+            <button type="submit" className="vp-btn vp-btn-primary px-5 text-[12px] font-bold min-h-11">
               IR
             </button>
           </form>
         </div>
 
-        <div className="px-4 py-6 flex flex-col gap-6 pb-24">
+        <div className="px-4 py-6 flex flex-col gap-6 pb-20 sm:pb-6">
           {q && results.length === 0 && (
             <p className="text-vp-text-3 italic text-center py-10">
               Nenhum resultado para &quot;{q}&quot;

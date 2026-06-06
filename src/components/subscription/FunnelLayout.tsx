@@ -37,8 +37,8 @@ export function FunnelLayout({ children, step, title }: FunnelLayoutProps) {
 
       <div className="flex-1 flex flex-col max-w-[640px] mx-auto w-full lg:my-10 bg-vp-bg lg:border border-vp-border lg:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         {/* Mobile Header */}
-        <div className="flex items-center px-4 py-3 border-b border-vp-border gap-3 lg:hidden">
-          <Link href="/apoiar" className="text-vp-text text-[24px] no-underline leading-none">‹</Link>
+        <div className="flex items-center px-2 py-1 border-b border-vp-border gap-1 lg:hidden">
+          <Link href="/apoiar" className="text-vp-text text-[24px] no-underline leading-none min-w-11 min-h-11 flex items-center justify-center">‹</Link>
           <span className="font-sans text-[10px] text-vp-text-3 uppercase tracking-[0.2em] flex-1 text-center font-black">
             {title} · {step} de 3
           </span>
@@ -57,7 +57,7 @@ export function FunnelLayout({ children, step, title }: FunnelLayoutProps) {
         </main>
       </div>
 
-      <footer className="p-8 text-center text-[10px] text-vp-text-4 font-mono uppercase tracking-[0.2em]">
+      <footer className="px-4 py-4 sm:p-8 text-center text-[10px] text-vp-text-4 font-mono uppercase tracking-[0.2em]">
         Voz Pública MS · Ambiente Seguro via Pagar.me & Stripe
       </footer>
     </div>

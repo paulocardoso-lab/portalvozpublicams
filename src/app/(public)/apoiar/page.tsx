@@ -21,9 +21,9 @@ export default async function DonateAmountPage({ searchParams }: { searchParams:
 
   return (
     <FunnelLayout step={1} title="Apoiar">
-      <div className="px-5 py-6 lg:px-8">
+      <div className="px-4 sm:px-5 py-5 sm:py-6 lg:px-8">
         <span className="eyebrow text-[10px] text-vp-text-3">{config.campaign.eyebrow}</span>
-        <h1 className="font-display text-[30px] lg:text-[42px] leading-[1.05] my-2 tracking-tight font-black">
+        <h1 className="font-display text-[26px] sm:text-[30px] lg:text-[42px] leading-[1.05] my-2 tracking-tight font-black">
           Quanto você pode contribuir?
         </h1>
         <p className="font-serif text-[15px] lg:text-[17px] text-vp-text-2 leading-relaxed mb-8">
@@ -90,7 +90,7 @@ export default async function DonateAmountPage({ searchParams }: { searchParams:
           </div>
           <form action="/apoiar" className="grid grid-cols-[1fr_auto] gap-2">
             <input type="hidden" name="tipo" value="one_time" />
-            <input name="valor" className="vp-input w-full font-serif text-[15px]" placeholder="Outro valor. Ex: 75,00" />
+            <input name="valor" className="vp-input w-full font-serif text-[15px] min-h-11" placeholder="Outro valor. Ex: 75,00" />
             <button className="vp-btn px-4 text-[11px] font-bold" type="submit">
               Usar
             </button>
@@ -98,8 +98,8 @@ export default async function DonateAmountPage({ searchParams }: { searchParams:
         </div>
       </div>
 
-      <div className="p-5 border-t border-vp-border bg-vp-bg sticky bottom-0">
-        <Link href={supportHref(selection)} className="vp-btn vp-btn-primary w-full py-4 text-[13px] text-center font-bold uppercase tracking-widest no-underline inline-block">
+      <div className="px-4 sm:px-5 py-3 sm:py-4 border-t border-vp-border bg-vp-bg sticky bottom-0 pb-[env(safe-area-inset-bottom,12px)]">
+        <Link href={supportHref(selection)} className="vp-btn vp-btn-primary w-full py-3 sm:py-4 text-[13px] text-center font-bold uppercase tracking-widest no-underline inline-flex items-center justify-center min-h-11">
           Continuar com {formatCurrency(selection.amountCents)}{selection.interval === 'monthly' ? '/mês' : ''} →
         </Link>
       </div>

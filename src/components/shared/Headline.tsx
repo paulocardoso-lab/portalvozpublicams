@@ -24,12 +24,12 @@ export function Headline({
 }: HeadlineProps) {
   
   const sizes = {
-    hero: "text-[46px] md:text-[72px] leading-[1.0] tracking-[-0.025em]",
-    article: "text-[32px] md:text-[52px] leading-[1.05] tracking-[-0.02em]",
-    h2: "text-[32px] leading-[1.15] tracking-[-0.015em]",
-    h3: "text-[22px] md:text-[26px] leading-[1.2] tracking-[-0.01em]",
-    card: "text-[18px] md:text-[20px] leading-[1.1] tracking-[-0.01em]",
-    small: "text-[16px] leading-[1.1]"
+    hero: "text-[32px] sm:text-[46px] md:text-[72px] leading-[1.0] tracking-[-0.025em]",
+    article: "text-[24px] sm:text-[36px] md:text-[52px] leading-[1.05] tracking-[-0.02em]",
+    h2: "text-[24px] sm:text-[32px] leading-[1.15] tracking-[-0.015em]",
+    h3: "text-[20px] sm:text-[22px] md:text-[26px] leading-[1.2] tracking-[-0.01em]",
+    card: "text-[17px] sm:text-[18px] md:text-[20px] leading-[1.1] tracking-[-0.01em]",
+    small: "text-[15px] sm:text-[16px] leading-[1.1]"
   };
 
   const baseClasses = `font-display font-bold text-vp-text transition-colors duration-150 ${sizes[size]} ${hoverAccent ? 'hover:text-vp-accent' : ''} ${className}`;

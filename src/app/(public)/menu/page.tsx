@@ -10,7 +10,7 @@ export default async function MenuPage() {
   });
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-vp-bg text-vp-text w-full max-w-[480px] mx-auto border-x border-vp-border">
+    <div className="flex flex-col min-h-dvh bg-vp-bg text-vp-text w-full max-w-120 mx-auto border-x border-vp-border">
       <header className="flex items-center justify-between px-4 py-3 border-b border-vp-border">
         <BrandLogo size="md" />
         <Link href="/" className="text-vp-text text-2xl no-underline leading-none">×</Link>
@@ -24,7 +24,7 @@ export default async function MenuPage() {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-4 py-2">
+      <nav className="flex-1 overflow-y-auto px-4 py-2 pb-20 sm:pb-2">
         {sections.map(s => (
           <Link key={s.id} href={`/editoria/${s.slug}`} className="flex justify-between items-center py-4 border-b border-vp-border no-underline group">
             <span className="font-display text-[17px] text-vp-text group-hover:text-vp-accent transition-colors">{s.name}</span>

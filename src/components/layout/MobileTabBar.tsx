@@ -19,19 +19,19 @@ export function MobileTabBar({ active = 'home' }: MobileTabBarProps) {
   ];
 
   return (
-    <nav className="sticky bottom-0 bg-vp-bg border-t border-vp-border grid grid-cols-5 pt-[6px] pb-2 z-50">
+    <nav className="sticky bottom-0 bg-vp-bg border-t border-vp-border grid grid-cols-5 z-50">
       {tabs.map(t => (
-        <Link 
-          key={t.id} 
-          href={t.h} 
-          className={`flex flex-col items-center gap-[3px] py-1 cursor-pointer no-underline transition-colors ${t.id === active ? 'text-vp-accent' : 'text-vp-text-3 hover:text-vp-text-2'}`}
+        <Link
+          key={t.id}
+          href={t.h}
+          className={`flex flex-col items-center justify-center gap-0.75 min-h-13 py-2 cursor-pointer no-underline transition-colors ${t.id === active ? 'text-vp-accent' : 'text-vp-text-3 hover:text-vp-text-2'}`}
         >
           {t.live ? (
-            <span className="w-4 h-4 rounded-full bg-vp-urgent inline-flex items-center justify-center font-sans text-[7px] font-black text-white animate-[vp-pulse_2s_infinite]">●</span>
+            <span className="w-5 h-5 rounded-full bg-vp-urgent inline-flex items-center justify-center font-sans text-[7px] font-black text-white animate-[vp-pulse_2s_infinite]">●</span>
           ) : (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d={t.i}/></svg>
           )}
-          <span className="font-sans text-[9px] font-bold tracking-[0.04em] uppercase">{t.l}</span>
+          <span className="font-sans text-[10px] font-bold tracking-[0.04em] uppercase">{t.l}</span>
         </Link>
       ))}
     </nav>

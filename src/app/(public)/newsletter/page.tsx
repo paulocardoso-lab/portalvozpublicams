@@ -13,28 +13,23 @@ export default function NewsletterPage() {
         <SiteHeader />
       </div>
 
-      <div className="lg:hidden flex items-center px-4 py-3 border-b border-vp-border gap-3">
-        <button 
-          aria-label="Fechar" 
-          className="text-vp-text text-[28px] leading-none p-0 hover:text-vp-accent transition-colors"
-        >
-          ×
-        </button>
+      <div className="lg:hidden flex items-center px-2 py-1 border-b border-vp-border gap-1">
+        <a href="/" aria-label="Fechar" className="text-vp-text text-[24px] leading-none min-w-11 min-h-11 flex items-center justify-center hover:text-vp-accent transition-colors no-underline">×</a>
         <div className="flex-1 text-center">
           <Monogram size="sm" />
         </div>
-        <div className="w-[28px]" />
+        <div className="min-w-11" />
       </div>
 
       <main className="flex-1 flex flex-col items-center">
-        <div className="max-w-[700px] w-full lg:my-12 lg:border lg:border-vp-border lg:bg-vp-bg">
+        <div className="max-w-175 w-full lg:my-12 lg:border lg:border-vp-border lg:bg-vp-bg">
           {/* 1. Hero */}
-          <div className="px-5 py-8 lg:p-12 border-b border-vp-border bg-vp-surface">
+          <div className="px-4 sm:px-5 py-6 sm:py-8 lg:p-12 border-b border-vp-border bg-vp-surface">
             <Eyebrow className="text-[10px]">Newsletter · Sábados, 7h</Eyebrow>
-            <Headline as="h1" size="hero" hoverAccent={false} className="!text-[38px] lg:!text-[56px] !leading-[1.05] my-4 font-black">
+            <Headline as="h1" size="hero" hoverAccent={false} className="text-[38px]! lg:text-[56px]! leading-[1.05]! my-4 font-black">
               A Semana<br/>em <span className="text-vp-accent italic">MS</span>.
             </Headline>
-            <p className="font-serif text-[18px] text-vp-text-2 leading-[1.45] italic lg:max-w-[500px]">
+            <p className="font-serif text-[16px] sm:text-[18px] text-vp-text-2 leading-[1.45] italic lg:max-w-125">
               O resumo do que importou em Mato Grosso do Sul, escrito à mão pela editora-chefe Marina Ribeiro.
             </p>
           </div>
@@ -80,7 +75,7 @@ export default function NewsletterPage() {
           {/* 5. Last edition preview */}
           <div className="px-5 py-8 lg:p-12 bg-vp-surface border-t border-vp-border">
             <Eyebrow className="mb-4 text-[10px]">Edição Anterior · 19 de Abril</Eyebrow>
-            <h3 className="font-display text-[24px] lg:text-[32px] !leading-tight mb-4 font-black">
+            <h3 className="font-display text-[24px] lg:text-[32px] leading-tight! mb-4 font-black">
               &quot;O Pantanal não acabou em 2024. Continua acabando em 2026.&quot;
             </h3>
             <p className="font-serif italic text-[16px] text-vp-text-2 leading-relaxed mb-6">
@@ -92,8 +87,8 @@ export default function NewsletterPage() {
           </div>
         </div>
 
-        <div className="p-8 text-center text-[12px] text-vp-text-4 border-t border-vp-border w-full bg-vp-bg">
-          <div className="max-w-[700px] mx-auto flex justify-center gap-6 font-bold uppercase tracking-widest">
+        <div className="px-4 py-6 sm:p-8 text-center text-[11px] sm:text-[12px] text-vp-text-4 border-t border-vp-border w-full bg-vp-bg">
+          <div className="max-w-175 mx-auto flex justify-center gap-4 sm:gap-6 font-bold uppercase tracking-widest">
             <span>Arquivo</span>
             <span className="text-vp-border">|</span>
             <span className="text-vp-accent">Política MS</span>

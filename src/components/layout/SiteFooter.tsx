@@ -28,19 +28,19 @@ export async function SiteFooter() {
   }
 
   return (
-    <footer className="hidden md:block border-t-2 border-vp-text bg-vp-surface-2 font-sans text-[12px] text-vp-text-3 px-7 pt-8 pb-6">
-      <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-7 mb-7">
+    <footer className="border-t-2 border-vp-text bg-vp-surface-2 font-sans text-[11px] sm:text-[12px] text-vp-text-3 px-4 sm:px-7 pt-6 sm:pt-8 pb-4 sm:pb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] gap-6 sm:gap-7 mb-6 sm:mb-7">
         <div>
           <Monogram size="md" className="mb-3" src={settings['BRAND_LOGO_URL'] || '/logo.png'} />
           <p className="leading-[1.6] text-vp-text-2 font-serif text-[14px] mt-3">
             {settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
           </p>
-          <div className="mt-3.5 flex gap-2">
-            <Link href="/apoiar" className="no-underline">
-              <button className="vp-btn vp-btn-primary text-[11px] font-bold">Faça uma doação</button>
+          <div className="mt-3.5 flex flex-col sm:flex-row gap-2">
+            <Link href="/apoiar" className="no-underline flex-1 sm:flex-none">
+              <button className="vp-btn vp-btn-primary text-[11px] font-bold w-full sm:w-auto min-h-11">Faça uma doação</button>
             </Link>
-            <Link href="/newsletter" className="no-underline">
-              <button className="vp-btn text-[11px] font-bold">Assine a newsletter</button>
+            <Link href="/newsletter" className="no-underline flex-1 sm:flex-none">
+              <button className="vp-btn text-[11px] font-bold w-full sm:w-auto min-h-11">Assine a newsletter</button>
             </Link>
           </div>
         </div>
@@ -76,7 +76,7 @@ export async function SiteFooter() {
         </div>
       </div>
       
-      <div className="border-t border-vp-border flex justify-between text-[11px] pt-4">
+      <div className="border-t border-vp-border flex flex-col sm:flex-row justify-between gap-1 text-[10px] sm:text-[11px] pt-4">
         <span>© 2026 Voz Pública MS · Campo Grande, MS · CNPJ 00.000.000/0001-00</span>
         <span className="font-mono text-vp-text-4 uppercase">vozpublicams.com.br</span>
       </div>
