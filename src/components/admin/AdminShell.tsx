@@ -67,12 +67,12 @@ export function AdminShell({ children, pendingComments, draftArticles, reviewArt
         fixed inset-y-0 left-0 z-50 w-[232px] bg-[#0e0e0d] border-r border-vp-border flex flex-col h-screen transition-transform lg:translate-x-0 lg:sticky lg:top-0 shrink-0
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-5 pb-6 border-b border-vp-border flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Monogram size="sm" />
-            <div className="text-[10px] text-vp-text-4 font-black uppercase tracking-[0.2em]">Admin</div>
+        <div className="px-5 pt-5 pb-4 border-b border-vp-border flex items-start justify-between">
+          <div className="flex flex-col gap-2">
+            <Monogram size={56} />
+            <div className="text-[9px] text-vp-text-4 font-black uppercase tracking-[0.18em]">Painel Administrativo</div>
           </div>
-          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-vp-text-4">×</button>
+          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-vp-text-4 mt-1">×</button>
         </div>
 
         <nav className="flex-1 overflow-y-auto vp-scroll py-4 px-2.5 space-y-1">
