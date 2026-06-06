@@ -45,7 +45,7 @@ export default async function ColumnistPage({ params }: { params: Promise<{ slug
       <div className="lg:hidden flex flex-col min-h-screen bg-vp-bg w-full">
         <MobileMasthead />
         
-        <div className="px-4 py-8 bg-vp-surface border-b border-vp-border">
+        <div className="px-4 py-6 sm:py-8 bg-vp-surface border-b border-vp-border">
           <div className="flex flex-col items-center text-center">
             <div className="w-24 h-24 rounded-full overflow-hidden bg-vp-bg border border-vp-border mb-4">
               <ImgPH label="" width={96} height={96} />
@@ -58,7 +58,7 @@ export default async function ColumnistPage({ params }: { params: Promise<{ slug
           </div>
         </div>
 
-        <div className="px-4 py-6 flex flex-col gap-6 pb-24">
+        <div className="px-4 py-6 flex flex-col gap-6 pb-20 sm:pb-6">
           {latest && (
             <article className="pb-6 border-b border-vp-border">
               <div className="eyebrow text-[10px] mb-1.5">Última coluna</div>

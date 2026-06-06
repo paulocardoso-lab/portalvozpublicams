@@ -66,7 +66,7 @@ export function DonatePaymentClient({
         ))}
       </div>
 
-      <div className="px-5 py-8 lg:px-10">
+      <div className="px-4 sm:px-5 py-6 sm:py-8 lg:px-10">
         <div className="bg-vp-surface border border-vp-border p-5 mb-8">
           <div className="flex justify-between gap-4 mb-2">
             <span className="text-[12px] text-vp-text-3 uppercase tracking-wider">
@@ -111,7 +111,7 @@ export function DonatePaymentClient({
                 <div className="bg-vp-surface border border-vp-border p-4 font-mono text-[10px] break-all text-vp-text-3 mb-4 rounded-sm">
                   {pix.copyPaste}
                 </div>
-                <button onClick={copyPix} className="vp-btn w-full py-3.5 font-bold uppercase tracking-widest text-[12px]">
+                <button onClick={copyPix} className="vp-btn w-full py-3.5 font-bold uppercase tracking-widest text-[12px] min-h-11">
                   Copiar código PIX
                 </button>
                 {copyStatus ? <div className="text-[11px] text-vp-ok text-center mt-2">{copyStatus}</div> : null}
@@ -149,7 +149,7 @@ export function DonatePaymentClient({
           </div>
         )}
 
-        <Link href="/apoiar/sucesso" className="vp-btn vp-btn-primary w-full py-4 font-bold uppercase tracking-widest text-[13px] mt-8 no-underline inline-block text-center">
+        <Link href="/apoiar/sucesso" className="vp-btn vp-btn-primary w-full py-3 sm:py-4 font-bold uppercase tracking-widest text-[13px] mt-6 sm:mt-8 no-underline inline-flex items-center justify-center min-h-11 text-center">
           Concluir orientação de apoio
         </Link>
       </div>

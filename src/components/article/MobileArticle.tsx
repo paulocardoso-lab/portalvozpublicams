@@ -39,10 +39,10 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
     <div className="flex flex-col min-h-screen bg-vp-bg md:hidden">
       {/* 1. Top minimal bar with progress */}
       <div className="sticky top-0 z-50 bg-vp-bg border-b border-vp-border">
-        <div className="flex items-center px-4 py-3 gap-3">
-          <button 
-            aria-label="Voltar" 
-            className="text-vp-text p-0 transition-colors hover:text-vp-accent"
+        <div className="flex items-center px-2 py-0 gap-1">
+          <button
+            aria-label="Voltar"
+            className="text-vp-text min-w-11 min-h-11 flex items-center justify-center transition-colors hover:text-vp-accent"
             onClick={() => window.history.back()}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 6l-6 6 6 6"/></svg>
@@ -52,8 +52,8 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
               {article.section?.name || 'Geral'} {article.eyebrow && `· ${article.eyebrow}`}
             </Eyebrow>
           </div>
-          <button aria-label="Ajustar tamanho do texto" className="text-vp-text text-[16px] font-serif p-0 hover:text-vp-accent">Aa</button>
-          <button className="text-vp-text p-0 hover:text-vp-accent">
+          <button aria-label="Ajustar tamanho do texto" className="text-vp-text text-[16px] font-serif min-w-11 min-h-11 flex items-center justify-center hover:text-vp-accent">Aa</button>
+          <button aria-label="Salvar matéria" className="text-vp-text min-w-11 min-h-11 flex items-center justify-center hover:text-vp-accent">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h12v18l-6-4-6 4z"/></svg>
           </button>
         </div>
@@ -141,16 +141,16 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
       <StickyBottomAd />
 
       {/* 3. Sticky bottom action bar */}
-      <nav className="fixed bottom-0 left-0 right-0 border-t border-vp-border bg-vp-bg grid grid-cols-4 py-2 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 border-t border-vp-border bg-vp-bg grid grid-cols-4 z-50">
         {[
           { i: '▲', l: '128' },
           { i: '↗', l: 'Compart.' },
           { i: '❝', l: 'Citar' },
           { i: '⌃', l: '+' }
         ].map((btn, idx) => (
-          <button 
-            key={idx} 
-            className="text-vp-text-2 flex flex-col items-center gap-[2px] p-1 font-sans text-[10px] font-bold hover:text-vp-accent transition-colors"
+          <button
+            key={idx}
+            className="text-vp-text-2 flex flex-col items-center justify-center gap-0.5 min-h-13 font-sans text-[10px] font-bold hover:text-vp-accent transition-colors"
           >
             <span className="text-[16px] leading-none">{btn.i}</span>
             <span className="uppercase tracking-wider">{btn.l}</span>

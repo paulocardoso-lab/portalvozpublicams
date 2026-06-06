@@ -15,7 +15,7 @@ export default async function DonateDataPage({ searchParams }: { searchParams: S
 
   return (
     <FunnelLayout step={2} title="Seus dados">
-      <div className="px-5 py-6 lg:px-8">
+      <div className="px-4 sm:px-5 py-5 sm:py-6 lg:px-8">
         <h1 className="font-display text-[26px] lg:text-[32px] leading-tight mb-2 tracking-tight">
           Quase lá... precisamos te identificar
         </h1>
@@ -32,20 +32,20 @@ export default async function DonateDataPage({ searchParams }: { searchParams: S
           <div className="grid gap-5">
             <div>
               <label className="eyebrow block mb-2 text-[10px]">Nome completo</label>
-              <input className="vp-input w-full" placeholder="Como devemos te chamar?" />
+              <input className="vp-input w-full min-h-11" placeholder="Como devemos te chamar?" />
             </div>
             <div>
               <label className="eyebrow block mb-2 text-[10px]">E-mail</label>
-              <input className="vp-input w-full" type="email" placeholder="seu@email.com.br" />
+              <input className="vp-input w-full min-h-11" type="email" placeholder="seu@email.com.br" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="eyebrow block mb-2 text-[10px]">CPF</label>
-                <input className="vp-input w-full font-mono" placeholder="000.000.000-00" />
+                <input className="vp-input w-full font-mono min-h-11" placeholder="000.000.000-00" />
               </div>
               <div>
                 <label className="eyebrow block mb-2 text-[10px]">Celular</label>
-                <input className="vp-input w-full font-mono" placeholder="(67) 99999-9999" />
+                <input className="vp-input w-full font-mono min-h-11" placeholder="(67) 99999-9999" />
               </div>
             </div>
             <div className="grid grid-cols-[1fr_80px] gap-4">
@@ -84,8 +84,8 @@ export default async function DonateDataPage({ searchParams }: { searchParams: S
         </div>
       </div>
 
-      <div className="p-5 border-t border-vp-border bg-vp-bg sticky bottom-0">
-        <Link href={paymentHref(selection)} className="vp-btn vp-btn-primary w-full py-4 text-[13px] text-center font-bold uppercase tracking-widest no-underline inline-block">
+      <div className="px-4 sm:px-5 py-3 sm:py-4 border-t border-vp-border bg-vp-bg sticky bottom-0 pb-[env(safe-area-inset-bottom,12px)]">
+        <Link href={paymentHref(selection)} className="vp-btn vp-btn-primary w-full py-3 sm:py-4 text-[13px] text-center font-bold uppercase tracking-widest no-underline inline-flex items-center justify-center min-h-11">
           Ir para pagamento →
         </Link>
       </div>

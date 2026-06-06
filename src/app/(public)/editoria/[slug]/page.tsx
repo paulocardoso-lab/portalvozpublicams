@@ -47,20 +47,20 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
       <div className="lg:hidden flex flex-col min-h-screen bg-vp-bg w-full">
         <MobileMasthead />
         
-        <div className="px-4 py-6 border-b-2 border-vp-text">
+        <div className="px-4 py-5 border-b-2 border-vp-text">
           <div className="eyebrow text-[10px] mb-1">Editoria</div>
-          <h1 className="font-display text-[42px] leading-none mb-3">{section.name}</h1>
-          <p className="font-serif text-[15px] text-vp-text-2 leading-[1.5]">
+          <h1 className="font-display text-[32px] sm:text-[42px] leading-none mb-3">{section.name}</h1>
+          <p className="font-serif text-[14px] sm:text-[15px] text-vp-text-2 leading-normal">
             {section.description || `Cobertura de ${section.name} em MS.`}
           </p>
         </div>
 
-        <div className="px-4 py-4 flex flex-col gap-6 pb-24">
+        <div className="px-4 py-4 flex flex-col gap-6 pb-20 sm:pb-6">
           {featured && (
             <article className="pb-6 border-b border-vp-border">
               <Link href={`/materia/${featured.slug}`}>
                 {featured.heroImage ? (
-                  <div className="relative aspect-[16/9] w-full mb-3 rounded-sm overflow-hidden">
+                  <div className="relative aspect-video w-full mb-3 rounded-sm overflow-hidden">
                     <Image src={featured.heroImage} alt="" fill className="object-cover" />
                   </div>
                 ) : (
