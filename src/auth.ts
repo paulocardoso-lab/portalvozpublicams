@@ -15,18 +15,15 @@ const resendClient = resendApiKey ? new ResendClient(resendApiKey) : null;
 const providers: NextAuthConfig["providers"] = [...authConfig.providers];
 
 if (resendApiKey && resendClient) {
-  const hostUrl =
-    process.env.NEXTAUTH_URL ||
-    process.env.AUTH_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
+  const configuredAuthUrl = process.env.AUTH_URL || process.env.NEXTAUTH_URL || null;
 
   providers.push(
     ResendProvider({
       apiKey: resendApiKey,
       from: "Voz Pública MS <onboarding@resend.dev>",
       async sendVerificationRequest({ identifier, url }) {
-        const correctedUrl = hostUrl
-          ? url.replace(/^https?:\/\/[^/]+/, hostUrl)
+        const correctedUrl = configuredAuthUrl
+          ? url.replace(/^https?:\/\/[^/]+/, configuredAuthUrl)
           : url;
 
         await resendClient.emails.send({

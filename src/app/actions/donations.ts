@@ -16,7 +16,9 @@ const subscriptionSchema = z.object({
 export async function createSubscription(formData: FormData) {
   const email = formData.get('email') as string;
   const name = formData.get('name') as string;
-  const cpf = formData.get('cpf') as string;
+  const cpf = String(formData.get('cpf') ?? '').trim() || null;
+  const city = String(formData.get('city') ?? '').trim() || null;
+  const state = String(formData.get('state') ?? '').trim() || 'MS';
   const amountStr = formData.get('amount') as string;
   const planName = formData.get('planName') as string;
   const isMonthly = formData.get('isMonthly') === 'true';
@@ -43,11 +45,13 @@ export async function createSubscription(formData: FormData) {
     // 1. Criar ou atualizar usuário
     const user = await prisma.user.upsert({
       where: { email },
-      update: { name, cpf },
+      update: { name, cpf, city, state },
       create: { 
         email, 
         name, 
         cpf,
+        city,
+        state,
         role: 'READER',
         status: 'ACTIVE'
       },

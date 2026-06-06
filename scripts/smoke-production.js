@@ -10,6 +10,7 @@ const checks = [
   { path: "/", status: 200 },
   { path: "/login", status: 200 },
   { path: "/api/health", status: 200, bodyIncludes: '"status":"ok"' },
+  { path: "/api/auth/providers", status: 200, authProvidersMatchOrigin: true },
   { path: "/api/debug-vars", status: 404 },
   { path: "/admin", status: [302, 307, 308], locationIncludes: "/login" },
   { path: "/eu", status: [302, 307, 308], locationIncludes: "/login" },
@@ -42,6 +43,23 @@ async function runCheck(check) {
 
   if (check.bodyIncludes && !body.includes(check.bodyIncludes)) {
     errors.push(`body does not include ${check.bodyIncludes}`);
+  }
+
+  if (check.authProvidersMatchOrigin) {
+    try {
+      const providers = JSON.parse(body);
+      for (const provider of Object.values(providers)) {
+        for (const key of ["signinUrl", "callbackUrl"]) {
+          if (!provider?.[key]) continue;
+          const providerUrl = new URL(provider[key]);
+          if (providerUrl.origin !== base.origin) {
+            errors.push(`${provider.id || "provider"} ${key} origin is ${providerUrl.origin}`);
+          }
+        }
+      }
+    } catch {
+      errors.push("auth providers response is not valid JSON");
+    }
   }
 
   const location = response.headers.get("location") || "";

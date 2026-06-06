@@ -6,6 +6,7 @@ import prisma from './prisma';
 import { slugify } from './utils';
 import { rewriteArticleContent, humanizeArticleContent } from './ai-service';
 import { downloadAndUploadImage } from './storage';
+import { selectRSSHeroImage } from './rss-image-extractor';
 
 const parser = new Parser({
   customFields: {
@@ -85,30 +86,6 @@ async function withRetry<T>(
     }
   }
   throw lastError;
-}
-
-// ── Image extraction helpers ──────────────────────────────────────────────────
-
-function extractRssItemImage(item: RSSItem): string | null {
-  // media:content url
-  const mediaUrl = item.mediaContent?.$?.url;
-  if (mediaUrl) return mediaUrl;
-
-  // media:thumbnail url
-  const thumbUrl = item.mediaThumbnail?.$?.url;
-  if (thumbUrl) return thumbUrl;
-
-  // enclosure (podcasts/images)
-  const encUrl = item.enclosure?.url;
-  if (encUrl && /\.(jpe?g|png|gif|webp)(\?|$)/i.test(encUrl)) return encUrl;
-
-  // img tag inside item.content
-  if (item.content) {
-    const match = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
-    if (match?.[1]) return match[1];
-  }
-
-  return null;
 }
 
 function resolveArticleUrl(item: RSSItem): string {
@@ -199,7 +176,14 @@ export async function syncFeed(feedId: string): Promise<RSSSyncSummary> {
 
       // Dedup por URL (log individual de sucesso)
       const alreadyLogged = await prisma.rSSLog.findFirst({
-        where: { feedId: feed.id, message: item.link, status: 'SUCCESS' }
+        where: {
+          feedId: feed.id,
+          status: 'SUCCESS',
+          OR: [
+            { message: item.link },
+            { message: { startsWith: `${item.link} |` } },
+          ],
+        }
       });
       if (alreadyLogged) { summary.skipped += 1; continue; }
 
@@ -411,10 +395,7 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
   const link = resolveArticleUrl(item);
 
   let articleData: { title?: string | null; excerpt?: string | null; textContent?: string | null; content?: string | null } | null = null;
-  let rawHeroImage: string | null = null;
-
-  // Priority 1: image from RSS feed fields (media:content, enclosure, etc.)
-  const rssImage = extractRssItemImage(item);
+  let sourceDocument: Document | null = null;
 
   try {
     const response = await withRetry(
@@ -434,16 +415,19 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
 
     const html = await response.text();
     const { document } = parseHTML(html);
+    sourceDocument = document as unknown as Document;
     const reader = new Readability(document as unknown as Document);
     articleData = reader.parse();
-    if (!rssImage) {
-      rawHeroImage = (document.querySelector('meta[property="og:image"]') as HTMLMetaElement | null)?.content || null;
-    }
   } catch (error) {
     console.warn(`RSS fetch failed for ${link}:`, error instanceof Error ? error.message : error);
   }
 
-  rawHeroImage = rssImage || rawHeroImage;
+  const heroImageSelection = selectRSSHeroImage({
+    item,
+    document: sourceDocument,
+    sourceUrl: link,
+  });
+  const rawHeroImage = heroImageSelection.url;
 
   // ── Build body paragraphs ────────────────────────────────────────────────────
   // Priority: Readability HTML content → Readability textContent → RSS item.content → contentSnippet
@@ -540,7 +524,7 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
       feedId: feed.id,
       articleId: article.id,
       status: 'SUCCESS',
-      message: link,
+      message: `${link} | heroImage=${heroImageSelection.source ?? 'none'} | rejectedImages=${heroImageSelection.rejected.length}`,
       itemsTotal: 1,
       itemsCreated: 1,
     },

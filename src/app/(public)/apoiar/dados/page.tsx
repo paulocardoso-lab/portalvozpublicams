@@ -1,21 +1,34 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
 import { FunnelLayout } from '@/components/subscription/FunnelLayout';
+import { formatCurrency, getDonationConfig, paymentHref, resolveDonationSelection } from '@/lib/donation-config';
 
-export default function DonateDataPage() {
+export const dynamic = 'force-dynamic';
+
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+export default async function DonateDataPage({ searchParams }: { searchParams: SearchParams }) {
+  const query = await searchParams;
+  const config = await getDonationConfig();
+  const selection = resolveDonationSelection(config, query);
+  const amountLabel = `${formatCurrency(selection.amountCents)}${selection.interval === 'monthly' ? '/mês' : ''}`;
+
   return (
     <FunnelLayout step={2} title="Seus dados">
       <div className="px-5 py-6 lg:px-8">
         <h1 className="font-display text-[26px] lg:text-[32px] leading-tight mb-2 tracking-tight">
-          Quase lá… precisamos te identificar
+          Quase lá... precisamos te identificar
         </h1>
         <p className="font-serif text-[14px] text-vp-text-2 mb-8">
-          Plano <strong className="text-vp-text">Apoiador · R$ 39/mês</strong>. <Link href="/apoiar" className="text-vp-accent hover:underline">Trocar</Link>
+          {selection.type === 'plan' ? 'Plano' : 'Apoio'} <strong className="text-vp-text">{selection.name} · {amountLabel}</strong>.{' '}
+          <Link href="/apoiar" className="text-vp-accent hover:underline">Trocar</Link>
         </p>
 
         <form className="space-y-6">
+          <input type="hidden" name="tipo" value={selection.type} />
+          <input type="hidden" name="plano" value={selection.key} />
+          <input type="hidden" name="valor" value={selection.amountCents} />
+
           <div className="grid gap-5">
             <div>
               <label className="eyebrow block mb-2 text-[10px]">Nome completo</label>
@@ -64,15 +77,15 @@ export default function DonateDataPage() {
         </form>
 
         <div className="mt-10 p-4 border border-vp-border bg-vp-surface flex gap-3 items-center">
-          <span className="text-[20px]">🔒</span>
+          <span className="text-[20px]">#</span>
           <p className="text-[11px] text-vp-text-3 leading-tight">
-            Seus dados estão protegidos. Utilizamos criptografia de ponta-a-ponta e processamento via Pagar.me.
+            Seus dados serao usados apenas para identificar o apoio e emitir comprovantes quando aplicavel.
           </p>
         </div>
       </div>
 
       <div className="p-5 border-t border-vp-border bg-vp-bg sticky bottom-0">
-        <Link href="/apoiar/pagamento" className="vp-btn vp-btn-primary w-full py-4 text-[13px] text-center font-bold uppercase tracking-widest no-underline inline-block">
+        <Link href={paymentHref(selection)} className="vp-btn vp-btn-primary w-full py-4 text-[13px] text-center font-bold uppercase tracking-widest no-underline inline-block">
           Ir para pagamento →
         </Link>
       </div>

@@ -1,4 +1,5 @@
 import prisma from './prisma';
+import { fallbackHeaderIndicators, toHeaderIndicator } from './market-indicators';
 
 export async function getMarketData() {
   try {
@@ -22,6 +23,28 @@ export async function getMarketData() {
   } catch (error) {
     console.error('Erro ao buscar dados financeiros:', error);
     return { usd: "5,12", boi: "353,80", soja: "122,51", milho: "65,98", trigo: "1.250,00" };
+  }
+}
+
+export async function getHeaderIndicators() {
+  try {
+    const indicators = await prisma.marketIndicator.findMany({
+      where: {
+        isActive: true,
+        showInHeader: true,
+      },
+      orderBy: [
+        { displayOrder: 'asc' },
+        { key: 'asc' },
+      ],
+    });
+
+    return indicators.length > 0
+      ? indicators.map(toHeaderIndicator)
+      : fallbackHeaderIndicators();
+  } catch (error) {
+    console.error('Erro ao buscar indicadores do cabeçalho:', error);
+    return fallbackHeaderIndicators();
   }
 }
 

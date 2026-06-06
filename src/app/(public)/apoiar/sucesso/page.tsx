@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
 
@@ -11,7 +9,7 @@ export default function DonateSuccessPage() {
       </div>
 
       <span className="eyebrow text-[11px] mb-4 text-vp-accent tracking-[0.2em] font-black uppercase">
-        Bem-vinda à Redação
+        Apoio registrado
       </span>
       
       <h1 className="font-display text-[42px] lg:text-[56px] leading-[1.05] mb-6 tracking-tight font-black max-w-[600px]">
@@ -19,21 +17,21 @@ export default function DonateSuccessPage() {
       </h1>
       
       <p className="font-serif text-[18px] lg:text-[21px] text-vp-text-2 leading-relaxed mb-10 max-w-[540px]">
-        Você agora faz parte do grupo de pessoas que garante um jornalismo sem donos e sem rabo preso em Mato Grosso do Sul.
+        Se você pagou por PIX ou transferência, a equipe fará a conferência do comprovante e a identificação do apoio.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[480px]">
         <Link href="/" className="vp-btn vp-btn-primary py-4 font-bold uppercase tracking-widest text-[13px] no-underline inline-block">
           Ir para a Home →
         </Link>
-        <button className="vp-btn py-4 font-bold uppercase tracking-widest text-[13px] hover:bg-vp-surface transition-colors">
-          Compartilhar apoio
-        </button>
+        <Link href="/apoiar" className="vp-btn py-4 font-bold uppercase tracking-widest text-[13px] hover:bg-vp-surface transition-colors no-underline inline-block">
+          Fazer outro apoio
+        </Link>
       </div>
 
-      <div className="mt-12 pt-8 border-t border-vp-border w-full max-w-[400px]">
+      <div className="mt-12 pt-8 border-t border-vp-border w-full max-w-[420px]">
         <p className="font-mono text-[11px] text-vp-text-4 uppercase tracking-widest">
-          Recibo enviado para marina@email.com · Transação #VP-9821
+          Em breve esta etapa emitirá recibos automáticos quando a integração financeira estiver conectada.
         </p>
       </div>
     </div>

@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import prisma from '@/lib/prisma';
+import { fetchJsonIndicatorValue } from '@/lib/market-indicators';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * CRON: Atualiza indicadores de mercado (Dólar, Boi, Soja, Milho, Trigo)
- * Scrape realizado via Notícias Agrícolas por ser mais estável para bots.
+ * AgroDoc AI é fonte primária para boi/soja/milho; Notícias Agrícolas fica como fallback
+ * e fonte complementar para dólar/trigo.
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
@@ -16,7 +18,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const results: Record<string, string | null> = { 
+  const results: Record<string, string | null> = {
     usd: null, 
     boi: null, 
     soja: null, 
@@ -24,38 +26,86 @@ export async function GET(request: Request) {
     trigo: null
   };
 
+  const sources: string[] = [];
+  const warnings: string[] = [];
+
+  const formatMarketValue = (value: unknown) => {
+    const numeric = typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number(value.replace(',', '.'))
+        : Number.NaN;
+
+    if (!Number.isFinite(numeric)) return null;
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(numeric);
+  };
+
+  const unitFor = (key: string) => {
+    if (key === 'usd') return 'R$';
+    if (key === 'boi') return 'R$/@';
+    if (key === 'trigo') return 'R$/t';
+    return 'R$/sc';
+  };
+
+  try {
+    const res = await fetch('https://agrodocai.com.br/api/v1/cotacao', {
+      headers: { 'User-Agent': 'VozPublicaMS/1.0 (+https://sitevozpublicamsoficial-git-main-paulocardoso-labs-projects.vercel.app)' },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json() as {
+      boi_gordo_cepea_sp?: unknown;
+      soja?: unknown;
+      milho?: unknown;
+      fonte?: string;
+      atualizado?: string;
+    };
+
+    results.boi = formatMarketValue(data.boi_gordo_cepea_sp);
+    results.soja = formatMarketValue(data.soja);
+    results.milho = formatMarketValue(data.milho);
+    sources.push(`AgroDoc AI${data.fonte ? ` (${data.fonte})` : ''}${data.atualizado ? ` @ ${data.atualizado}` : ''}`);
+  } catch (error) {
+    warnings.push(`AgroDoc AI indisponível: ${error instanceof Error ? error.message : 'erro desconhecido'}`);
+  }
+
   try {
     const res = await fetch('https://www.noticiasagricolas.com.br/cotacoes/', {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: AbortSignal.timeout(20000),
     });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
     const $ = cheerio.load(html);
+    sources.push('Notícias Agrícolas');
 
-    // 1. Dólar (Extraído do box de destaque no topo)
     const usdRaw = $('.box-dolar .valor').first().text();
     if (usdRaw) {
-      results.usd = usdRaw.replace('R$', '').trim().replace(',', '.');
+      results.usd = usdRaw.replace('R$', '').trim();
     }
 
-    // 2. Indicadores Agrícolas (Extraídos dos boxes "mercado-fisico")
+    // Fallbacks agrícolas, usados somente se a API primária não retornou valor.
     $('.box').each((_, el) => {
       const box = $(el);
       const title = box.find('h2').text();
       
-      // Boi Gordo (Prioriza Cepea ou AgroBrazil)
       if (title.includes('Boi Gordo') && !results.boi) {
         const val = box.find('.cot-fisicas tbody tr:first-child td:nth-child(2)').text().trim();
         if (val) results.boi = val;
       }
       
-      // Soja (Prioriza Paranaguá ou Cepea)
       if (title.includes('Soja') && (title.includes('Paraná') || title.includes('Cepea')) && !results.soja) {
         const val = box.find('.cot-fisicas tbody tr:first-child td:nth-child(2)').text().trim();
         if (val) results.soja = val;
       }
 
-      // Milho (Prioriza Esalq/B3)
       if (title.includes('Milho') && (title.includes('Esalq') || title.includes('B3')) && !results.milho) {
         const val = box.find('.cot-fisicas tbody tr:first-child td:nth-child(2)').text().trim();
         if (val) results.milho = val;
@@ -67,20 +117,35 @@ export async function GET(request: Request) {
         if (val) results.trigo = val;
       }
     });
+  } catch (error) {
+    warnings.push(`Notícias Agrícolas indisponível: ${error instanceof Error ? error.message : 'erro desconhecido'}`);
+  }
 
-    // Persistência no Banco de Dados
+  try {
+    const fetchedAt = new Date();
     const updates = Object.entries(results).map(async ([key, value]) => {
       if (value) {
         return prisma.marketIndicator.upsert({
           where: { key },
           update: { 
             value: value,
+            unit: unitFor(key),
+            sourceType: 'SYSTEM',
+            lastFetchStatus: 'OK',
+            lastFetchError: null,
+            lastFetchedAt: fetchedAt,
             updatedAt: new Date()
           },
           create: { 
             key, 
+            label: key.toUpperCase(),
             value: value, 
-            unit: key === 'usd' ? 'R$' : key === 'boi' ? 'R$/@' : 'R$/sc'
+            unit: unitFor(key),
+            sourceType: 'SYSTEM',
+            showInHeader: ['usd', 'boi', 'soja', 'milho'].includes(key),
+            showInMobile: ['usd', 'boi'].includes(key),
+            lastFetchStatus: 'OK',
+            lastFetchedAt: fetchedAt,
           }
         });
       }
@@ -88,7 +153,62 @@ export async function GET(request: Request) {
 
     await Promise.all(updates);
 
-    return NextResponse.json({ success: true, results, timestamp: new Date() });
+    const customIndicators = await prisma.marketIndicator.findMany({
+      where: {
+        isActive: true,
+        sourceType: 'JSON_API',
+        sourceUrl: { not: null },
+      },
+    });
+
+    for (const indicator of customIndicators) {
+      const lastFetched = indicator.lastFetchedAt?.getTime() ?? 0;
+      const intervalMs = Math.max(5, indicator.sourceRefreshMinutes) * 60 * 1000;
+      if (lastFetched > 0 && Date.now() - lastFetched < intervalMs) continue;
+
+      try {
+        const result = await fetchJsonIndicatorValue(indicator);
+        await prisma.marketIndicator.update({
+          where: { key: indicator.key },
+          data: {
+            value: result.value,
+            lastFetchStatus: 'OK',
+            lastFetchError: null,
+            lastFetchedAt: new Date(),
+          },
+        });
+        results[indicator.key] = result.value;
+        sources.push(`JSON API: ${indicator.label || indicator.key}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'erro desconhecido';
+        await prisma.marketIndicator.update({
+          where: { key: indicator.key },
+          data: {
+            lastFetchStatus: 'ERROR',
+            lastFetchError: message,
+            lastFetchedAt: new Date(),
+          },
+        });
+        warnings.push(`Indicador ${indicator.key}: ${message}`);
+      }
+    }
+
+    const updatedKeys = Object.entries(results)
+      .filter(([, value]) => Boolean(value))
+      .map(([key]) => key);
+
+    if (updatedKeys.length === 0) {
+      return NextResponse.json({ success: false, results, warnings, error: 'Nenhum indicador foi atualizado.' }, { status: 502 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      results,
+      updatedKeys,
+      sources,
+      warnings,
+      timestamp: new Date(),
+    });
   } catch (error) {
     console.error('Erro no CRON de indicadores:', error);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });

@@ -358,10 +358,28 @@ enum TipStatus {
 }
 
 model MarketIndicator {
-  key       String   @id // ex: 'boi', 'soja', 'usd'
-  value     String
-  unit      String?  // ex: 'R$/@', 'R$/sc'
-  updatedAt DateTime @updatedAt
+  key                  String    @id // ex: 'boi', 'soja', 'usd'
+  label                String?   // ex: 'Arroba do Boi'
+  value                String
+  unit                 String?   // ex: 'R$/@', 'R$/sc'
+  displayOrder         Int       @default(100)
+  isActive             Boolean   @default(true)
+  showInHeader         Boolean   @default(false)
+  showInMobile         Boolean   @default(false)
+  sourceType           String    @default("MANUAL") // MANUAL, SYSTEM, JSON_API
+  sourceUrl            String?   @db.Text
+  sourcePath           String?
+  sourceHeaders        String?   @db.Text
+  sourceRefreshMinutes Int       @default(60)
+  formatDecimals       Int       @default(2)
+  prefix               String?
+  suffix               String?
+  lastFetchStatus      String?
+  lastFetchError       String?   @db.Text
+  lastFetchedAt        DateTime?
+  sourceUpdatedAt      String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 model AgendaEvent {

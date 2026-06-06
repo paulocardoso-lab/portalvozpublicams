@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+.next
+node_modules
+tmp-next-start-*.log
+tmp-next-start-*.err.log
+scratch
