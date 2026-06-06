@@ -88,15 +88,12 @@ export async function SiteHeader() {
           </Link>
         </div>
 
-        <Link href="/" className="flex flex-col items-center gap-1 no-underline group">
+        <Link href="/" className="flex items-center no-underline group py-2">
           <Monogram
-            size={80}
+            size={48}
             className="transition-transform group-hover:scale-[1.02]"
             src={settings['BRAND_LOGO_URL'] || '/logo.webp'}
           />
-          <div className="font-serif italic text-[13px] text-vp-text-2 tracking-[0.02em] mt-1">
-            {settings['SITE_TAGLINE'] || 'Jornalismo independente de Mato Grosso do Sul'}
-          </div>
         </Link>
 
         <div className="flex gap-3 justify-end items-center font-sans text-[11px] text-vp-text-3">
