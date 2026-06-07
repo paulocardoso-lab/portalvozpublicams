@@ -14,7 +14,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
   const saved = firstParam(query.saved) === "1";
   const s = await getSiteSettings();
   const hasCronSecret = Boolean(process.env.CRON_SECRET);
-  const hasGeminiKey = Boolean(process.env.GOOGLE_GEMINI_API_KEY);
+  const hasOpenAIKey = Boolean(process.env.OPENAI_API_KEY);
   const hasSupabaseStorage = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
   const hasResend = Boolean(process.env.RESEND_API_KEY);
 
@@ -132,10 +132,42 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
               />
             </label>
 
+            <label className="flex items-start justify-between gap-4 border border-vp-border bg-vp-surface/40 p-3">
+              <span>
+                <span className="block text-[12px] font-semibold">IA — Reescrita de título, lead e tags (RSS)</span>
+                <span className="mt-1 block text-[11px] text-vp-text-3">Usa OpenAI para reescrever título, lead e gerar tags das matérias importadas. Se desativado, usa o texto original da fonte.</span>
+              </span>
+              <input type="hidden" name="RSS_AI_REWRITE" value="false" />
+              <input
+                name="RSS_AI_REWRITE"
+                type="checkbox"
+                value="true"
+                defaultChecked={s["RSS_AI_REWRITE"] !== "false"}
+                className="mt-1 accent-vp-accent"
+                title="Ativar reescrita IA de título/lead/tags"
+              />
+            </label>
+
+            <label className="flex items-start justify-between gap-4 border border-vp-border bg-vp-surface/40 p-3">
+              <span>
+                <span className="block text-[12px] font-semibold">IA — Humanização do corpo da matéria (RSS)</span>
+                <span className="mt-1 block text-[11px] text-vp-text-3">Usa OpenAI para reescrever os parágrafos em tom jornalístico humano. Se desativado, o corpo da matéria entra com o texto bruto da fonte.</span>
+              </span>
+              <input type="hidden" name="RSS_AI_HUMANIZE" value="false" />
+              <input
+                name="RSS_AI_HUMANIZE"
+                type="checkbox"
+                value="true"
+                defaultChecked={s["RSS_AI_HUMANIZE"] !== "false"}
+                className="mt-1 accent-vp-accent"
+                title="Ativar humanização IA do corpo"
+              />
+            </label>
+
             <div className="grid gap-2 sm:grid-cols-4">
               {[
                 ["Cron", hasCronSecret],
-                ["Gemini", hasGeminiKey],
+                ["OpenAI", hasOpenAIKey],
                 ["Storage", hasSupabaseStorage],
                 ["E-mail", hasResend],
               ].map(([label, ok]) => (

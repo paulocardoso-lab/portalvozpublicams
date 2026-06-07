@@ -450,12 +450,23 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
     ? bodyParagraphs
     : [sourceTextForAI || sourceLead || sourceTitle].filter(Boolean);
 
+  const [aiRewriteFlag, aiHumanizeFlag] = await Promise.all([
+    prisma.siteSetting.findUnique({ where: { key: 'RSS_AI_REWRITE' } }),
+    prisma.siteSetting.findUnique({ where: { key: 'RSS_AI_HUMANIZE' } }),
+  ]);
+  const aiRewriteEnabled  = aiRewriteFlag?.value  !== 'false';
+  const aiHumanizeEnabled = aiHumanizeFlag?.value !== 'false';
+
   const [
     { title: aiTitle, lead: aiLead, tags },
     humanizedParagraphs,
   ] = await Promise.all([
-    rewriteArticleContent(sourceTitle, sourceLead, sourceTextForAI),
-    humanizeArticleContent(sourceTitle, rawBodyParagraphs),
+    aiRewriteEnabled
+      ? rewriteArticleContent(sourceTitle, sourceLead, sourceTextForAI)
+      : Promise.resolve({ title: sourceTitle, lead: sourceLead, tags: [] as string[] }),
+    aiHumanizeEnabled
+      ? humanizeArticleContent(sourceTitle, rawBodyParagraphs)
+      : Promise.resolve(rawBodyParagraphs),
   ]);
 
   const slug = slugify(aiTitle);
