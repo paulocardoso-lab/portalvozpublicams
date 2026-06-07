@@ -90,7 +90,7 @@ function renderSourceAttribution(node: TiptapNode): string {
   return `<div class="vp-source-attribution">
   <div class="vp-source-attribution__ai-badge">
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l2 2"/><circle cx="18" cy="6" r="3"/></svg>
-    Regenerado por Inteligência Artificial sem perda de contexto
+    Texto adaptado com IA · conteúdo original preservado
   </div>
   <div class="vp-source-attribution__source">
     <strong>Fonte original:</strong> ${linkHtml}
