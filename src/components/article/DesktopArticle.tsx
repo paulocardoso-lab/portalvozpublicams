@@ -14,6 +14,8 @@ import { ShareBar } from '@/components/article/ShareBar';
 import { getSiteSettings } from '@/app/actions/settings';
 import { getActiveCharge } from '@/app/actions/charges';
 import { ChargeCard } from '@/components/charge/ChargeCard';
+import { getActiveVoices } from '@/app/actions/voices';
+import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -31,9 +33,10 @@ type RelatedArticle = {
 export async function DesktopArticle({ article, related = [] }: { article: ArticleWithRelations; related?: RelatedArticle[] }) {
   if (!article) return null;
 
-  const [s, activeCharge] = await Promise.all([
+  const [s, activeCharge, activeVoices] = await Promise.all([
     getSiteSettings(),
     getActiveCharge().catch(() => null),
+    getActiveVoices(3).catch(() => []),
   ]);
 
   return (
@@ -134,6 +137,16 @@ export async function DesktopArticle({ article, related = [] }: { article: Artic
               credit={activeCharge.credit}
               publishedAt={activeCharge.publishedAt}
             />
+          )}
+
+          {activeVoices.length > 0 && (
+            <VoicesSidebarBlock voices={activeVoices.map(v => ({
+              id: v.id,
+              text: v.text,
+              tag: v.tag,
+              location: v.location,
+              publishedAt: v.publishedAt,
+            }))} />
           )}
 
           {related.length > 0 && (

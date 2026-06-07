@@ -10,8 +10,9 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { NewsletterSection } from '@/components/sections/NewsletterSection';
 import { AdSlot } from '@/components/shared/AdSlot';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
-import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode, Charge } from '@prisma/client';
+import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode, Charge, Voice } from '@prisma/client';
 import { ChargeCard } from '@/components/charge/ChargeCard';
+import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
 
 export type PublicAuthor = {
   id: string;
@@ -57,6 +58,7 @@ interface DesktopHomeProps {
   activePodcast?: PodcastEpisode | null;
   siteSettings?: Record<string, string>;
   activeCharge?: Charge | null;
+  activeVoices?: Voice[];
 }
 
 /**
@@ -77,6 +79,7 @@ export function DesktopHome({
   cidades = [],
   siteSettings = {},
   activeCharge,
+  activeVoices = [],
 }: DesktopHomeProps) {
   const s = siteSettings;
   const hero = articles[0];
@@ -371,6 +374,17 @@ export function DesktopHome({
               credit={activeCharge.credit}
               publishedAt={activeCharge.publishedAt}
             />
+          )}
+
+          {/* Vozes */}
+          {activeVoices.length > 0 && (
+            <VoicesSidebarBlock voices={activeVoices.map(v => ({
+              id: v.id,
+              text: v.text,
+              tag: v.tag,
+              location: v.location,
+              publishedAt: v.publishedAt,
+            }))} />
           )}
 
           {/* Sidebar ad */}

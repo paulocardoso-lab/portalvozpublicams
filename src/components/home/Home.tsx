@@ -6,6 +6,8 @@ import type { AgendaEvent, Alert, PodcastEpisode, Charge } from '@prisma/client'
 import type { ArticleWithRelations, ArticleWithSection, SeriesWithArticles } from './DesktopHome';
 import { getSiteSettings } from '@/app/actions/settings';
 import { getActiveCharge } from '@/app/actions/charges';
+import { getActiveVoices } from '@/app/actions/voices';
+import type { Voice } from '@prisma/client';
 
 const publicAuthorSelect = {
   id: true,
@@ -38,6 +40,7 @@ export async function Home() {
   let newsletterCount = 0;
   let siteSettings: Record<string, string> = {};
   let activeCharge: Charge | null = null;
+  let activeVoices: Voice[] = [];
 
   try {
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
@@ -138,7 +141,10 @@ export async function Home() {
     mostRead = fetchedMostRead || [];
     newsletterCount = fetchedNewsletterCount || 0;
     siteSettings = await getSiteSettings().catch(() => ({}));
-    activeCharge = await getActiveCharge().catch(() => null);
+    [activeCharge, activeVoices] = await Promise.all([
+      getActiveCharge().catch(() => null),
+      getActiveVoices(4).catch(() => []),
+    ]);
   } catch (error) {
     console.error('Home data fetch error:', error);
   }
@@ -160,6 +166,7 @@ export async function Home() {
           newsletterCount={newsletterCount}
           siteSettings={siteSettings}
           activeCharge={activeCharge}
+          activeVoices={activeVoices}
         />
       </div>
 
