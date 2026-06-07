@@ -121,7 +121,7 @@ function createFittedBannerDataUrl(
       const dy = (def.h - drawH) / 2 + crop.y * maxY;
 
       ctx.drawImage(img, dx, dy, drawW, drawH);
-      res(canvas.toDataURL('image/webp', 0.9));
+      res(canvas.toDataURL('image/webp', 0.75));
     };
     img.onerror = () => rej(new Error('Não foi possível carregar a imagem.'));
     img.src = src;

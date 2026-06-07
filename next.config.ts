@@ -25,6 +25,11 @@ const freshContentHeaders = [
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['sharp'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '5mb',
+    },
+  },
   async headers() {
     return [
       {
