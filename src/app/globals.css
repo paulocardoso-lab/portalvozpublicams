@@ -337,3 +337,19 @@
   text-decoration-color: var(--vp-accent);
 }
 
+/* ── Article body controlled by Design Studio ───────────────────────────────── */
+.vp-article-content {
+  max-width: var(--vp-article-max, 720px);
+  font-size: var(--vp-article-font-size, 18px);
+  text-align: var(--vp-article-text-align, justify);
+}
+
+.vp-article-content p {
+  margin: 0 0 var(--vp-article-gap, 24px);
+  text-align: inherit;
+}
+
+.vp-article-content > div:last-child p:last-child,
+.vp-article-content p:last-child {
+  margin-bottom: 0;
+}

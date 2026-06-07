@@ -50,7 +50,12 @@ const COLOR_TOKENS: { key: keyof DesignTokens; label: string; group: string }[] 
 const FONT_DISPLAY_OPTIONS = ['Playfair Display', 'Merriweather', 'Lora', 'EB Garamond', 'Cormorant Garamond', 'PT Serif'];
 const FONT_SERIF_OPTIONS   = ['Source Serif 4', 'Merriweather', 'Lora', 'Georgia', 'PT Serif', 'Noto Serif'];
 const FONT_SANS_OPTIONS    = ['Inter', 'DM Sans', 'IBM Plex Sans', 'Nunito Sans', 'Roboto', 'Open Sans'];
-const TEXT_ALIGN_OPTIONS   = ['left', 'justify', 'center'];
+const TEXT_ALIGN_OPTIONS = [
+  { value: 'justify', label: 'Justificada' },
+  { value: 'left', label: 'Esquerda' },
+  { value: 'center', label: 'Centralizada' },
+  { value: 'right', label: 'Direita' },
+];
 const FONT_WEIGHT_OPTIONS  = ['400', '500', '600', '700', '800'];
 
 function groupBy<T>(arr: T[], fn: (item: T) => string): Record<string, T[]> {
@@ -817,13 +822,27 @@ function ColorRow({ label, value, onChange }: { label: string; value: string; on
   );
 }
 
-function SelectRow({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (v: string) => void }) {
+function SelectRow({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: Array<string | { value: string; label: string }>;
+  onChange: (v: string) => void;
+}) {
   const id = `select-${label.replace(/\s+/g, '-').toLowerCase()}`;
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className="text-[11px] text-vp-text-3 font-bold">{label}</label>
       <select id={id} value={value} onChange={e => onChange(e.target.value)} className="vp-input text-[12px] py-1.5" title={label}>
-        {options.map(o => <option key={o} value={o}>{o}</option>)}
+        {options.map(option => {
+          const optionValue = typeof option === 'string' ? option : option.value;
+          const optionLabel = typeof option === 'string' ? option : option.label;
+          return <option key={optionValue} value={optionValue}>{optionLabel}</option>;
+        })}
       </select>
     </div>
   );

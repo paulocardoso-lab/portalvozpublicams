@@ -6,6 +6,7 @@ import { getHeaderIndicators, getMarketData, getWeatherData } from '@/lib/extern
 import { fallbackHeaderIndicators } from '@/lib/market-indicators';
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
+import { normalizeWhatsAppLink } from '@/lib/social-links';
 import type { Section } from '@prisma/client';
 
 /**
@@ -53,6 +54,7 @@ export async function SiteHeader() {
     const enabled = settings[enabledKey];
     return Boolean(url) && enabled !== '0' && enabled !== 'false';
   };
+  const whatsappUrl = normalizeWhatsAppLink(settings['SOCIAL_WA'], settings['SOCIAL_WHATSAPP_MESSAGE']);
   
   return (
     <header className="hidden md:block border-b border-vp-border bg-vp-bg/95 backdrop-blur sticky top-0 z-50">
@@ -110,7 +112,7 @@ export async function SiteHeader() {
             { k: 'IG', url: settings['SOCIAL_IG'], visible: isSocialVisible('SOCIAL_IG', 'SOCIAL_IG_ENABLED') },
             { k: 'X',  url: settings['SOCIAL_X'], visible: isSocialVisible('SOCIAL_X', 'SOCIAL_X_ENABLED') },
             { k: 'YT', url: settings['SOCIAL_YT'], visible: isSocialVisible('SOCIAL_YT', 'SOCIAL_YT_ENABLED') },
-            { k: 'WA', url: settings['SOCIAL_WA'], visible: isSocialVisible('SOCIAL_WA', 'SOCIAL_WA_ENABLED') }
+            { k: 'WA', url: whatsappUrl, visible: isSocialVisible('SOCIAL_WA', 'SOCIAL_WA_ENABLED') && Boolean(whatsappUrl) }
           ].filter(s => s.visible).map(s => (
             <a key={s.k} href={s.url} target="_blank" rel="noopener noreferrer" className="w-6 h-6 border border-vp-border-2 rounded-[2px] inline-flex items-center justify-center text-[9px] font-bold text-vp-text-2 hover:border-vp-accent hover:text-vp-accent transition-all">
               {s.k}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { getSiteSettings, saveSiteSettings } from '../settings/actions';
+import { normalizeWhatsAppLink } from '@/lib/social-links';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,7 @@ export default async function AdminSocialPage({ searchParams }: { searchParams: 
   const settings = await getSiteSettings();
   const isEnabled = (key: string) => settings[key] !== '0' && settings[key] !== 'false';
   const visible = SOCIAL_FIELDS.filter((field) => Boolean(settings[field.key]) && isEnabled(field.enabledKey)).length;
+  const whatsappPreview = normalizeWhatsAppLink(settings.SOCIAL_WHATSAPP, settings.SOCIAL_WHATSAPP_MESSAGE);
 
   return (
     <div className="max-w-[960px]">
@@ -74,6 +76,28 @@ export default async function AdminSocialPage({ searchParams }: { searchParams: 
                   defaultValue={settings[field.key] ?? ''}
                   placeholder={field.placeholder}
                 />
+                {field.key === 'SOCIAL_WHATSAPP' && (
+                  <div className="grid gap-2 border-t border-vp-border/60 pt-2">
+                    <label htmlFor="SOCIAL_WHATSAPP_MESSAGE" className="text-[10px] text-vp-text-4 uppercase font-semibold tracking-wider">
+                      Mensagem inicial do wa.me
+                    </label>
+                    <input
+                      id="SOCIAL_WHATSAPP_MESSAGE"
+                      name="SOCIAL_WHATSAPP_MESSAGE"
+                      className="vp-input text-[12px]"
+                      defaultValue={settings.SOCIAL_WHATSAPP_MESSAGE ?? ''}
+                      placeholder="Olá, vim pelo site Voz Pública MS."
+                    />
+                    <p className="text-[10px] text-vp-text-4 leading-relaxed">
+                      Informe telefone com DDI, ex: +5567999999999, ou um link https://wa.me/5567999999999.
+                      {whatsappPreview ? (
+                        <>
+                          {' '}Link final: <span className="font-mono text-vp-text-2">{whatsappPreview}</span>
+                        </>
+                      ) : null}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

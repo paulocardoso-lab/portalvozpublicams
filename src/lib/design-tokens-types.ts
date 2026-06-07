@@ -96,7 +96,7 @@ export const DEFAULT_TOKENS: DesignTokens = {
   'comp.compact-logo-size': '32',
   'comp.article-max-width': '720',
   'comp.article-font-size': '18',
-  'comp.article-text-align': 'left',
+  'comp.article-text-align': 'justify',
   'comp.article-paragraph-gap': '24',
 };
 

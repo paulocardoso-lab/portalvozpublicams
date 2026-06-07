@@ -91,7 +91,8 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
               ["SOCIAL_TWITTER", "Twitter/X (URL)", "https://twitter.com/vozpublicams"],
               ["SOCIAL_FACEBOOK", "Facebook (URL)", "https://facebook.com/vozpublicams"],
               ["SOCIAL_YOUTUBE", "YouTube (URL)", "https://youtube.com/@vozpublicams"],
-              ["SOCIAL_WHATSAPP", "WhatsApp (número)", "+5567999999999"],
+              ["SOCIAL_WHATSAPP", "WhatsApp (telefone ou wa.me)", "+5567999999999 ou https://wa.me/5567999999999"],
+              ["SOCIAL_WHATSAPP_MESSAGE", "Mensagem inicial do WhatsApp", "Olá, vim pelo site Voz Pública MS."],
               ["SOCIAL_TELEGRAM", "Telegram (URL)", "https://t.me/vozpublicams"],
             ].map(([key, label, placeholder]) => (
               <label key={key} className="grid gap-1">
