@@ -128,7 +128,7 @@ Descreva a charge com:
 Seja criativo, irônico e pertinente. Responda em português.`;
 
   const message = await client.messages.create({
-    model: "claude-opus-4-8",
+    model: "claude-sonnet-4-6",
     max_tokens: 600,
     messages: [{ role: "user", content: prompt }],
   });
