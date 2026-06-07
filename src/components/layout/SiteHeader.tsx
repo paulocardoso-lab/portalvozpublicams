@@ -47,6 +47,12 @@ export async function SiteHeader() {
   } catch (error) {
     console.error('Header data fetch error:', error);
   }
+
+  const isSocialVisible = (urlKey: string, enabledKey: string) => {
+    const url = settings[urlKey];
+    const enabled = settings[enabledKey];
+    return Boolean(url) && enabled !== '0' && enabled !== 'false';
+  };
   
   return (
     <header className="hidden md:block border-b border-vp-border bg-vp-bg/95 backdrop-blur sticky top-0 z-50">
@@ -100,12 +106,12 @@ export async function SiteHeader() {
         <div className="flex gap-3 justify-end items-center font-sans text-[11px] text-vp-text-3">
           <span className="uppercase tracking-[0.08em] font-semibold">Siga</span>
           {[
-            { k: 'FB', url: settings['SOCIAL_FB'] },
-            { k: 'IG', url: settings['SOCIAL_IG'] },
-            { k: 'X',  url: settings['SOCIAL_X'] },
-            { k: 'YT', url: settings['SOCIAL_YT'] },
-            { k: 'WA', url: settings['SOCIAL_WA'] }
-          ].filter(s => s.url).map(s => (
+            { k: 'FB', url: settings['SOCIAL_FB'], visible: isSocialVisible('SOCIAL_FB', 'SOCIAL_FB_ENABLED') },
+            { k: 'IG', url: settings['SOCIAL_IG'], visible: isSocialVisible('SOCIAL_IG', 'SOCIAL_IG_ENABLED') },
+            { k: 'X',  url: settings['SOCIAL_X'], visible: isSocialVisible('SOCIAL_X', 'SOCIAL_X_ENABLED') },
+            { k: 'YT', url: settings['SOCIAL_YT'], visible: isSocialVisible('SOCIAL_YT', 'SOCIAL_YT_ENABLED') },
+            { k: 'WA', url: settings['SOCIAL_WA'], visible: isSocialVisible('SOCIAL_WA', 'SOCIAL_WA_ENABLED') }
+          ].filter(s => s.visible).map(s => (
             <a key={s.k} href={s.url} target="_blank" rel="noopener noreferrer" className="w-6 h-6 border border-vp-border-2 rounded-[2px] inline-flex items-center justify-center text-[9px] font-bold text-vp-text-2 hover:border-vp-accent hover:text-vp-accent transition-all">
               {s.k}
             </a>

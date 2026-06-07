@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 
@@ -45,10 +46,19 @@ export async function requireAdmin(
     redirect("/");
   }
 
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true, email: true, role: true, status: true },
+  });
+
+  if (!user || user.status !== "ACTIVE" || !allowedRoles.includes(user.role as AdminRole)) {
+    redirect("/login");
+  }
+
   return {
-    id: (session.user as { id?: string }).id ?? "",
-    email: session.user.email,
-    role: role as AdminRole,
+    id: user.id,
+    email: user.email,
+    role: user.role as AdminRole,
   };
 }
 

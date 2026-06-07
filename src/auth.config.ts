@@ -30,7 +30,7 @@ export default {
           where: { email: credentials.email as string },
         });
 
-        if (!user || !user.passwordHash) return null;
+        if (!user || !user.passwordHash || user.status !== "ACTIVE") return null;
 
         const valid = await bcrypt.compare(
           credentials.password as string,
@@ -59,9 +59,9 @@ export default {
         const { default: prisma } = await import("@/lib/prisma");
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },
-          select: { id: true, role: true },
+          select: { id: true, role: true, status: true },
         });
-        if (dbUser) {
+        if (dbUser?.status === "ACTIVE") {
           token.role = dbUser.role;
           token.id = dbUser.id;
         }

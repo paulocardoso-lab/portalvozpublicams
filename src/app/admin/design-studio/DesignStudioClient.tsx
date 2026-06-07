@@ -737,10 +737,14 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl }: Props) {
           >
             <iframe
               ref={previewRef}
-              src="/"
+              src="/design-studio-preview"
               title="Preview do portal"
               className="w-full h-full border-0"
               style={{ minHeight: '600px' }}
+              onLoad={() => {
+                applyToPreview(tokens);
+                applyLogoToPreview(logoUrl);
+              }}
             />
           </div>
         </div>

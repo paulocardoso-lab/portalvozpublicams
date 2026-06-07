@@ -2,7 +2,7 @@
 
 import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createUser, updateUserRole, updateUserStatus } from "./actions";
+import { createUser, deleteUser, updateUserRole, updateUserStatus } from "./actions";
 import { SafeImage } from "@/components/shared/SafeImage";
 
 type Role = "SUPER_ADMIN" | "EDITOR_CHIEF" | "SECTION_EDITOR" | "REPORTER" | "COLUMNIST" | "MODERATOR" | "FINANCE" | "READER";
@@ -42,7 +42,7 @@ type User = {
   _count: { articles: number; sessions: number };
 };
 
-function RoleSelect({ userId, currentRole }: { userId: string; currentRole: Role }) {
+function RoleSelect({ userId, currentRole, disabled = false }: { userId: string; currentRole: Role; disabled?: boolean }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticRole, setOptimisticRole] = React.useState(currentRole);
 
@@ -63,7 +63,7 @@ function RoleSelect({ userId, currentRole }: { userId: string; currentRole: Role
     <select
       value={optimisticRole}
       onChange={handleChange}
-      disabled={isPending}
+      disabled={isPending || disabled}
       title="Alterar papel do usuário"
       className={`bg-vp-surface border border-vp-border rounded px-2 py-1 text-[12px] font-semibold ${ROLE_COLORS[optimisticRole]} disabled:opacity-50 cursor-pointer`}
     >
@@ -98,6 +98,10 @@ function StatusToggle({ userId, currentStatus, isSelf }: { userId: string; curre
     return <span className="text-[11px] text-vp-text-4 italic font-serif">você</span>;
   }
 
+  if (status === "DELETED") {
+    return <span className="text-[11px] font-black uppercase tracking-widest text-vp-text-4">Excluído</span>;
+  }
+
   return (
     <button
       onClick={toggle}
@@ -105,6 +109,37 @@ function StatusToggle({ userId, currentStatus, isSelf }: { userId: string; curre
       className={`text-[11px] font-black uppercase tracking-widest disabled:opacity-50 hover:underline ${status === "ACTIVE" ? "text-vp-urgent" : "text-vp-ok"}`}
     >
       {isPending ? "..." : status === "ACTIVE" ? "Suspender" : "Reativar"}
+    </button>
+  );
+}
+
+function DeleteUserButton({ userId, userName }: { userId: string; userName: string }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleDelete() {
+    const confirmed = window.confirm(`Excluir o usuário "${userName}"? Esta ação remove o acesso e preserva o histórico editorial.`);
+    if (!confirmed) return;
+
+    startTransition(async () => {
+      const result = await deleteUser(userId);
+      if (!result.success) {
+        alert(result.error ?? "Não foi possível excluir o usuário.");
+        return;
+      }
+
+      router.refresh();
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleDelete}
+      disabled={isPending}
+      className="text-[11px] font-black uppercase tracking-widest text-vp-urgent hover:underline disabled:opacity-50"
+    >
+      {isPending ? "Excluindo..." : "Excluir"}
     </button>
   );
 }
@@ -199,7 +234,15 @@ function InviteUserModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function UsersClient({ users, currentUserId }: { users: User[]; currentUserId: string }) {
+export function UsersClient({
+  users,
+  currentUserId,
+  currentUserRole,
+}: {
+  users: User[];
+  currentUserId: string;
+  currentUserRole: Role | "";
+}) {
   const [search, setSearch] = React.useState("");
   const [isInviteOpen, setIsInviteOpen] = React.useState(false);
 
@@ -276,7 +319,7 @@ export function UsersClient({ users, currentUserId }: { users: User[]; currentUs
               </thead>
               <tbody className="divide-y divide-vp-border/30">
                 {filtered.map((u) => (
-                  <tr key={u.id} className={`hover:bg-vp-surface/30 transition-colors group ${u.status === "BANNED" ? "opacity-50" : ""}`}>
+                  <tr key={u.id} className={`hover:bg-vp-surface/30 transition-colors group ${u.status !== "ACTIVE" ? "opacity-50" : ""}`}>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 rounded-full overflow-hidden bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[14px]">
@@ -293,7 +336,7 @@ export function UsersClient({ users, currentUserId }: { users: User[]; currentUs
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <RoleSelect userId={u.id} currentRole={u.role as Role} />
+                      <RoleSelect userId={u.id} currentRole={u.role as Role} disabled={u.status === "DELETED"} />
                     </td>
                     <td className="px-6 py-5">
                       <span className="inline-flex items-center gap-1.5">
@@ -309,7 +352,12 @@ export function UsersClient({ users, currentUserId }: { users: User[]; currentUs
                       {u._count.articles}
                     </td>
                     <td className="px-6 py-5 text-right">
-                      <StatusToggle userId={u.id} currentStatus={u.status as UserStatus} isSelf={u.id === currentUserId} />
+                      <div className="flex flex-col items-end gap-2">
+                        <StatusToggle userId={u.id} currentStatus={u.status as UserStatus} isSelf={u.id === currentUserId} />
+                        {currentUserRole === "SUPER_ADMIN" && u.id !== currentUserId && u.status !== "DELETED" && (
+                          <DeleteUserButton userId={u.id} userName={u.name} />
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

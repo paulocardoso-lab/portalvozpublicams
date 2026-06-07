@@ -4,12 +4,12 @@ import { getSiteSettings, saveSiteSettings } from '../settings/actions';
 export const dynamic = 'force-dynamic';
 
 const SOCIAL_FIELDS = [
-  { key: 'SOCIAL_INSTAGRAM', label: 'Instagram', placeholder: 'https://instagram.com/vozpublicams' },
-  { key: 'SOCIAL_FACEBOOK', label: 'Facebook', placeholder: 'https://facebook.com/vozpublicams' },
-  { key: 'SOCIAL_TWITTER', label: 'X / Twitter', placeholder: 'https://x.com/vozpublicams' },
-  { key: 'SOCIAL_YOUTUBE', label: 'YouTube', placeholder: 'https://youtube.com/@vozpublicams' },
-  { key: 'SOCIAL_WHATSAPP', label: 'WhatsApp', placeholder: '+5567999999999' },
-  { key: 'SOCIAL_TELEGRAM', label: 'Telegram', placeholder: 'https://t.me/vozpublicams' },
+  { key: 'SOCIAL_INSTAGRAM', enabledKey: 'SOCIAL_INSTAGRAM_ENABLED', label: 'Instagram', placeholder: 'https://instagram.com/vozpublicams' },
+  { key: 'SOCIAL_FACEBOOK', enabledKey: 'SOCIAL_FACEBOOK_ENABLED', label: 'Facebook', placeholder: 'https://facebook.com/vozpublicams' },
+  { key: 'SOCIAL_TWITTER', enabledKey: 'SOCIAL_TWITTER_ENABLED', label: 'X / Twitter', placeholder: 'https://x.com/vozpublicams' },
+  { key: 'SOCIAL_YOUTUBE', enabledKey: 'SOCIAL_YOUTUBE_ENABLED', label: 'YouTube', placeholder: 'https://youtube.com/@vozpublicams' },
+  { key: 'SOCIAL_WHATSAPP', enabledKey: 'SOCIAL_WHATSAPP_ENABLED', label: 'WhatsApp', placeholder: '+5567999999999' },
+  { key: 'SOCIAL_TELEGRAM', enabledKey: 'SOCIAL_TELEGRAM_ENABLED', label: 'Telegram', placeholder: 'https://t.me/vozpublicams' },
 ] as const;
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
@@ -22,7 +22,8 @@ export default async function AdminSocialPage({ searchParams }: { searchParams: 
   const query = await searchParams;
   const saved = firstParam(query.saved) === '1';
   const settings = await getSiteSettings();
-  const configured = SOCIAL_FIELDS.filter((field) => Boolean(settings[field.key])).length;
+  const isEnabled = (key: string) => settings[key] !== '0' && settings[key] !== 'false';
+  const visible = SOCIAL_FIELDS.filter((field) => Boolean(settings[field.key]) && isEnabled(field.enabledKey)).length;
 
   return (
     <div className="max-w-[960px]">
@@ -30,7 +31,7 @@ export default async function AdminSocialPage({ searchParams }: { searchParams: 
         <div>
           <h1 className="text-[22px] font-semibold mb-1">Redes sociais</h1>
           <p className="text-vp-text-3 text-[13px]">
-            {configured} de {SOCIAL_FIELDS.length} canais configurados para exibição pública.
+            {visible} de {SOCIAL_FIELDS.length} canais habilitados para exibição pública.
           </p>
         </div>
         <span className="w-fit border border-vp-border bg-vp-surface px-3 py-1 text-[10px] font-black uppercase tracking-widest text-vp-text-3">
@@ -49,27 +50,44 @@ export default async function AdminSocialPage({ searchParams }: { searchParams: 
           <h2 className="text-[13px] font-semibold mb-4 uppercase tracking-wider text-vp-text-3">Canais oficiais</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {SOCIAL_FIELDS.map((field) => (
-              <label key={field.key} className="grid gap-1">
-                <span className="text-[11px] text-vp-text-3 uppercase font-semibold">{field.label}</span>
+              <div key={field.key} className="grid gap-2 rounded-sm border border-vp-border/70 bg-[#0e0e0d] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <label htmlFor={field.key} className="text-[11px] text-vp-text-3 uppercase font-semibold">
+                    {field.label}
+                  </label>
+                  <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-vp-text-3">
+                    <input type="hidden" name={field.enabledKey} value="0" />
+                    <input
+                      type="checkbox"
+                      name={field.enabledKey}
+                      value="1"
+                      defaultChecked={isEnabled(field.enabledKey)}
+                      className="h-4 w-4 accent-[var(--vp-accent)]"
+                    />
+                    Exibir
+                  </label>
+                </div>
                 <input
+                  id={field.key}
                   name={field.key}
                   className="vp-input text-[13px] font-mono"
                   defaultValue={settings[field.key] ?? ''}
                   placeholder={field.placeholder}
                 />
-              </label>
+              </div>
             ))}
           </div>
         </section>
 
         <section className="grid gap-3 sm:grid-cols-3">
           {SOCIAL_FIELDS.map((field) => {
-            const enabled = Boolean(settings[field.key]);
+            const hasUrl = Boolean(settings[field.key]);
+            const enabled = hasUrl && isEnabled(field.enabledKey);
             return (
               <div key={field.key} className="border border-vp-border bg-[#141413] p-4">
                 <div className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">{field.label}</div>
                 <div className={`mt-2 text-[12px] font-semibold ${enabled ? 'text-vp-ok' : 'text-vp-warn'}`}>
-                  {enabled ? 'Canal configurado' : 'Sem canal'}
+                  {enabled ? 'Exibindo no site' : hasUrl ? 'Oculto no site' : 'Sem canal'}
                 </div>
               </div>
             );

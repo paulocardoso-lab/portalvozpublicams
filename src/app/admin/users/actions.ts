@@ -76,6 +76,49 @@ export async function updateUserStatus(userId: string, status: UserStatus) {
   return { success: true };
 }
 
+export async function deleteUser(userId: string) {
+  const admin = await requireAdmin(["SUPER_ADMIN"]);
+  if (userId === admin.id) {
+    return { success: false, error: "Você não pode excluir a própria conta." };
+  }
+
+  const target = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true, status: true },
+  });
+
+  if (!target) {
+    return { success: false, error: "Usuário não encontrado." };
+  }
+
+  if (target.status === "DELETED") {
+    return { success: true };
+  }
+
+  if (target.role === "SUPER_ADMIN") {
+    const activeSuperAdmins = await prisma.user.count({
+      where: { role: "SUPER_ADMIN", status: "ACTIVE" },
+    });
+
+    if (activeSuperAdmins <= 1) {
+      return { success: false, error: "Não é possível excluir o último Super Admin ativo." };
+    }
+  }
+
+  await prisma.$transaction([
+    prisma.session.deleteMany({ where: { userId } }),
+    prisma.account.deleteMany({ where: { userId } }),
+    prisma.user.update({
+      where: { id: userId },
+      data: { status: "DELETED" },
+    }),
+  ]);
+
+  await logAudit("USER_DELETED", `user:${userId}`, "OK");
+  revalidatePath("/admin/users");
+  return { success: true };
+}
+
 export async function createUser(formData: FormData) {
   await requireSuperAdmin();
 
