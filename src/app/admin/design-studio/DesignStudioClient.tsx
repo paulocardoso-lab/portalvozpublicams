@@ -199,6 +199,10 @@ const EDITORIAL_TEXT_FIELDS: { key: string; label: string; multiline?: boolean; 
   { key: 'home.donation_cta',         label: 'CTA do bloco de doação',                            placeholder: 'Apoie o Voz Pública →',                                                         group: 'Home' },
   { key: 'home.newsletter_title',     label: 'Título da newsletter na home',                      placeholder: 'Newsletter · A Semana em MS',                                                   group: 'Home' },
   { key: 'home.newsletter_desc',      label: 'Descrição da newsletter',         multiline: true,  placeholder: 'Sábado de manhã, de graça. O que importou em Mato Grosso do Sul.',              group: 'Home' },
+  // Podcast
+  { key: 'podcast.eyebrow',           label: 'Eyebrow da página',                                 placeholder: 'Podcast · Voz Pública MS',                                                      group: 'Podcast' },
+  { key: 'podcast.title',             label: 'Nome do programa',                                  placeholder: 'Voz Alta',                                                                      group: 'Podcast' },
+  { key: 'podcast.description',       label: 'Descrição do programa',           multiline: true,  placeholder: 'Jornalismo em áudio. Entrevistas, investigações e bastidores da redação.',       group: 'Podcast' },
   // Rodapé
   { key: 'footer.description',        label: 'Descrição do portal (rodapé)',    multiline: true,  placeholder: 'Jornalismo investigativo, plural e sem donos.',                                  group: 'Rodapé' },
   { key: 'footer.copyright',          label: 'Texto de copyright',                                placeholder: '© 2026 Voz Pública MS · Campo Grande, MS · CNPJ 00.000.000/0001-00',            group: 'Rodapé' },
