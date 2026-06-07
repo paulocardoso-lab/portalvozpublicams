@@ -84,6 +84,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     notFound();
   }
 
+  // Artigos relacionados da mesma seção (excluindo o atual)
+  const related = await prisma.article.findMany({
+    where: {
+      status: 'PUBLISHED',
+      sectionId: article.sectionId,
+      slug: { not: article.slug },
+    },
+    select: { id: true, title: true, slug: true, publishedAt: true, readTimeMin: true },
+    orderBy: { publishedAt: 'desc' },
+    take: 3,
+  });
+
   // Incremento de views agora é feito via client-side para não bloquear o LCP
 
   const jsonLd = {
@@ -127,7 +139,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         <MobileArticle article={serializedArticle} />
       </div>
       <div className="hidden md:block" suppressHydrationWarning>
-        <DesktopArticle article={serializedArticle} />
+        <DesktopArticle article={serializedArticle} related={related} />
       </div>
       <div className="max-w-[1200px] mx-auto px-4 pb-20">
         <CommentSection 

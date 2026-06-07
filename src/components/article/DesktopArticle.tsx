@@ -18,7 +18,15 @@ type ArticleWithRelations = Article & {
   section: Section;
 };
 
-export async function DesktopArticle({ article }: { article: ArticleWithRelations }) {
+type RelatedArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  publishedAt: Date | string | null;
+  readTimeMin: number | null;
+};
+
+export async function DesktopArticle({ article, related = [] }: { article: ArticleWithRelations; related?: RelatedArticle[] }) {
   if (!article) return null;
 
   const s = await getSiteSettings();
@@ -106,47 +114,29 @@ export async function DesktopArticle({ article }: { article: ArticleWithRelation
             insertAfterParagraph={4}
           />
 
-          {/* Chapter Navigation */}
-          <div className="mt-8 border border-vp-border bg-vp-surface">
-            <div className="p-4 border-b border-vp-border bg-vp-surface-2 font-display text-[16px] font-bold">
-              Nesta reportagem
-            </div>
-            {['01 · O leito que engoliu o rio', '02 · Os donos da margem', '03 · O plano que nunca saiu do papel', '04 · Ciência: o que está em jogo', '05 · O que pode ser feito'].map((c, i) => (
-              <div key={i} className={`p-4 border-b border-vp-border flex justify-between font-sans text-[14px] cursor-pointer group ${i === 4 ? 'border-b-0' : ''}`}>
-                <span className="text-vp-text-2 group-hover:text-vp-accent transition-colors">{c}</span>
-                <span className="font-mono text-[11px] text-vp-text-3 uppercase tracking-wider">{['4 min', '6 min', '3 min', '5 min', '4 min'][i]}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Methodology */}
-          <div className="mt-8 p-5 border border-vp-border bg-vp-accent/5 rounded-sm">
-            <h4 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold text-vp-accent mb-2">Metodologia</h4>
-            <p className="font-serif text-[14px] leading-[1.6] text-vp-text-2">
-              Esta reportagem analisou 3.214 autos de infração, dados hidrológicos da ANA e imagens de satélite Sentinel-2. Consultamos 22 fontes especializadas para este especial.
-            </p>
-          </div>
         </div>
 
         {/* Right Sidebar */}
         <aside className="flex flex-col gap-6 self-start">
           <AdSlot id="sidebar-top" className="w-full" />
           
-          <div>
-            <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold text-vp-text mb-4">Leia também</h3>
-            <div className="flex flex-col gap-4">
-              {[
-                'Os donos das terras que mais desmatam no Pantanal',
-                'O mapa do fogo: MS em tempo real',
-                'Pesquisadores deixam Embrapa Pantanal por cortes'
-              ].map((h, i) => (
-                <div key={i} className={`pb-4 ${i < 2 ? 'border-b border-vp-border' : ''}`}>
-                  <Headline size="small" className="leading-snug mb-1.5">{h}</Headline>
-                  <div className="byline text-[10px]">há {i + 2} dias</div>
-                </div>
-              ))}
+          {related.length > 0 && (
+            <div>
+              <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold text-vp-text mb-4">Leia também</h3>
+              <div className="flex flex-col gap-4">
+                {related.map((art, i) => (
+                  <div key={art.id} className={`pb-4 ${i < related.length - 1 ? 'border-b border-vp-border' : ''}`}>
+                    <Headline size="small" href={`/materia/${art.slug}`} className="leading-snug mb-1.5">
+                      {art.title}
+                    </Headline>
+                    {art.readTimeMin && (
+                      <div className="byline text-[10px]">{art.readTimeMin} min de leitura</div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="bg-vp-surface p-5 border border-vp-border">
             <div className="font-sans text-[10px] uppercase tracking-widest text-vp-accent font-bold mb-2">
