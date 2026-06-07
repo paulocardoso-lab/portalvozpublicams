@@ -1,5 +1,6 @@
 import React from "react";
-import { getPublicVoices, VOICE_TAGS } from "@/app/actions/voices";
+import { getPublicVoices } from "@/app/actions/voices";
+import { VOICE_TAGS } from "@/lib/voice-tags";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MobileMasthead } from "@/components/layout/MobileMasthead";

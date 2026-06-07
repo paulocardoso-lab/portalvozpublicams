@@ -8,8 +8,8 @@ import {
   deleteVoice,
   generateVoicesFromPrompt,
   toggleVoiceActive,
-  VOICE_TAGS,
 } from "@/app/actions/voices";
+import { VOICE_TAGS } from "@/lib/voice-tags";
 
 const MAX_CHARS = 240;
 

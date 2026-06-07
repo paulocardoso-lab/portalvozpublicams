@@ -4,21 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-guard";
 import Anthropic from "@anthropic-ai/sdk";
-
-export const VOICE_TAGS = [
-  "Bastidores",
-  "Poder",
-  "Economia",
-  "Justica",
-  "Agro",
-  "Politica",
-  "Saude",
-  "Educacao",
-  "Seguranca",
-  "Meio Ambiente",
-] as const;
-
-export type VoiceTag = (typeof VOICE_TAGS)[number];
+import { VOICE_TAGS } from "@/lib/voice-tags";
 
 // ── Queries ──────────────────────────────────────────────────────────────────
 
