@@ -58,7 +58,7 @@ interface DesktopHomeProps {
 }
 
 /**
- * DesktopHome — Vista de desktop do portal.
+ * DesktopHome -- Vista de desktop do portal.
  * Implementa grid editorial 320px-sidebar e alta densidade de informação.
  */
 export function DesktopHome({
@@ -169,7 +169,7 @@ export function DesktopHome({
                 <h2 className="font-display text-[24px] font-bold text-vp-text">Especial · {featuredSeries.name}</h2>
                 <div className="h-[1px] bg-vp-border flex-1" />
                 <Link href={`/especial/${featuredSeries.id}`} className="font-sans text-[11px] text-vp-accent font-bold uppercase tracking-widest no-underline hover:underline">
-                  Ver tudo →
+                  Ver tudo &#8594;
                 </Link>
               </div>
 
@@ -246,36 +246,36 @@ export function DesktopHome({
           </section>
 
           {/* Opinion & Columnists */}
-          <section className=”py-8 border-b border-vp-border”>
-            <div className=”flex items-baseline gap-4 mb-5”>
-              <h2 className=”font-display text-[24px] font-bold text-vp-text”>Opinião &amp; Colunistas</h2>
-              <div className=”h-[1px] bg-vp-border flex-1” />
-              <Link href=”/colunistas” className=”font-sans text-[11px] font-bold uppercase tracking-widest text-vp-text-3 hover:text-vp-accent transition-colors whitespace-nowrap”>
+          <section className="py-8 border-b border-vp-border">
+            <div className="flex items-baseline gap-4 mb-5">
+              <h2 className="font-display text-[24px] font-bold text-vp-text">Opinião &amp; Colunistas</h2>
+              <div className="h-[1px] bg-vp-border flex-1" />
+              <Link href="/colunistas" className="font-sans text-[11px] font-bold uppercase tracking-widest text-vp-text-3 hover:text-vp-accent transition-colors whitespace-nowrap">
                 Ver todos &#8594;
               </Link>
             </div>
-            <div className=”grid grid-cols-4 gap-5”>
+            <div className="grid grid-cols-4 gap-5">
               {columnists.slice(0, 4).map((col) => {
                 const photo = col.avatar || col.image;
                 return (
-                  <article key={col.id} className=”grid grid-cols-[52px_1fr] gap-3”>
+                  <article key={col.id} className="grid grid-cols-[52px_1fr] gap-3">
                     <Link href={col.slug ? `/colunista/${col.slug}` : '#'}>
-                      <div className=”w-[52px] h-[52px] rounded-full overflow-hidden bg-vp-surface relative”>
+                      <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-vp-surface relative">
                         {photo ? (
-                          <SafeImage src={photo} alt={col.name} fill className=”object-cover” />
+                          <SafeImage src={photo} alt={col.name} fill className="object-cover" />
                         ) : (
-                          <ImgPH label=”” width={52} height={52} className=”rounded-full” />
+                          <ImgPH label="" width={52} height={52} className="rounded-full" />
                         )}
                       </div>
                     </Link>
                     <div>
-                      <div className=”font-sans text-[10px] text-vp-accent uppercase tracking-widest font-bold mb-1”>
+                      <div className="font-sans text-[10px] text-vp-accent uppercase tracking-widest font-bold mb-1">
                         {col.columnTitle || 'OPINIÃO'}
                       </div>
-                      <Headline size=”small” href={`/materia/${col.articles?.[0]?.slug}`} className=”italic mb-1”>
+                      <Headline size="small" href={`/materia/${col.articles?.[0]?.slug}`} className="italic mb-1">
                         &ldquo;{col.articles?.[0]?.title}&rdquo;
                       </Headline>
-                      <Link href={col.slug ? `/colunista/${col.slug}` : '#'} className=”font-sans text-[11px] text-vp-text-2 font-bold hover:text-vp-accent transition-colors”>
+                      <Link href={col.slug ? `/colunista/${col.slug}` : '#'} className="font-sans text-[11px] text-vp-text-2 font-bold hover:text-vp-accent transition-colors">
                         {col.name}
                       </Link>
                     </div>
@@ -325,7 +325,7 @@ export function DesktopHome({
                     {activePodcast.description}
                   </p>
                   <div className="flex items-center gap-3 p-3 bg-vp-surface border border-vp-border rounded-sm">
-                    <button className="w-[38px] h-[38px] rounded-full bg-vp-accent flex items-center justify-center text-vp-bg font-bold">▶</button>
+                    <button className="w-[38px] h-[38px] rounded-full bg-vp-accent flex items-center justify-center text-vp-bg font-bold">&#9654;</button>
                     <div className="flex-1">
                       <div className="h-[3px] bg-vp-border-2 rounded-full relative">
                         <div className="absolute left-0 top-0 bottom-0 w-[32%] bg-vp-accent rounded-full" />
@@ -354,7 +354,7 @@ export function DesktopHome({
             </p>
             <Link href="/apoiar">
               <button className="vp-btn vp-btn-primary w-full py-3 font-bold uppercase tracking-widest text-[12px]">
-                {s['home.donation_cta'] || 'Apoie o Voz Pública →'}
+                {s['home.donation_cta'] || 'Apoie o Voz Pública &#8594;'}
               </button>
             </Link>
           </div>
