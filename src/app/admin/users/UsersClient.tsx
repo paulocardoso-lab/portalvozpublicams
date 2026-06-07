@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createUser, deleteUser, updateUserRole, updateUserStatus } from "./actions";
+import { createUser, deleteUser, updateUserAvatar, updateUserRole, updateUserStatus } from "./actions";
 import { SafeImage } from "@/components/shared/SafeImage";
 
 type Role = "SUPER_ADMIN" | "EDITOR_CHIEF" | "SECTION_EDITOR" | "REPORTER" | "COLUMNIST" | "MODERATOR" | "FINANCE" | "READER";
@@ -110,6 +110,129 @@ function StatusToggle({ userId, currentStatus, isSelf }: { userId: string; curre
     >
       {isPending ? "..." : status === "ACTIVE" ? "Suspender" : "Reativar"}
     </button>
+  );
+}
+
+function AvatarUploader({ userId, name, currentAvatar, canEdit }: {
+  userId: string;
+  name: string;
+  currentAvatar: string | null;
+  canEdit: boolean;
+}) {
+  const [isPending, startTransition] = useTransition();
+  const [avatar, setAvatar] = React.useState(currentAvatar);
+  const [error, setError] = React.useState<string | null>(null);
+  const [preview, setPreview] = React.useState<string | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPreview(URL.createObjectURL(file));
+    setError(null);
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const file = fileRef.current?.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("avatar", file);
+    setError(null);
+    startTransition(async () => {
+      const result = await updateUserAvatar(userId, fd);
+      if (!result.success) {
+        setError(result.error ?? "Erro ao salvar.");
+        return;
+      }
+      if (result.avatarUrl) setAvatar(result.avatarUrl);
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(null);
+      setOpen(false);
+    });
+  }
+
+  function handleClose() {
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(null);
+    setError(null);
+    setOpen(false);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  const displaySrc = preview ?? avatar ?? null;
+
+  return (
+    <>
+      <div
+        className={`relative w-10 h-10 rounded-full overflow-hidden bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[14px] ${canEdit ? "cursor-pointer group/av" : ""}`}
+        onClick={() => canEdit && setOpen(true)}
+        title={canEdit ? "Alterar foto" : undefined}
+      >
+        {displaySrc ? (
+          <SafeImage src={displaySrc} alt="" fill sizes="40px" className="object-cover" />
+        ) : (
+          name.charAt(0)
+        )}
+        {canEdit && (
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/av:opacity-100 transition-opacity flex items-center justify-center">
+            <span className="text-white text-[9px] font-black uppercase tracking-widest leading-tight text-center">editar</span>
+          </div>
+        )}
+      </div>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" onClick={handleClose}>
+          <div className="w-full max-w-[400px] border border-vp-border bg-[#141413] p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <h2 className="font-display text-[18px] font-bold">Foto de {name}</h2>
+                <p className="text-[11px] text-vp-text-3 mt-1">Aparecerá ao lado do nome nas matérias.</p>
+              </div>
+              <button type="button" onClick={handleClose} className="text-vp-text-3 hover:text-vp-text" title="Fechar">✕</button>
+            </div>
+
+            <div className="flex justify-center mb-5">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[32px]">
+                {displaySrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={displaySrc} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  name.charAt(0)
+                )}
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              <label className="grid gap-1.5">
+                <span className="eyebrow text-[10px]">Selecionar imagem</span>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="vp-input text-[12px] pt-1.5 cursor-pointer"
+                  onChange={handleFileChange}
+                  required
+                />
+                <span className="text-[10px] text-vp-text-4">JPG, PNG ou WebP · máx. 5 MB · será convertida para WebP</span>
+              </label>
+
+              {error && (
+                <div className="border border-vp-urgent/40 bg-vp-urgent/10 text-vp-urgent px-3 py-2 text-[12px]">{error}</div>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={handleClose} className="vp-btn flex-1 py-2.5">Cancelar</button>
+                <button type="submit" disabled={isPending} className="vp-btn vp-btn-primary flex-1 py-2.5">
+                  {isPending ? "Salvando..." : "Salvar foto"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -322,13 +445,12 @@ export function UsersClient({
                   <tr key={u.id} className={`hover:bg-vp-surface/30 transition-colors group ${u.status !== "ACTIVE" ? "opacity-50" : ""}`}>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[14px]">
-                          {u.image || u.avatar ? (
-                            <SafeImage src={u.image || u.avatar || ""} alt="" fill sizes="40px" className="object-cover" />
-                          ) : (
-                            u.name.charAt(0)
-                          )}
-                        </div>
+                        <AvatarUploader
+                          userId={u.id}
+                          name={u.name}
+                          currentAvatar={u.avatar || u.image}
+                          canEdit={currentUserRole === "SUPER_ADMIN" || u.id === currentUserId}
+                        />
                         <div>
                           <h4 className="text-[14px] font-bold text-vp-text">{u.name}</h4>
                           <span className="text-[11px] text-vp-text-4 font-mono">{u.email}</span>

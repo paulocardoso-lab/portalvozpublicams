@@ -164,6 +164,30 @@ export async function createUser(formData: FormData) {
   }
 }
 
+export async function updateUserAvatar(userId: string, formData: FormData) {
+  const admin = await requireAdmin(["SUPER_ADMIN", "EDITOR_CHIEF"]);
+  if (userId !== admin.id) {
+    await requireSuperAdmin();
+  }
+
+  const file = formData.get("avatar");
+  if (!(file instanceof File) || file.size === 0) {
+    return { success: false, error: "Selecione um arquivo de imagem." };
+  }
+
+  const { uploadImage } = await import("@/lib/storage");
+  const avatarUrl = await uploadImage(file, "profiles");
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { avatar: avatarUrl },
+  });
+
+  await logAudit("USER_AVATAR_UPDATED", `user:${userId}`, "OK");
+  revalidatePath("/admin/users");
+  return { success: true, avatarUrl };
+}
+
 export async function getUsers(search?: string) {
   await requireAdmin();
 
