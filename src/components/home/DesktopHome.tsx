@@ -251,7 +251,7 @@ export function DesktopHome({
               <h2 className=”font-display text-[24px] font-bold text-vp-text”>Opinião &amp; Colunistas</h2>
               <div className=”h-[1px] bg-vp-border flex-1” />
               <Link href=”/colunistas” className=”font-sans text-[11px] font-bold uppercase tracking-widest text-vp-text-3 hover:text-vp-accent transition-colors whitespace-nowrap”>
-                Ver todos →
+                Ver todos &#8594;
               </Link>
             </div>
             <div className=”grid grid-cols-4 gap-5”>
