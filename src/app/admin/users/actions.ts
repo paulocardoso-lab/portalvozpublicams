@@ -187,6 +187,22 @@ export async function updateColumnistInfo(userId: string, formData: FormData) {
   return { success: true };
 }
 
+export async function removeUserAvatar(userId: string) {
+  const admin = await requireAdmin(["SUPER_ADMIN", "EDITOR_CHIEF"]);
+  if (userId !== admin.id) {
+    await requireSuperAdmin();
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { avatar: null, image: null },
+  });
+
+  await logAudit("USER_AVATAR_REMOVED", `user:${userId}`, "OK");
+  revalidatePath("/admin/users");
+  return { success: true };
+}
+
 export async function updateUserAvatar(userId: string, formData: FormData) {
   const admin = await requireAdmin(["SUPER_ADMIN", "EDITOR_CHIEF"]);
   if (userId !== admin.id) {

@@ -2,7 +2,7 @@
 
 import React, { useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createUser, deleteUser, updateColumnistInfo, updateUserAvatar, updateUserRole, updateUserStatus } from "./actions";
+import { createUser, deleteUser, removeUserAvatar, updateColumnistInfo, updateUserAvatar, updateUserRole, updateUserStatus } from "./actions";
 import { SafeImage } from "@/components/shared/SafeImage";
 
 type Role = "SUPER_ADMIN" | "EDITOR_CHIEF" | "SECTION_EDITOR" | "REPORTER" | "COLUMNIST" | "MODERATOR" | "FINANCE" | "READER";
@@ -197,7 +197,7 @@ function AvatarUploader({ userId, name, currentAvatar, canEdit }: {
               <button type="button" onClick={handleClose} className="text-vp-text-3 hover:text-vp-text" title="Fechar">✕</button>
             </div>
 
-            <div className="flex justify-center mb-5">
+            <div className="flex flex-col items-center gap-2 mb-5">
               <div className="w-24 h-24 rounded-full overflow-hidden bg-vp-surface border border-vp-border flex items-center justify-center font-black text-vp-accent text-[32px]">
                 {displaySrc ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -206,6 +206,21 @@ function AvatarUploader({ userId, name, currentAvatar, canEdit }: {
                   name.charAt(0)
                 )}
               </div>
+              {avatar && !preview && (
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => {
+                    startTransition(async () => {
+                      const result = await removeUserAvatar(userId);
+                      if (result.success) { setAvatar(null); setOpen(false); }
+                    });
+                  }}
+                  className="text-[11px] font-bold text-vp-urgent hover:underline disabled:opacity-50 uppercase tracking-widest"
+                >
+                  {isPending ? "Removendo..." : "Remover foto"}
+                </button>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="grid gap-4">
