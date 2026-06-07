@@ -14,24 +14,38 @@ interface HeaderTickerProps {
   };
 }
 
+function TickerItem({ item }: { item: HeaderIndicator }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 px-5">
+      <span className="text-vp-text-4">{item.label}</span>
+      <span className="text-vp-text-3">{item.value}</span>
+      <span className="text-vp-text-4 opacity-40">|</span>
+    </span>
+  );
+}
+
 export function HeaderTicker({ initialData }: HeaderTickerProps) {
   const { data } = useSWR('/api/external', fetcher, {
     fallbackData: initialData,
-    refreshInterval: 600000, // Atualiza a cada 10 minutos
+    refreshInterval: 600000,
   });
 
-  const indicators: HeaderIndicator[] = data?.indicators || initialData.indicators;
+  const indicators: HeaderIndicator[] = data?.indicators?.length
+    ? data.indicators
+    : initialData.indicators;
+
+  if (!indicators.length) return null;
+
+  // Duplicar para loop contínuo sem salto visual
+  const items = [...indicators, ...indicators];
 
   return (
-    <div className="flex gap-[12px] items-center">
-      <span className="font-mono text-vp-text-3 tracking-tighter uppercase">
-        {indicators.map((item, index) => (
-          <React.Fragment key={item.key}>
-            {index > 0 && <span className="mx-2 text-vp-text-4">|</span>}
-            <span className="text-vp-text-4">{item.label}</span> {item.value}
-          </React.Fragment>
+    <div className="vp-ticker-wrap max-w-[340px] xl:max-w-[480px]">
+      <div className="vp-ticker-track font-mono text-[11px] tracking-tighter uppercase">
+        {items.map((item, i) => (
+          <TickerItem key={`${item.key}-${i}`} item={item} />
         ))}
-      </span>
+      </div>
     </div>
   );
 }

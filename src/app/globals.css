@@ -221,6 +221,23 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
+@keyframes vp-ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.vp-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: vp-ticker 30s linear infinite;
+}
+.vp-ticker-track:hover {
+  animation-play-state: paused;
+}
+.vp-ticker-wrap {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+}
 
 /* Ad label */
 .vp-ad {
