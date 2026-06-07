@@ -1,6 +1,7 @@
 import Image from 'next/image';
 
 const SIZE_MAP = { sm: 32, md: 48, lg: 64, xl: 96 } as const;
+const LOGO_ASPECT_RATIO = 1536 / 1024;
 
 interface MonogramProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | number;
@@ -16,7 +17,7 @@ export function Monogram({ size = 'md', className = '', src = '/logo.webp' }: Mo
       src={src}
       alt="Voz Pública MS"
       height={height}
-      width={height * 6}
+      width={Math.round(height * LOGO_ASPECT_RATIO)}
       className={className}
       style={{ height: `${height}px`, maxWidth: '100%', width: 'auto', objectFit: 'contain' }}
       priority
