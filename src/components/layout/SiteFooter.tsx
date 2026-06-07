@@ -33,7 +33,7 @@ export async function SiteFooter() {
         <div>
           <Monogram size="md" cssHeight="var(--vp-footer-logo-size)" className="mb-3" src={settings['BRAND_LOGO_URL'] || '/logo.webp'} />
           <p className="leading-[1.6] text-vp-text-2 font-serif text-[14px] mt-3">
-            {settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
+            {settings['footer.description'] || settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
           </p>
           <div className="mt-3.5 flex flex-col sm:flex-row gap-2">
             <Link href="/apoiar" className="no-underline flex-1 sm:flex-none">
@@ -69,15 +69,17 @@ export async function SiteFooter() {
         
         <div>
           <h4 className="text-[11px] font-bold uppercase tracking-[0.1em] text-vp-text mb-2.5">Envie sua denúncia</h4>
-          <p className="leading-[1.5] mb-2.5">Canal criptografado para whistleblowers. Protegemos suas fontes.</p>
+          <p className="leading-[1.5] mb-2.5">
+            {settings['footer.denounce_desc'] || 'Canal criptografado para whistleblowers. Protegemos suas fontes.'}
+          </p>
           <a className="text-vp-accent font-bold hover:text-vp-accent-hover transition-colors cursor-pointer">
-            {settings['CONTACT_EMAIL'] || 'denuncia@vozpublicams.com.br'} →
+            {settings['footer.denounce_email'] || settings['CONTACT_EMAIL'] || 'denuncia@vozpublicams.com.br'} →
           </a>
         </div>
       </div>
-      
+
       <div className="border-t border-vp-border flex flex-col sm:flex-row justify-between gap-1 text-[10px] sm:text-[11px] pt-4">
-        <span>© 2026 Voz Pública MS · Campo Grande, MS · CNPJ 00.000.000/0001-00</span>
+        <span>{settings['footer.copyright'] || '© 2026 Voz Pública MS · Campo Grande, MS · CNPJ 00.000.000/0001-00'}</span>
         <span className="font-mono text-vp-text-4 uppercase">vozpublicams.com.br</span>
       </div>
     </footer>

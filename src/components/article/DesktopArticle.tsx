@@ -11,18 +11,17 @@ import { AdSlot } from '@/components/shared/AdSlot';
 import { ArticleBodyWithAd } from '@/components/shared/ArticleBodyWithAd';
 import { renderArticleBody } from '@/lib/article-renderer';
 import { ShareBar } from '@/components/article/ShareBar';
+import { getSiteSettings } from '@/app/actions/settings';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
   section: Section;
 };
 
-/**
- * DesktopArticle — Vista de leitura de matéria para desktop.
- * Layout clássico de 3 colunas com share lateral fixo e tipografia editorial densa.
- */
-export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
+export async function DesktopArticle({ article }: { article: ArticleWithRelations }) {
   if (!article) return null;
+
+  const s = await getSiteSettings();
 
   return (
     <div className="flex flex-col min-h-screen bg-vp-bg w-full">
@@ -51,7 +50,8 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
             orientation="vertical"
           />
           <div className="mt-4 p-3 border border-vp-border bg-vp-surface/50 text-[11px] font-sans text-vp-text-3 leading-[1.5]">
-            Esta reportagem é aberta e sem paywall. Se considera importante, <Link href="/apoiar" className="text-vp-accent font-bold hover:underline">contribua</Link>.
+            {s['article.open_text'] || 'Esta reportagem é aberta e sem paywall. Se considera importante,'}{' '}
+            <Link href="/apoiar" className="text-vp-accent font-bold hover:underline">contribua</Link>.
           </div>
         </aside>
 
@@ -149,13 +149,15 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
           </div>
 
           <div className="bg-vp-surface p-5 border border-vp-border">
-            <div className="font-sans text-[10px] uppercase tracking-widest text-vp-accent font-bold mb-2">Apoie esta reportagem</div>
+            <div className="font-sans text-[10px] uppercase tracking-widest text-vp-accent font-bold mb-2">
+              {s['article.support_title'] || 'Apoie esta reportagem'}
+            </div>
             <p className="font-serif text-[12px] text-vp-text-2 leading-[1.5] mb-4">
-              8 meses de apuração foram pagos por leitores. Seja um dos 4.812 apoiadores.
+              {s['article.support_body'] || '8 meses de apuração foram pagos por leitores. Seja um dos 4.812 apoiadores.'}
             </p>
-            <button className="vp-btn vp-btn-primary w-full py-2.5 font-bold uppercase tracking-widest text-[11px]">
-              Contribuir
-            </button>
+            <Link href="/apoiar" className="vp-btn vp-btn-primary w-full py-2.5 font-bold uppercase tracking-widest text-[11px] text-center block">
+              {s['article.support_cta'] || 'Contribuir'}
+            </Link>
           </div>
         </aside>
       </article>

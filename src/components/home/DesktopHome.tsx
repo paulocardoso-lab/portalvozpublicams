@@ -52,14 +52,15 @@ interface DesktopHomeProps {
   activeAlert?: Alert | null;
   featuredSeries?: SeriesWithArticles | null;
   activePodcast?: PodcastEpisode | null;
+  siteSettings?: Record<string, string>;
 }
 
 /**
  * DesktopHome — Vista de desktop do portal.
  * Implementa grid editorial 320px-sidebar e alta densidade de informação.
  */
-export function DesktopHome({ 
-  articles = [], 
+export function DesktopHome({
+  articles = [],
   newsletterCount = 4812,
   agendaEvents = [],
   columnists = [],
@@ -69,8 +70,10 @@ export function DesktopHome({
   activePodcast,
   politica = [],
   economia = [],
-  cidades = []
+  cidades = [],
+  siteSettings = {},
 }: DesktopHomeProps) {
+  const s = siteSettings;
   const hero = articles[0];
   const secondary = articles.slice(1, 4);
 
@@ -330,16 +333,16 @@ export function DesktopHome({
         <aside className="flex flex-col gap-6">
           {/* Donation banner */}
           <div className="bg-vp-surface border border-vp-border p-5">
-            <Eyebrow className="mb-2">Sem donos. Sem paywall.</Eyebrow>
+            <Eyebrow className="mb-2">{s['home.donation_eyebrow'] || 'Sem donos. Sem paywall.'}</Eyebrow>
             <h3 className="font-display text-[22px] font-bold text-vp-text mb-2.5 leading-[1.15]">
-              Jornalismo de MS que você pode confiar.
+              {s['home.donation_headline'] || 'Jornalismo de MS que você pode confiar.'}
             </h3>
             <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5] mb-4">
-              Somos sustentados por leitores. {newsletterCount.toLocaleString('pt-BR')} apoiadores até hoje.
+              {s['home.donation_body'] || `Somos sustentados por leitores. ${newsletterCount.toLocaleString('pt-BR')} apoiadores até hoje.`}
             </p>
             <Link href="/apoiar">
               <button className="vp-btn vp-btn-primary w-full py-3 font-bold uppercase tracking-widest text-[12px]">
-                Apoie o Voz Pública →
+                {s['home.donation_cta'] || 'Apoie o Voz Pública →'}
               </button>
             </Link>
           </div>
@@ -375,10 +378,10 @@ export function DesktopHome({
           {/* Newsletter sidebar */}
           <div className="bg-vp-surface p-5 border border-vp-border">
             <h3 className="font-display text-[19px] font-bold text-vp-text mb-2">
-              Newsletter · A Semana em MS
+              {s['home.newsletter_title'] || 'Newsletter · A Semana em MS'}
             </h3>
             <p className="font-serif text-[12px] text-vp-text-2 leading-[1.5] mb-3">
-              Sábado de manhã, de graça. O que importou em Mato Grosso do Sul.
+              {s['home.newsletter_desc'] || 'Sábado de manhã, de graça. O que importou em Mato Grosso do Sul.'}
             </p>
             <NewsletterForm layout="vertical" />
           </div>

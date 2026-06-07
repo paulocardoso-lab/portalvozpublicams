@@ -4,6 +4,7 @@ import { DesktopHome } from './DesktopHome';
 import { MobileHome } from './MobileHome';
 import type { AgendaEvent, Alert, PodcastEpisode } from '@prisma/client';
 import type { ArticleWithRelations, ArticleWithSection, SeriesWithArticles } from './DesktopHome';
+import { getSiteSettings } from '@/app/actions/settings';
 
 const publicAuthorSelect = {
   id: true,
@@ -32,6 +33,7 @@ export async function Home() {
   let cidades: ArticleWithRelations[] = [];
   let mostRead: ArticleWithSection[] = [];
   let newsletterCount = 0;
+  let siteSettings: Record<string, string> = {};
 
   try {
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
@@ -128,6 +130,7 @@ export async function Home() {
     cidades = fetchedCidades || [];
     mostRead = fetchedMostRead || [];
     newsletterCount = fetchedNewsletterCount || 0;
+    siteSettings = await getSiteSettings().catch(() => ({}));
   } catch (error) {
     console.error('Home data fetch error:', error);
   }
@@ -135,7 +138,7 @@ export async function Home() {
   return (
     <main className="w-full">
       <div className="hidden lg:block">
-        <DesktopHome 
+        <DesktopHome
           articles={articles}
           columnists={columnists}
           activeAlert={activeAlert}
@@ -147,6 +150,7 @@ export async function Home() {
           cidades={cidades}
           mostRead={mostRead}
           newsletterCount={newsletterCount}
+          siteSettings={siteSettings}
         />
       </div>
 

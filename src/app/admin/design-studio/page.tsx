@@ -17,7 +17,11 @@ export default async function DesignStudioPage() {
           Edite cores, tipografia e layout do portal em tempo real. As alterações são aplicadas imediatamente sem necessidade de deploy.
         </p>
       </div>
-      <DesignStudioClient initialTokens={tokens} initialLogoUrl={settings['BRAND_LOGO_URL'] || '/logo.webp'} />
+      <DesignStudioClient
+        initialTokens={tokens}
+        initialLogoUrl={settings['BRAND_LOGO_URL'] || '/logo.webp'}
+        initialSettings={settings}
+      />
     </div>
   );
 }

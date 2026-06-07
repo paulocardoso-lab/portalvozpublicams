@@ -15,14 +15,16 @@ import {
   type ScheduledTheme,
 } from '@/app/actions/design-tokens';
 import { uploadBrand } from '@/app/actions/brand';
+import { saveBatchSettings } from '@/app/actions/settings';
 import { DEFAULT_TOKENS } from '@/lib/design-tokens-types';
 
-type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'marca' | 'historico' | 'agendar';
+type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'marca' | 'textos' | 'historico' | 'agendar';
 type Viewport = 'mobile' | 'tablet' | 'desktop';
 
 interface Props {
   initialTokens: DesignTokens;
   initialLogoUrl: string;
+  initialSettings: Record<string, string>;
 }
 
 const VIEWPORT_WIDTHS: Record<Viewport, string> = {
@@ -183,7 +185,28 @@ function buildCssMap(t: DesignTokens): Record<string, string> {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function DesignStudioClient({ initialTokens, initialLogoUrl }: Props) {
+// Keys dos textos editoriais gerenciados nesta aba
+const EDITORIAL_TEXT_FIELDS: { key: string; label: string; multiline?: boolean; placeholder: string; group: string }[] = [
+  // Matéria
+  { key: 'article.open_text',         label: 'Texto "matéria aberta"',          multiline: true,  placeholder: 'Esta reportagem é aberta e sem paywall. Se considera importante, contribua.', group: 'Página de Matéria' },
+  { key: 'article.support_title',     label: 'Título "Apoie esta reportagem"',                    placeholder: 'Apoie esta reportagem',                                                         group: 'Página de Matéria' },
+  { key: 'article.support_body',      label: 'Texto do box de apoio',           multiline: true,  placeholder: '8 meses de apuração foram pagos por leitores. Seja um dos 4.812 apoiadores.',  group: 'Página de Matéria' },
+  { key: 'article.support_cta',       label: 'Botão de apoio (CTA)',                              placeholder: 'Contribuir',                                                                    group: 'Página de Matéria' },
+  // Home
+  { key: 'home.donation_eyebrow',     label: 'Eyebrow do bloco de doação',                        placeholder: 'Sem donos. Sem paywall.',                                                       group: 'Home' },
+  { key: 'home.donation_headline',    label: 'Headline do bloco de doação',     multiline: true,  placeholder: 'Jornalismo de MS que você pode confiar.',                                       group: 'Home' },
+  { key: 'home.donation_body',        label: 'Texto do bloco de doação',        multiline: true,  placeholder: 'Somos sustentados por leitores.',                                               group: 'Home' },
+  { key: 'home.donation_cta',         label: 'CTA do bloco de doação',                            placeholder: 'Apoie o Voz Pública →',                                                         group: 'Home' },
+  { key: 'home.newsletter_title',     label: 'Título da newsletter na home',                      placeholder: 'Newsletter · A Semana em MS',                                                   group: 'Home' },
+  { key: 'home.newsletter_desc',      label: 'Descrição da newsletter',         multiline: true,  placeholder: 'Sábado de manhã, de graça. O que importou em Mato Grosso do Sul.',              group: 'Home' },
+  // Rodapé
+  { key: 'footer.description',        label: 'Descrição do portal (rodapé)',    multiline: true,  placeholder: 'Jornalismo investigativo, plural e sem donos.',                                  group: 'Rodapé' },
+  { key: 'footer.copyright',          label: 'Texto de copyright',                                placeholder: '© 2026 Voz Pública MS · Campo Grande, MS · CNPJ 00.000.000/0001-00',            group: 'Rodapé' },
+  { key: 'footer.denounce_desc',      label: 'Descrição do canal de denúncia',  multiline: true,  placeholder: 'Canal criptografado para whistleblowers. Protegemos suas fontes.',               group: 'Rodapé' },
+  { key: 'footer.denounce_email',     label: 'E-mail de denúncias',                               placeholder: 'denuncia@vozpublicams.com.br',                                                  group: 'Rodapé' },
+];
+
+export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSettings }: Props) {
   const [tokens, setTokens] = useState<DesignTokens>({ ...initialTokens });
   const [logoUrl, setLogoUrl] = useState(initialLogoUrl || '/logo.webp');
   const [activeTab, setActiveTab] = useState<Tab>('cores');
@@ -202,6 +225,12 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl }: Props) {
   const [schedLoaded, setSchedLoaded] = useState(false);
   const previewRef = useRef<HTMLIFrameElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const [editorialTexts, setEditorialTexts] = useState<Record<string, string>>(
+    Object.fromEntries(EDITORIAL_TEXT_FIELDS.map(f => [f.key, initialSettings[f.key] ?? '']))
+  );
+  const [textsSaved, setTextsSaved] = useState(false);
+  const [textsIsPending, startTextsTransition] = useTransition();
 
   const applyToPreview = useCallback((updated: DesignTokens) => {
     const frame = previewRef.current;
@@ -361,6 +390,7 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl }: Props) {
     { id: 'espacamento', label: 'Espaço' },
     { id: 'componentes', label: 'Comp.' },
     { id: 'marca',       label: 'Marca' },
+    { id: 'textos',      label: 'Textos' },
     { id: 'historico',   label: 'Hist.' },
     { id: 'agendar',     label: 'Agendar' },
   ];
@@ -522,6 +552,61 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl }: Props) {
           )}
 
           {/* ── Histórico ── */}
+          {/* ── Textos editoriais ── */}
+          {activeTab === 'textos' && (
+            <>
+              {Object.entries(
+                EDITORIAL_TEXT_FIELDS.reduce<Record<string, typeof EDITORIAL_TEXT_FIELDS>>((acc, f) => {
+                  (acc[f.group] ??= []).push(f);
+                  return acc;
+                }, {})
+              ).map(([group, fields]) => (
+                <div key={group}>
+                  <SectionLabel>{group}</SectionLabel>
+                  <div className="flex flex-col gap-3">
+                    {fields.map(f => (
+                      <label key={f.key} className="grid gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-vp-text-4">{f.label}</span>
+                        {f.multiline ? (
+                          <textarea
+                            rows={3}
+                            className="vp-input text-[12px] resize-y leading-relaxed"
+                            placeholder={f.placeholder}
+                            value={editorialTexts[f.key] ?? ''}
+                            onChange={e => setEditorialTexts(prev => ({ ...prev, [f.key]: e.target.value }))}
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            className="vp-input text-[12px]"
+                            placeholder={f.placeholder}
+                            value={editorialTexts[f.key] ?? ''}
+                            onChange={e => setEditorialTexts(prev => ({ ...prev, [f.key]: e.target.value }))}
+                          />
+                        )}
+                        <span className="text-[9px] text-vp-text-4 font-mono opacity-60">{f.key}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                disabled={textsIsPending}
+                onClick={() => {
+                  startTextsTransition(async () => {
+                    await saveBatchSettings(editorialTexts);
+                    setTextsSaved(true);
+                    setTimeout(() => setTextsSaved(false), 2500);
+                  });
+                }}
+                className="vp-btn vp-btn-primary w-full py-2.5 text-[11px] font-bold uppercase tracking-widest mt-2"
+              >
+                {textsIsPending ? 'Salvando...' : textsSaved ? '✓ Salvo!' : 'Publicar textos'}
+              </button>
+            </>
+          )}
+
           {activeTab === 'historico' && (
             <div className="flex flex-col gap-4">
               {!snapshotsLoaded ? (
