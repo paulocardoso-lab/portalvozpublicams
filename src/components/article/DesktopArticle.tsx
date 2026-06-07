@@ -10,6 +10,7 @@ import { SafeImage } from '@/components/shared/SafeImage';
 import { AdSlot } from '@/components/shared/AdSlot';
 import { ArticleBodyWithAd } from '@/components/shared/ArticleBodyWithAd';
 import { renderArticleBody } from '@/lib/article-renderer';
+import { ShareBar } from '@/components/article/ShareBar';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -44,18 +45,11 @@ export function DesktopArticle({ article }: { article: ArticleWithRelations }) {
         {/* Left — Sticky Share Actions */}
         <aside className="sticky top-[160px] self-start flex flex-col gap-4">
           <div className="font-sans text-[10px] uppercase tracking-widest text-vp-text-3 font-bold mb-1">Compartilhar</div>
-          {[
-            { label: 'WhatsApp', icon: 'WA' },
-            { label: 'Facebook', icon: 'FB' },
-            { label: 'X / Twitter', icon: 'X' },
-            { label: 'LinkedIn', icon: 'IN' },
-            { label: 'Copiar link', icon: 'URL' },
-            { label: 'Imprimir', icon: 'PRT' }
-          ].map(s => (
-            <button key={s.label} className="font-sans text-[12px] text-vp-text-2 border-l border-vp-border pl-3 text-left hover:text-vp-accent hover:border-vp-accent transition-all">
-              {s.label}
-            </button>
-          ))}
+          <ShareBar
+            url={`https://www.vozpublicams.com.br/materia/${article.slug}`}
+            title={article.title}
+            orientation="vertical"
+          />
           <div className="mt-4 p-3 border border-vp-border bg-vp-surface/50 text-[11px] font-sans text-vp-text-3 leading-[1.5]">
             Esta reportagem é aberta e sem paywall. Se considera importante, <Link href="/apoiar" className="text-vp-accent font-bold hover:underline">contribua</Link>.
           </div>

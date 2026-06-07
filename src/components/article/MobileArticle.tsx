@@ -10,6 +10,7 @@ import { AdSlot } from '@/components/shared/AdSlot';
 import { StickyBottomAd } from '@/components/shared/StickyBottomAd';
 import { ArticleBodyWithAd } from '@/components/shared/ArticleBodyWithAd';
 import { renderArticleBody } from '@/lib/article-renderer';
+import { ShareBar } from '@/components/article/ShareBar';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -22,6 +23,8 @@ type ArticleWithRelations = Article & {
  */
 export function MobileArticle({ article }: { article: ArticleWithRelations }) {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [shareOpen, setShareOpen] = useState(false);
+  const articleUrl = `https://www.vozpublicams.com.br/materia/${article.slug}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,7 +98,7 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
                 {article.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(article.publishedAt)) : 'Recente'}
               </div>
             </div>
-            <button aria-label="Compartilhar matéria" className="text-vp-text-3 p-0 hover:text-vp-accent">
+            <button aria-label="Compartilhar matéria" className="text-vp-text-3 p-0 hover:text-vp-accent" onClick={() => setShareOpen(true)}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
             </button>
           </div>
@@ -143,13 +146,14 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
       {/* 3. Sticky bottom action bar */}
       <nav className="fixed bottom-0 left-0 right-0 border-t border-vp-border bg-vp-bg grid grid-cols-4 z-50">
         {[
-          { i: '▲', l: '128' },
-          { i: '↗', l: 'Compart.' },
-          { i: '❝', l: 'Citar' },
-          { i: '⌃', l: '+' }
+          { i: '▲', l: '128', action: undefined },
+          { i: '↗', l: 'Compart.', action: () => setShareOpen(true) },
+          { i: '❝', l: 'Citar', action: undefined },
+          { i: '⌃', l: '+', action: undefined }
         ].map((btn, idx) => (
           <button
             key={idx}
+            onClick={btn.action}
             className="text-vp-text-2 flex flex-col items-center justify-center gap-0.5 min-h-13 font-sans text-[10px] font-bold hover:text-vp-accent transition-colors"
           >
             <span className="text-[16px] leading-none">{btn.i}</span>
@@ -157,6 +161,29 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
           </button>
         ))}
       </nav>
+
+      {/* Share bottom sheet */}
+      {shareOpen && (
+        <div className="fixed inset-0 z-60 flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShareOpen(false)} />
+          <div className="relative bg-vp-bg border-t border-vp-border rounded-t-xl p-6 pb-10">
+            <div className="font-sans text-[10px] uppercase tracking-widest text-vp-text-3 font-bold mb-5">Compartilhar</div>
+            <ShareBar
+              url={articleUrl}
+              title={article.title}
+              orientation="vertical"
+              className="gap-4"
+            />
+            <button
+              type="button"
+              onClick={() => setShareOpen(false)}
+              className="mt-6 w-full vp-btn py-3 text-[12px] font-bold"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
