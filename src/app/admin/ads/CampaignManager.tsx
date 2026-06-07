@@ -54,6 +54,7 @@ function slotLabel(slot: string) {
 }
 
 interface ImageMeta { w: number; h: number; src: string }
+interface CropState { zoom: number; x: number; y: number }
 
 function checkDimensions(meta: ImageMeta, slot: string): 'ok' | 'warn' | 'error' {
   const def = SLOTS[slot];
@@ -80,6 +81,49 @@ function measureImage(src: string): Promise<ImageMeta> {
     const img = new Image();
     img.onload = () => res({ w: img.naturalWidth, h: img.naturalHeight, src });
     img.onerror = rej;
+    img.src = src;
+  });
+}
+
+function createFittedBannerDataUrl(
+  src: string,
+  slot: string,
+  crop: CropState,
+): Promise<string> {
+  return new Promise((res, rej) => {
+    const def = SLOTS[slot];
+    if (!def) {
+      res(src);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = def.w;
+      canvas.height = def.h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        rej(new Error('Canvas indisponível.'));
+        return;
+      }
+
+      ctx.fillStyle = '#111111';
+      ctx.fillRect(0, 0, def.w, def.h);
+
+      const baseScale = Math.max(def.w / img.naturalWidth, def.h / img.naturalHeight);
+      const scale = baseScale * crop.zoom;
+      const drawW = img.naturalWidth * scale;
+      const drawH = img.naturalHeight * scale;
+      const maxX = Math.max(0, (drawW - def.w) / 2);
+      const maxY = Math.max(0, (drawH - def.h) / 2);
+      const dx = (def.w - drawW) / 2 + crop.x * maxX;
+      const dy = (def.h - drawH) / 2 + crop.y * maxY;
+
+      ctx.drawImage(img, dx, dy, drawW, drawH);
+      res(canvas.toDataURL('image/webp', 0.9));
+    };
+    img.onerror = () => rej(new Error('Não foi possível carregar a imagem.'));
     img.src = src;
   });
 }
@@ -152,6 +196,87 @@ function BannerPreview({ src, slot, label }: { src: string; slot: string; label:
   );
 }
 
+function CropBannerEditor({
+  source,
+  output,
+  crop,
+  slot,
+  onCropChange,
+}: {
+  source: string;
+  output: string;
+  crop: CropState;
+  slot: string;
+  onCropChange: (crop: CropState) => void;
+}) {
+  const def = SLOTS[slot];
+  if (!def) return null;
+
+  const previewHeight = Math.max(def.previewH * 2.2, 120);
+  const update = (patch: Partial<CropState>) => onCropChange({ ...crop, ...patch });
+
+  return (
+    <div className="space-y-3 border border-vp-border bg-[#141413] p-3 rounded-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">Conversão automática para WebP</div>
+          <p className="text-[10px] text-vp-text-4 mt-0.5">
+            Resultado final no tamanho exato {def.w}×{def.h}px.
+          </p>
+        </div>
+        <span className="text-[10px] font-bold text-vp-ok">WEBP pronto</span>
+      </div>
+
+      <div
+        className="relative w-full overflow-hidden border border-vp-border bg-[#080808] rounded-sm"
+        style={{ aspectRatio: `${def.w} / ${def.h}`, maxHeight: previewHeight }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={output || source} alt="Preview recortado do banner" className="h-full w-full object-contain" />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <label className="grid gap-1">
+          <span className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">Zoom</span>
+          <input
+            type="range"
+            min="1"
+            max="3"
+            step="0.01"
+            value={crop.zoom}
+            onChange={e => update({ zoom: Number(e.target.value) })}
+            className="accent-[var(--vp-accent)]"
+          />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">Horizontal</span>
+          <input
+            type="range"
+            min="-1"
+            max="1"
+            step="0.01"
+            value={crop.x}
+            onChange={e => update({ x: Number(e.target.value) })}
+            className="accent-[var(--vp-accent)]"
+          />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">Vertical</span>
+          <input
+            type="range"
+            min="-1"
+            max="1"
+            step="0.01"
+            value={crop.y}
+            onChange={e => update({ y: Number(e.target.value) })}
+            className="accent-[var(--vp-accent)]"
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ─────────────────────────────────────────────────────────
 
 export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campaign[] }) {
@@ -166,12 +291,17 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
   const [metaLoading, setMetaLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState('leaderboard');
   const [bannerName, setBannerName] = useState('');
+  const [uploadedSource, setUploadedSource] = useState('');
+  const [convertedCreative, setConvertedCreative] = useState('');
+  const [crop, setCrop] = useState<CropState>({ zoom: 1, x: 0, y: 0 });
 
   // When studio produces a banner, inject it into the campaign form
   const handleStudioResult = useCallback((url: string, slot: string, brand: string) => {
     setSelectedSlot(slot);
     setUrlInput(url);
     setPreviewSrc(url);
+    setUploadedSource('');
+    setConvertedCreative('');
     if (!bannerName) setBannerName(`Banner IA — ${brand}`);
     setIsModalOpen(true);
   }, [bannerName]);
@@ -189,19 +319,48 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
       .finally(() => setMetaLoading(false));
   }, [previewSrc]);
 
+  useEffect(() => {
+    if (!uploadedSource) {
+      setConvertedCreative('');
+      return;
+    }
+
+    let cancelled = false;
+    createFittedBannerDataUrl(uploadedSource, selectedSlot, crop)
+      .then(dataUrl => {
+        if (!cancelled) {
+          setConvertedCreative(dataUrl);
+          setPreviewSrc(dataUrl);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setConvertedCreative('');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [uploadedSource, selectedSlot, crop]);
+
   const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUrlInput('');
     setPreviewSrc('');
+    setUploadedSource('');
+    setConvertedCreative('');
+    setCrop({ zoom: 1, x: 0, y: 0 });
     try {
       const dataUrl = await readFileAsDataUrl(file);
-      setPreviewSrc(dataUrl);
+      setUploadedSource(dataUrl);
     } catch {}
   }, []);
 
   const handleUrlChange = useCallback((val: string) => {
     setUrlInput(val);
+    setUploadedSource('');
+    setConvertedCreative('');
+    setCrop({ zoom: 1, x: 0, y: 0 });
     if (fileRef.current) fileRef.current.value = '';
     if (urlDebounce.current) clearTimeout(urlDebounce.current);
     if (!val.trim()) { setPreviewSrc(''); return; }
@@ -213,6 +372,9 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
     setPreviewSrc('');
     setUrlInput('');
     setImageMeta(null);
+    setUploadedSource('');
+    setConvertedCreative('');
+    setCrop({ zoom: 1, x: 0, y: 0 });
     setSelectedSlot('leaderboard');
     setBannerName('');
     if (fileRef.current) fileRef.current.value = '';
@@ -489,11 +651,12 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
                       ref={fileRef}
                       name="imageFile"
                       type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      accept="image/*"
                       className="vp-input w-full text-[11px] pt-1.5 cursor-pointer"
                       title="Arquivo de imagem do banner"
                       onChange={handleFileChange}
                     />
+                    <input type="hidden" name="convertedCreative" value={convertedCreative} />
                   </div>
 
                   {/* URL */}
@@ -523,8 +686,18 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
                   <DimensionBadge meta={imageMeta} slot={selectedSlot} />
                 )}
 
+                {uploadedSource && (
+                  <CropBannerEditor
+                    source={uploadedSource}
+                    output={convertedCreative}
+                    crop={crop}
+                    slot={selectedSlot}
+                    onCropChange={setCrop}
+                  />
+                )}
+
                 {/* Live preview */}
-                {previewSrc && !metaLoading && (
+                {previewSrc && !metaLoading && !uploadedSource && (
                   <BannerPreview
                     src={previewSrc}
                     slot={selectedSlot}

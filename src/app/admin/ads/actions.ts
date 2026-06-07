@@ -5,6 +5,29 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-guard";
 import { CampaignStatus } from "@prisma/client";
 import { uploadImage } from "@/lib/storage";
+import { createClient } from "@supabase/supabase-js";
+
+async function uploadDataImage(dataUrl: string, bucket: "ads") {
+  const match = dataUrl.match(/^data:image\/(?:webp|png|jpeg);base64,(.+)$/);
+  if (!match) return "";
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) throw new Error("Supabase Storage não configurado.");
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  const buffer = Buffer.from(match[1], "base64");
+  const fileName = `${crypto.randomUUID()}-${Date.now()}.webp`;
+
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, buffer, { contentType: "image/webp" });
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+  return publicUrl;
+}
 
 function normalizeImageUrl(value: FormDataEntryValue | null) {
   const url = String(value ?? "").trim();
@@ -43,9 +66,12 @@ export async function createCampaign(formData: FormData) {
     }
 
     const imageFile = formData.get("imageFile");
+    const convertedCreative = normalizeImageUrl(formData.get("convertedCreative"));
     let creativeUrl = normalizeImageUrl(formData.get("creative"));
 
-    if (imageFile instanceof File && imageFile.size > 0) {
+    if (convertedCreative) {
+      creativeUrl = await uploadDataImage(convertedCreative, "ads");
+    } else if (imageFile instanceof File && imageFile.size > 0) {
       creativeUrl = await uploadImage(imageFile, "ads");
     }
 

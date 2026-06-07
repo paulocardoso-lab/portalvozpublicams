@@ -95,6 +95,57 @@ interface BannerCopy {
   accent: string;   // hex accent/CTA color
 }
 
+function titleCase(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/(^|\s)\S/g, char => char.toUpperCase())
+    .trim();
+}
+
+function copyFromPrompt(userPrompt: string, scrape: ScrapeResult, isNarrow: boolean): BannerCopy {
+  const normalized = userPrompt.trim();
+  const brand = scrape.brandName && scrape.brandName !== 'Marca' ? scrape.brandName : '';
+
+  const lower = normalized.toLowerCase();
+  const headline =
+    lower.includes('copa') || lower.includes('jogos')
+      ? 'Tabela de Jogos 2026'
+      : normalized
+        .replace(/\b(gere|crie|faça|banner|aviso|para que|a pessoa|acesse|ao clicar|use|cores|oficiais|logomarcas)\b/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, isNarrow ? 38 : 58);
+
+  const subline =
+    lower.includes('copa')
+      ? 'Datas, grupos e partidas em um só lugar'
+      : scrape.description || (brand ? `Conheça ${brand}` : 'Confira todos os detalhes');
+
+  let bg = '#112b5c';
+  const fg = '#ffffff';
+  let accent = '#2fbf71';
+
+  if (lower.includes('escuro')) bg = '#111827';
+  if (lower.includes('laranja')) accent = '#e17652';
+  if (lower.includes('copa') || lower.includes('fifa')) {
+    bg = '#12245a';
+    accent = '#19b66a';
+  }
+  if (lower.includes('verão') || lower.includes('vibrante')) {
+    bg = '#075985';
+    accent = '#f59e0b';
+  }
+
+  return {
+    headline: titleCase(headline || brand || 'Acesse Agora'),
+    subline: isNarrow ? '' : subline.slice(0, 78),
+    cta: lower.includes('tabela') || lower.includes('jogos') ? 'Ver tabela' : 'Acesse já',
+    bg,
+    fg,
+    accent,
+  };
+}
+
 async function generateBannerCopy(
   scrape: ScrapeResult,
   userPrompt: string,
@@ -102,9 +153,16 @@ async function generateBannerCopy(
   dims: { w: number; h: number }
 ): Promise<BannerCopy> {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.0-flash',
+    generationConfig: {
+      temperature: 0.9,
+      topP: 0.95,
+    },
+  });
 
   const isNarrow = dims.h <= 100; // leaderboard / mobile strip
+  const promptSeed = crypto.randomUUID();
 
   const prompt = `Você é um diretor de arte especialista em banners publicitários digitais.
 
@@ -117,16 +175,19 @@ INFORMAÇÕES DA MARCA/SITE:
 - Cor tema do site: ${scrape.themeColor || '(desconhecida)'}
 
 INSTRUÇÃO DO USUÁRIO: ${userPrompt || 'Crie um banner profissional e atraente'}
+ID DA VARIAÇÃO: ${promptSeed}
 
 SLOT: ${slot} (${dims.w}×${dims.h}px) ${isNarrow ? '— formato horizontal estreito, textos MUITO curtos' : ''}
 
 REGRAS:
+- Obedeça literalmente a intenção da instrução do usuário.
+- Se o usuário pedir Copa 2026, jogos ou tabela, a headline e o CTA precisam mencionar tabela/jogos.
 - headline: ${isNarrow ? 'máx 40 caracteres' : 'máx 60 caracteres'}, impactante
 - subline: ${isNarrow ? 'máx 30 caracteres ou string vazia se não couber' : 'máx 80 caracteres'}, complementar
 - cta: botão de chamada para ação, máx 20 caracteres (ex: "Saiba mais", "Acesse já", "Ver oferta")
 - bg: cor de fundo hex (harmoniosa com a marca, pode usar a cor tema)
 - fg: cor do texto principal hex (contraste ≥ 4.5:1 com bg)
-- accent: cor do botão CTA hex (diferente de bg, chamatiu)
+- accent: cor do botão CTA hex (diferente de bg, chamativa)
 - Responda APENAS JSON válido, sem markdown
 
 {"headline":"...","subline":"...","cta":"...","bg":"#xxxxxx","fg":"#xxxxxx","accent":"#xxxxxx"}`;
@@ -142,16 +203,12 @@ REGRAS:
     if (!hexRe.test(parsed.bg))     parsed.bg     = '#1a1a2e';
     if (!hexRe.test(parsed.fg))     parsed.fg     = '#ffffff';
     if (!hexRe.test(parsed.accent)) parsed.accent = '#e94560';
+    if (!parsed.headline || parsed.headline === scrape.brandName) {
+      return copyFromPrompt(userPrompt, scrape, isNarrow);
+    }
     return parsed;
   } catch {
-    return {
-      headline: scrape.brandName,
-      subline: scrape.description.substring(0, 80),
-      cta: 'Saiba mais',
-      bg: '#1a1a2e',
-      fg: '#ffffff',
-      accent: '#e94560',
-    };
+    return copyFromPrompt(userPrompt, scrape, isNarrow);
   }
 }
 
@@ -176,6 +233,14 @@ function escSvg(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function hashText(text: string) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
 // Wraps text into lines fitting maxWidth (approximation: avgCharWidth * fontSize)
 function wrapText(text: string, maxChars: number): string[] {
   const words = text.split(' ');
@@ -197,12 +262,14 @@ function buildSvg(
   copy: BannerCopy,
   dims: { w: number; h: number },
   logoDataUrl: string | null,
-  slot: string
+  slot: string,
+  seed: string
 ): string {
   const { w, h } = dims;
   const { headline, subline, cta, bg, fg, accent } = copy;
   const isNarrow = h <= 100;
   const isTall = h >= 200;
+  const variant = hashText(`${seed}-${headline}-${subline}-${slot}`) % 4;
 
   // Typography scale
   const headlineFontSize = isNarrow ? Math.max(14, Math.min(22, h * 0.3)) : isTall ? 28 : 20;
@@ -263,8 +330,22 @@ function buildSvg(
   // Background
   svgBody += `<rect width="${w}" height="${h}" fill="url(#bg)"/>`;
 
-  // Subtle decorative stripe on left
-  svgBody += `<rect x="0" y="0" width="3" height="${h}" fill="${escSvg(accent)}" opacity="0.9"/>`;
+  // Prompt-sensitive decorative system: changes per generation.
+  if (variant === 0) {
+    svgBody += `<rect x="0" y="0" width="${Math.max(4, w * 0.008)}" height="${h}" fill="${escSvg(accent)}" opacity="0.95"/>`;
+    svgBody += `<circle cx="${w * 0.82}" cy="${h * 0.12}" r="${Math.max(28, h * 0.65)}" fill="${escSvg(accent)}" opacity="0.10"/>`;
+  } else if (variant === 1) {
+    svgBody += `<path d="M${w * 0.68},0 L${w},0 L${w},${h} L${w * 0.58},${h} Z" fill="${escSvg(accent)}" opacity="0.14"/>`;
+    svgBody += `<rect x="${pad}" y="${h - 5}" width="${w * 0.32}" height="3" fill="${escSvg(accent)}" opacity="0.9"/>`;
+  } else if (variant === 2) {
+    for (let i = 0; i < 5; i++) {
+      svgBody += `<circle cx="${w - pad - i * 18}" cy="${pad + i * 7}" r="${Math.max(3, h * 0.035)}" fill="${escSvg(fg)}" opacity="${0.16 + i * 0.04}"/>`;
+    }
+    svgBody += `<rect x="0" y="0" width="${w}" height="2" fill="${escSvg(accent)}" opacity="0.85"/>`;
+  } else {
+    svgBody += `<path d="M0,${h} C${w * 0.25},${h * 0.45} ${w * 0.55},${h * 1.15} ${w},${h * 0.18} L${w},${h} Z" fill="${escSvg(accent)}" opacity="0.12"/>`;
+    svgBody += `<rect x="${pad}" y="${pad}" width="${Math.max(36, w * 0.12)}" height="2" fill="${escSvg(accent)}" opacity="0.95"/>`;
+  }
 
   // Logo
   if (logoDataUrl) {
@@ -361,7 +442,7 @@ export async function POST(req: NextRequest) {
   const logoDataUrl = scrape.logoUrl ? await fetchLogoDataUrl(scrape.logoUrl) : null;
 
   // ④ Build SVG
-  const svg = buildSvg(copy, dims, logoDataUrl, slot);
+  const svg = buildSvg(copy, dims, logoDataUrl, slot, crypto.randomUUID());
 
   // ⑤ Rasterize SVG → PNG via sharp
   const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
