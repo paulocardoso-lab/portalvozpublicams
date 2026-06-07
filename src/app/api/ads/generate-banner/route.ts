@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 import sharp from 'sharp';
 import { createClient } from '@supabase/supabase-js';
 
@@ -152,14 +152,7 @@ async function generateBannerCopy(
   slot: string,
   dims: { w: number; h: number }
 ): Promise<BannerCopy> {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    generationConfig: {
-      temperature: 0.9,
-      topP: 0.95,
-    },
-  });
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
   const isNarrow = dims.h <= 100; // leaderboard / mobile strip
   const promptSeed = crypto.randomUUID();
@@ -193,8 +186,12 @@ REGRAS:
 {"headline":"...","subline":"...","cta":"...","bg":"#xxxxxx","fg":"#xxxxxx","accent":"#xxxxxx"}`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = (await result.response).text().replace(/```json|```/g, '').trim();
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.9,
+    });
+    const text = (completion.choices[0].message.content || '').replace(/```json|```/g, '').trim();
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('No JSON');
     const parsed = JSON.parse(match[0]) as BannerCopy;

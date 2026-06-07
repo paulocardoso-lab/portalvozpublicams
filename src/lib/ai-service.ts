@@ -1,7 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
 
 // ── rewriteArticleContent ────────────────────────────────────────────────────
 // Rewrites title, lead and generates tags from raw source text.
@@ -32,17 +31,21 @@ Responda APENAS com JSON válido, sem markdown, sem explicações:
 {"title":"...","lead":"...","tags":["...","...","..."]}`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = (await result.response).text().replace(/```json|```/g, '').trim();
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.4,
+    });
+    const text = (completion.choices[0].message.content || '').replace(/```json|```/g, '').trim();
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON in Gemini response');
+    if (!jsonMatch) throw new Error('No JSON in OpenAI response');
     const parsed = JSON.parse(jsonMatch[0]);
     if (typeof parsed.title !== 'string' || !parsed.title.trim()) parsed.title = title;
     if (typeof parsed.lead !== 'string' || !parsed.lead.trim()) parsed.lead = lead || title;
     if (!Array.isArray(parsed.tags)) parsed.tags = [];
     return parsed as { title: string; lead: string; tags: string[] };
   } catch (error) {
-    console.error('Gemini rewriteArticleContent error:', error);
+    console.error('OpenAI rewriteArticleContent error:', error);
     return { title, lead: lead || title, tags: [] };
   }
 }
@@ -85,10 +88,14 @@ Responda APENAS com JSON válido contendo um array de strings, uma por parágraf
 ["parágrafo 1 reescrito","parágrafo 2 reescrito",...]`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = (await result.response).text().replace(/```json|```/g, '').trim();
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.5,
+    });
+    const text = (completion.choices[0].message.content || '').replace(/```json|```/g, '').trim();
     const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error('No JSON array in Gemini response');
+    if (!jsonMatch) throw new Error('No JSON array in OpenAI response');
     const parsed: unknown = JSON.parse(jsonMatch[0]);
     if (!Array.isArray(parsed)) throw new Error('Response is not an array');
 
@@ -96,7 +103,6 @@ Responda APENAS com JSON válido contendo um array de strings, uma por parágraf
       .map((p: unknown) => (typeof p === 'string' ? p.trim() : ''))
       .filter(Boolean);
 
-    // Safety: if Gemini returned fewer paragraphs than we sent, pad with originals
     if (rewritten.length < paragraphs.length) {
       for (let i = rewritten.length; i < paragraphs.length; i++) {
         rewritten.push(paragraphs[i]);
@@ -105,8 +111,7 @@ Responda APENAS com JSON válido contendo um array de strings, uma por parágraf
 
     return rewritten;
   } catch (error) {
-    console.error('Gemini humanizeArticleContent error:', error);
-    // Fallback: return originals unchanged
+    console.error('OpenAI humanizeArticleContent error:', error);
     return paragraphs;
   }
 }

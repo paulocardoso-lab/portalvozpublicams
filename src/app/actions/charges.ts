@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-guard";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
 // ── Queries ──────────────────────────────────────────────────────────────────
 
@@ -108,10 +108,10 @@ export async function generateChargeFromArticle(articleId: string) {
 
   if (!article) return { success: false, error: "Matéria não encontrada." };
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return { success: false, error: "ANTHROPIC_API_KEY não configurada." };
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return { success: false, error: "OPENAI_API_KEY não configurada." };
 
-  const client = new Anthropic({ apiKey });
+  const client = new OpenAI({ apiKey });
 
   const prompt = `Você é um chargista político brasileiro experiente.
 Com base na matéria jornalística abaixo, crie uma descrição detalhada de uma charge editorial.
@@ -127,13 +127,13 @@ Descreva a charge com:
 
 Seja criativo, irônico e pertinente. Responda em português.`;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o",
     max_tokens: 600,
     messages: [{ role: "user", content: prompt }],
   });
 
-  const description = (message.content[0] as { type: string; text: string }).text;
+  const description = completion.choices[0].message.content || '';
 
   return {
     success: true,

@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-guard";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { VOICE_TAGS } from "@/lib/voice-tags";
 
 // ── Queries ──────────────────────────────────────────────────────────────────
@@ -101,13 +101,13 @@ export async function toggleVoiceActive(id: string, isActive: boolean) {
 export async function generateVoicesFromPrompt(prompt: string) {
   await requireAdmin(["SUPER_ADMIN", "EDITOR_CHIEF", "SECTION_EDITOR"]);
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return { success: false, error: "ANTHROPIC_API_KEY nao configurada." };
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return { success: false, error: "OPENAI_API_KEY nao configurada." };
 
-  const client = new Anthropic({ apiKey });
+  const client = new OpenAI({ apiKey });
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o",
     max_tokens: 800,
     messages: [
       {
@@ -125,7 +125,7 @@ Responda APENAS com as 3 vozes, uma por linha, sem numeracao, sem aspas, sem int
     ],
   });
 
-  const raw = (message.content[0] as { type: string; text: string }).text;
+  const raw = completion.choices[0].message.content || '';
   const voices = raw
     .split("\n")
     .map((l) => l.trim())
