@@ -2,9 +2,10 @@ import React from 'react';
 import { prisma } from '@/lib/prisma';
 import { DesktopHome } from './DesktopHome';
 import { MobileHome } from './MobileHome';
-import type { AgendaEvent, Alert, PodcastEpisode } from '@prisma/client';
+import type { AgendaEvent, Alert, PodcastEpisode, Charge } from '@prisma/client';
 import type { ArticleWithRelations, ArticleWithSection, SeriesWithArticles } from './DesktopHome';
 import { getSiteSettings } from '@/app/actions/settings';
+import { getActiveCharge } from '@/app/actions/charges';
 
 const publicAuthorSelect = {
   id: true,
@@ -36,6 +37,7 @@ export async function Home() {
   let mostRead: ArticleWithSection[] = [];
   let newsletterCount = 0;
   let siteSettings: Record<string, string> = {};
+  let activeCharge: Charge | null = null;
 
   try {
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
@@ -136,6 +138,7 @@ export async function Home() {
     mostRead = fetchedMostRead || [];
     newsletterCount = fetchedNewsletterCount || 0;
     siteSettings = await getSiteSettings().catch(() => ({}));
+    activeCharge = await getActiveCharge().catch(() => null);
   } catch (error) {
     console.error('Home data fetch error:', error);
   }
@@ -156,6 +159,7 @@ export async function Home() {
           mostRead={mostRead}
           newsletterCount={newsletterCount}
           siteSettings={siteSettings}
+          activeCharge={activeCharge}
         />
       </div>
 

@@ -10,7 +10,8 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { NewsletterSection } from '@/components/sections/NewsletterSection';
 import { AdSlot } from '@/components/shared/AdSlot';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
-import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode } from '@prisma/client';
+import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode, Charge } from '@prisma/client';
+import { ChargeCard } from '@/components/charge/ChargeCard';
 
 export type PublicAuthor = {
   id: string;
@@ -55,6 +56,7 @@ interface DesktopHomeProps {
   featuredSeries?: SeriesWithArticles | null;
   activePodcast?: PodcastEpisode | null;
   siteSettings?: Record<string, string>;
+  activeCharge?: Charge | null;
 }
 
 /**
@@ -74,6 +76,7 @@ export function DesktopHome({
   economia = [],
   cidades = [],
   siteSettings = {},
+  activeCharge,
 }: DesktopHomeProps) {
   const s = siteSettings;
   const hero = articles[0];
@@ -358,6 +361,17 @@ export function DesktopHome({
               </button>
             </Link>
           </div>
+
+          {/* Charge do Dia */}
+          {activeCharge && (
+            <ChargeCard
+              id={activeCharge.id}
+              imageUrl={activeCharge.imageUrl}
+              caption={activeCharge.caption}
+              credit={activeCharge.credit}
+              publishedAt={activeCharge.publishedAt}
+            />
+          )}
 
           {/* Sidebar ad */}
           <AdSlot id="sidebar-top" className="w-full" />

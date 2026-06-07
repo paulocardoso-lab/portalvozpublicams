@@ -66,7 +66,7 @@ export async function uploadBrandAsset(
   return `${publicUrl}?v=${Date.now()}`;
 }
 
-export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 'ads' = 'articles') {
+export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 'ads' | 'charges' = 'articles') {
   const supabase = getStorageClient();
 
   const inputBuffer = Buffer.from(await file.arrayBuffer());

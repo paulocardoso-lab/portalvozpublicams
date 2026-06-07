@@ -395,6 +395,20 @@ model AgendaEvent {
   updatedAt   DateTime @updatedAt
 }
 
+model Charge {
+  id          String   @id @default(cuid())
+  imageUrl    String
+  caption     String?
+  credit      String?
+  articleId   String?
+  isActive    Boolean  @default(true)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, publishedAt])
+}
+
 model SiteSetting {
   key       String   @id // e.g., 'FEATURED_SERIES_ID', 'SOCIAL_FB', etc.
   value     String   @db.Text

@@ -12,6 +12,8 @@ import { ArticleBodyWithAd } from '@/components/shared/ArticleBodyWithAd';
 import { renderArticleBody } from '@/lib/article-renderer';
 import { ShareBar } from '@/components/article/ShareBar';
 import { getSiteSettings } from '@/app/actions/settings';
+import { getActiveCharge } from '@/app/actions/charges';
+import { ChargeCard } from '@/components/charge/ChargeCard';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -29,7 +31,10 @@ type RelatedArticle = {
 export async function DesktopArticle({ article, related = [] }: { article: ArticleWithRelations; related?: RelatedArticle[] }) {
   if (!article) return null;
 
-  const s = await getSiteSettings();
+  const [s, activeCharge] = await Promise.all([
+    getSiteSettings(),
+    getActiveCharge().catch(() => null),
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen bg-vp-bg w-full">
@@ -120,6 +125,17 @@ export async function DesktopArticle({ article, related = [] }: { article: Artic
         <aside className="flex flex-col gap-6 self-start">
           <AdSlot id="sidebar-top" className="w-full" />
           
+          {/* Charge do Dia */}
+          {activeCharge && (
+            <ChargeCard
+              id={activeCharge.id}
+              imageUrl={activeCharge.imageUrl}
+              caption={activeCharge.caption}
+              credit={activeCharge.credit}
+              publishedAt={activeCharge.publishedAt}
+            />
+          )}
+
           {related.length > 0 && (
             <div>
               <h3 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold text-vp-text mb-4">Leia também</h3>
