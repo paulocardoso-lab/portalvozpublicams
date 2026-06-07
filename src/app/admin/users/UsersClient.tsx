@@ -2,7 +2,7 @@
 
 import React, { useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createUser, deleteUser, updateUserAvatar, updateUserRole, updateUserStatus } from "./actions";
+import { createUser, deleteUser, updateColumnistInfo, updateUserAvatar, updateUserRole, updateUserStatus } from "./actions";
 import { SafeImage } from "@/components/shared/SafeImage";
 
 type Role = "SUPER_ADMIN" | "EDITOR_CHIEF" | "SECTION_EDITOR" | "REPORTER" | "COLUMNIST" | "MODERATOR" | "FINANCE" | "READER";
@@ -34,10 +34,14 @@ type User = {
   id: string;
   name: string;
   email: string;
+  slug: string | null;
+  bio: string | null;
   image: string | null;
   avatar: string | null;
   role: Role;
   status: UserStatus;
+  columnTitle: string | null;
+  displayOrder: number;
   createdAt: Date;
   _count: { articles: number; sessions: number };
 };
@@ -236,6 +240,74 @@ function AvatarUploader({ userId, name, currentAvatar, canEdit }: {
   );
 }
 
+function ColumnistInfoModal({ user, onClose }: { user: User; onClose: () => void }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = React.useState<string | null>(null);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    const fd = new FormData(e.currentTarget);
+    startTransition(async () => {
+      const result = await updateColumnistInfo(user.id, fd);
+      if (!result.success) {
+        setError("Não foi possível salvar.");
+        return;
+      }
+      router.refresh();
+      onClose();
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" onClick={onClose}>
+      <div className="w-full max-w-120 border border-vp-border bg-[#141413] p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h2 className="font-display text-[18px] font-bold">Dados da coluna · {user.name}</h2>
+            <p className="text-[11px] text-vp-text-3 mt-1">Título da coluna, slug público e ordem na home.</p>
+          </div>
+          <button type="button" onClick={onClose} className="text-vp-text-3 hover:text-vp-text">✕</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <label className="grid gap-1.5">
+            <span className="eyebrow text-[10px]">Título da coluna</span>
+            <input name="columnTitle" className="vp-input text-[13px]" defaultValue={user.columnTitle ?? ""} placeholder="Ex: Política em MS" />
+            <span className="text-[10px] text-vp-text-4">Aparece no card da home e na página do colunista.</span>
+          </label>
+
+          <label className="grid gap-1.5">
+            <span className="eyebrow text-[10px]">Slug (URL pública)</span>
+            <input name="slug" className="vp-input text-[13px] font-mono" defaultValue={user.slug ?? ""} placeholder="ex: joao-silva" />
+            <span className="text-[10px] text-vp-text-4">Será acessível em /colunista/[slug]</span>
+          </label>
+
+          <label className="grid gap-1.5">
+            <span className="eyebrow text-[10px]">Bio</span>
+            <textarea name="bio" className="vp-input text-[13px] resize-none" rows={3} defaultValue={user.bio ?? ""} placeholder="Breve descrição do colunista..." />
+          </label>
+
+          <label className="grid gap-1.5">
+            <span className="eyebrow text-[10px]">Ordem na home (menor = primeiro)</span>
+            <input name="displayOrder" type="number" min={0} max={99} className="vp-input text-[13px] w-24" defaultValue={user.displayOrder} />
+          </label>
+
+          {error && <div className="border border-vp-urgent/40 bg-vp-urgent/10 text-vp-urgent px-3 py-2 text-[12px]">{error}</div>}
+
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose} className="vp-btn flex-1 py-2.5">Cancelar</button>
+            <button type="submit" disabled={isPending} className="vp-btn vp-btn-primary flex-1 py-2.5">
+              {isPending ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function DeleteUserButton({ userId, userName }: { userId: string; userName: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -368,6 +440,7 @@ export function UsersClient({
 }) {
   const [search, setSearch] = React.useState("");
   const [isInviteOpen, setIsInviteOpen] = React.useState(false);
+  const [editingColumnist, setEditingColumnist] = React.useState<User | null>(null);
 
   const filtered = users.filter(
     (u) =>
@@ -476,6 +549,15 @@ export function UsersClient({
                     <td className="px-6 py-5 text-right">
                       <div className="flex flex-col items-end gap-2">
                         <StatusToggle userId={u.id} currentStatus={u.status as UserStatus} isSelf={u.id === currentUserId} />
+                        {(u.role === "COLUMNIST" || u.role === "REPORTER") && (currentUserRole === "SUPER_ADMIN" || u.id === currentUserId) && (
+                          <button
+                            type="button"
+                            onClick={() => setEditingColumnist(u)}
+                            className="text-[11px] font-black uppercase tracking-widest text-vp-accent hover:underline"
+                          >
+                            Editar coluna
+                          </button>
+                        )}
                         {currentUserRole === "SUPER_ADMIN" && u.id !== currentUserId && u.status !== "DELETED" && (
                           <DeleteUserButton userId={u.id} userName={u.name} />
                         )}
@@ -490,6 +572,7 @@ export function UsersClient({
       </div>
 
       {isInviteOpen && <InviteUserModal onClose={() => setIsInviteOpen(false)} />}
+      {editingColumnist && <ColumnistInfoModal user={editingColumnist} onClose={() => setEditingColumnist(null)} />}
     </div>
   );
 }

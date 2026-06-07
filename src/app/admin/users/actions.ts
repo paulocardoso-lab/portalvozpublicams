@@ -164,6 +164,29 @@ export async function createUser(formData: FormData) {
   }
 }
 
+export async function updateColumnistInfo(userId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  const isSelf = session.user.id === userId;
+  if (!isSelf) await requireSuperAdmin();
+
+  const columnTitle = String(formData.get("columnTitle") ?? "").trim() || null;
+  const displayOrder = parseInt(String(formData.get("displayOrder") ?? "0"), 10) || 0;
+  const slug = String(formData.get("slug") ?? "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || null;
+  const bio = String(formData.get("bio") ?? "").trim() || null;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { columnTitle, displayOrder, slug, bio },
+  });
+
+  await logAudit("COLUMNIST_INFO_UPDATED", `user:${userId}`, "OK");
+  revalidatePath("/admin/users");
+  revalidatePath("/colunistas");
+  if (slug) revalidatePath(`/colunista/${slug}`);
+  return { success: true };
+}
+
 export async function updateUserAvatar(userId: string, formData: FormData) {
   const admin = await requireAdmin(["SUPER_ADMIN", "EDITOR_CHIEF"]);
   if (userId !== admin.id) {
@@ -204,10 +227,14 @@ export async function getUsers(search?: string) {
       id: true,
       name: true,
       email: true,
+      slug: true,
+      bio: true,
       image: true,
       avatar: true,
       role: true,
       status: true,
+      columnTitle: true,
+      displayOrder: true,
       createdAt: true,
       _count: { select: { articles: true, sessions: true } },
     },

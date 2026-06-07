@@ -52,6 +52,8 @@ model User {
   emailVerified DateTime?
   role          Role      @default(READER)
   bio           String?   @db.Text
+  columnTitle   String?
+  displayOrder  Int       @default(0)
   social        Json?
   passwordHash  String?
   twoFA         Boolean   @default(false)

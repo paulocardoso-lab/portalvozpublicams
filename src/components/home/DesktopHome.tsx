@@ -43,6 +43,8 @@ interface DesktopHomeProps {
     image: string | null;
     avatar: string | null;
     bio: string | null;
+    columnTitle: string | null;
+    displayOrder: number;
     articles: { title: string; slug: string }[];
   }[];
   mostRead?: ArticleWithSection[];
@@ -244,32 +246,42 @@ export function DesktopHome({
           </section>
 
           {/* Opinion & Columnists */}
-          <section className="py-8 border-b border-vp-border">
-            <div className="flex items-baseline gap-4 mb-5">
-              <h2 className="font-display text-[24px] font-bold text-vp-text">Opinião &amp; Colunistas</h2>
-              <div className="h-[1px] bg-vp-border flex-1" />
+          <section className=”py-8 border-b border-vp-border”>
+            <div className=”flex items-baseline gap-4 mb-5”>
+              <h2 className=”font-display text-[24px] font-bold text-vp-text”>Opinião &amp; Colunistas</h2>
+              <div className=”h-[1px] bg-vp-border flex-1” />
+              <Link href=”/colunistas” className=”font-sans text-[11px] font-bold uppercase tracking-widest text-vp-text-3 hover:text-vp-accent transition-colors whitespace-nowrap”>
+                Ver todos →
+              </Link>
             </div>
-            <div className="grid grid-cols-4 gap-5">
-              {columnists.slice(0, 4).map((col) => (
-                <article key={col.id} className="grid grid-cols-[52px_1fr] gap-3">
-                  <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-vp-surface relative">
-                    {col.image ? (
-                      <SafeImage src={col.image} alt={col.name} fill className="object-cover" />
-                    ) : (
-                      <ImgPH label="" width={52} height={52} className="rounded-full" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-sans text-[10px] text-vp-accent uppercase tracking-widest font-bold mb-1">
-                      OPINIÃO
+            <div className=”grid grid-cols-4 gap-5”>
+              {columnists.slice(0, 4).map((col) => {
+                const photo = col.avatar || col.image;
+                return (
+                  <article key={col.id} className=”grid grid-cols-[52px_1fr] gap-3”>
+                    <Link href={col.slug ? `/colunista/${col.slug}` : '#'}>
+                      <div className=”w-[52px] h-[52px] rounded-full overflow-hidden bg-vp-surface relative”>
+                        {photo ? (
+                          <SafeImage src={photo} alt={col.name} fill className=”object-cover” />
+                        ) : (
+                          <ImgPH label=”” width={52} height={52} className=”rounded-full” />
+                        )}
+                      </div>
+                    </Link>
+                    <div>
+                      <div className=”font-sans text-[10px] text-vp-accent uppercase tracking-widest font-bold mb-1”>
+                        {col.columnTitle || 'OPINIÃO'}
+                      </div>
+                      <Headline size=”small” href={`/materia/${col.articles?.[0]?.slug}`} className=”italic mb-1”>
+                        &ldquo;{col.articles?.[0]?.title}&rdquo;
+                      </Headline>
+                      <Link href={col.slug ? `/colunista/${col.slug}` : '#'} className=”font-sans text-[11px] text-vp-text-2 font-bold hover:text-vp-accent transition-colors”>
+                        {col.name}
+                      </Link>
                     </div>
-                    <Headline size="small" href={`/materia/${col.articles?.[0]?.slug}`} className="italic mb-1">
-                      “{col.articles?.[0]?.title}”
-                    </Headline>
-                    <div className="font-sans text-[11px] text-vp-text-2 font-bold">{col.name}</div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </section>
 

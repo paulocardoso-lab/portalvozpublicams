@@ -22,6 +22,8 @@ export async function Home() {
     image: string | null;
     avatar: string | null;
     bio: string | null;
+    columnTitle: string | null;
+    displayOrder: number;
     articles: { title: string; slug: string }[];
   }[] = [];
   let activeAlert: Alert | null = null;
@@ -67,6 +69,8 @@ export async function Home() {
           image: true,
           avatar: true,
           bio: true,
+          columnTitle: true,
+          displayOrder: true,
           articles: {
             where: { status: 'PUBLISHED' },
             select: { title: true, slug: true },
@@ -74,6 +78,7 @@ export async function Home() {
             take: 1
           }
         },
+        orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
         take: 4,
       }),
       prisma.alert.findFirst({
