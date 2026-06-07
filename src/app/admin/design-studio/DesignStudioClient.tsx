@@ -230,9 +230,12 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
   const previewRef = useRef<HTMLIFrameElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const [editorialTexts, setEditorialTexts] = useState<Record<string, string>>(
-    Object.fromEntries(EDITORIAL_TEXT_FIELDS.map(f => [f.key, initialSettings[f.key] ?? '']))
-  );
+  const [editorialTexts, setEditorialTexts] = useState<Record<string, string>>({
+    ...Object.fromEntries(EDITORIAL_TEXT_FIELDS.map(f => [f.key, initialSettings[f.key] ?? ''])),
+    'ambient.enabled':   initialSettings['ambient.enabled']   ?? 'false',
+    'ambient.audio_url': initialSettings['ambient.audio_url'] ?? '',
+    'ambient.volume':    initialSettings['ambient.volume']    ?? '10',
+  });
   const [textsSaved, setTextsSaved] = useState(false);
   const [textsIsPending, startTextsTransition] = useTransition();
 
@@ -545,6 +548,62 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
                 <p className="text-[10px] text-vp-text-4 leading-relaxed">
                   A imagem e todos os tamanhos abaixo preservam a proporção original. Não use versões esticadas ou comprimidas.
                 </p>
+              </div>
+
+              <SectionLabel>Som ambiente</SectionLabel>
+              <div className="flex flex-col gap-3 border border-vp-border rounded-sm bg-vp-bg p-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editorialTexts['ambient.enabled'] === 'true'}
+                    onChange={e => setEditorialTexts(prev => ({ ...prev, 'ambient.enabled': e.target.checked ? 'true' : 'false' }))}
+                    className="accent-[var(--vp-accent)]"
+                  />
+                  <span className="text-[11px] font-bold text-vp-text-2">Ativar som ambiente no site</span>
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-vp-text-4">URL do áudio (MP3 ou OGG)</span>
+                  <input
+                    type="text"
+                    className="vp-input text-[12px]"
+                    placeholder="https://... /ambiente.mp3"
+                    value={editorialTexts['ambient.audio_url'] ?? ''}
+                    onChange={e => setEditorialTexts(prev => ({ ...prev, 'ambient.audio_url': e.target.value }))}
+                  />
+                  <span className="text-[9px] text-vp-text-4 leading-relaxed">Loop contínuo · recomendado MP3 ~2–4 min, 128 kbps, &lt;3 MB</span>
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-vp-text-4">
+                    Volume padrão <span className="font-mono text-vp-text-3">{editorialTexts['ambient.volume'] ?? '10'}%</span>
+                  </span>
+                  <input
+                    type="range"
+                    min="1"
+                    max="30"
+                    step="1"
+                    value={editorialTexts['ambient.volume'] ?? '10'}
+                    onChange={e => setEditorialTexts(prev => ({ ...prev, 'ambient.volume': e.target.value }))}
+                    className="accent-[var(--vp-accent)]"
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={textsIsPending}
+                  onClick={() => {
+                    startTextsTransition(async () => {
+                      await saveBatchSettings({
+                        'ambient.enabled': editorialTexts['ambient.enabled'] ?? 'false',
+                        'ambient.audio_url': editorialTexts['ambient.audio_url'] ?? '',
+                        'ambient.volume': editorialTexts['ambient.volume'] ?? '10',
+                      });
+                      setTextsSaved(true);
+                      setTimeout(() => setTextsSaved(false), 2500);
+                    });
+                  }}
+                  className="vp-btn vp-btn-primary w-full py-2 text-[11px] font-bold uppercase tracking-widest"
+                >
+                  {textsIsPending ? 'Salvando...' : textsSaved ? '✓ Salvo!' : 'Salvar configurações de som'}
+                </button>
               </div>
 
               <SectionLabel>Tamanhos por contexto</SectionLabel>
