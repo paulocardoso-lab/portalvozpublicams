@@ -209,10 +209,37 @@ function CropBannerEditor({
   slot: string;
   onCropChange: (crop: CropState) => void;
 }) {
+  const [sourceSize, setSourceSize] = useState<{ w: number; h: number } | null>(null);
   const def = SLOTS[slot];
+
+  useEffect(() => {
+    if (!source) {
+      setSourceSize(null);
+      return;
+    }
+
+    let cancelled = false;
+    measureImage(source)
+      .then(meta => {
+        if (!cancelled) setSourceSize({ w: meta.w, h: meta.h });
+      })
+      .catch(() => {
+        if (!cancelled) setSourceSize(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [source]);
+
   if (!def) return null;
 
   const previewHeight = Math.max(def.previewH * 2.2, 120);
+  const fitZoom = sourceSize
+    ? Math.min(def.w / sourceSize.w, def.h / sourceSize.h) / Math.max(def.w / sourceSize.w, def.h / sourceSize.h)
+    : 0.1;
+  const minZoom = Math.max(0.05, Math.min(1, fitZoom));
+  const maxZoom = 4;
   const update = (patch: Partial<CropState>) => onCropChange({ ...crop, ...patch });
 
   return (
@@ -235,13 +262,32 @@ function CropBannerEditor({
         <img src={output || source} alt="Preview recortado do banner" className="h-full w-full object-contain" />
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => onCropChange({ zoom: minZoom, x: 0, y: 0 })}
+          className="vp-btn px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest"
+        >
+          Imagem inteira
+        </button>
+        <button
+          type="button"
+          onClick={() => onCropChange({ zoom: 1, x: 0, y: 0 })}
+          className="vp-btn px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest"
+        >
+          Preencher slot
+        </button>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="grid gap-1">
-          <span className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">Zoom</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">
+            Zoom <span className="font-mono text-vp-text-3">{crop.zoom.toFixed(2)}x</span>
+          </span>
           <input
             type="range"
-            min="1"
-            max="3"
+            min={minZoom}
+            max={maxZoom}
             step="0.01"
             value={crop.zoom}
             onChange={e => update({ zoom: Number(e.target.value) })}
