@@ -26,6 +26,7 @@ const nav: NavItem[] = [
   { id: 'ads',       label: 'Banners & publicidade', icon: '▭', href: '/admin/ads' },
   { id: 'charges',   label: 'Charges editoriais', icon: '🖼', href: '/admin/charges' },
   { id: 'vozes',     label: 'Vozes', icon: '◌', href: '/admin/vozes' },
+  { id: 'enquetes',  label: 'Enquetes', icon: '◈', href: '/admin/enquetes' },
   { id: 'rss',       label: 'Automação RSS', icon: '📡', href: '/admin/rss' },
   { id: 'podcasts',  label: 'Podcasts', icon: '🎙', href: '/admin/podcasts' },
   { id: 'social',    label: 'Redes sociais', icon: '#', href: '/admin/social' },

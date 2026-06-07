@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
+import { PollAboveFooter } from '@/components/poll/PollAboveFooter';
 import type { Section } from '@prisma/client';
 
 /**
@@ -28,6 +29,8 @@ export async function SiteFooter() {
   }
 
   return (
+    <>
+    <PollAboveFooter />
     <footer className="border-t-2 border-vp-text bg-vp-surface-2 font-sans text-[11px] sm:text-[12px] text-vp-text-3 px-4 sm:px-7 pt-6 sm:pt-8 pb-4 sm:pb-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] gap-6 sm:gap-7 mb-6 sm:mb-7">
         <div>
@@ -83,5 +86,6 @@ export async function SiteFooter() {
         <span className="font-mono text-vp-text-4 uppercase">vozpublicams.com.br</span>
       </div>
     </footer>
+    </>
   );
 }

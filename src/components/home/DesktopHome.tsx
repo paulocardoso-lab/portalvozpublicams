@@ -13,6 +13,7 @@ import { NewsletterForm } from '@/components/shared/NewsletterForm';
 import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode, Charge, Voice } from '@prisma/client';
 import { ChargeCard } from '@/components/charge/ChargeCard';
 import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
+import { PollSidebar } from '@/components/poll/PollSidebar';
 
 export type PublicAuthor = {
   id: string;
@@ -386,6 +387,9 @@ export function DesktopHome({
               publishedAt: v.publishedAt,
             }))} />
           )}
+
+          {/* Enquete */}
+          <PollSidebar />
 
           {/* Sidebar ad */}
           <AdSlot id="sidebar-top" className="w-full" />

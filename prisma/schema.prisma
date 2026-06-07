@@ -71,6 +71,7 @@ model User {
   accounts      Account[]
   auditLogs     AuditLog[]
   articleVersions ArticleVersion[]
+  pollVotes     PollVote[]
 }
 
 enum Role {
@@ -506,6 +507,61 @@ model RSSLog {
   itemsFailed  Int          @default(0)
   durationMs   Int          @default(0)
   createdAt    DateTime     @default(now())
+}
+
+enum PollPlacement {
+  SIDEBAR
+  ABOVE_FOOTER
+  BOTH
+}
+
+model Poll {
+  id          String        @id @default(cuid())
+  question    String
+  slug        String        @unique
+  expiresAt   DateTime?
+  maxVotes    Int?
+  placement   PollPlacement @default(SIDEBAR)
+  isActive    Boolean       @default(true)
+  showResults Boolean       @default(false)
+  totalVotes  Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
+
+  options     PollOption[]
+  votes       PollVote[]
+
+  @@index([isActive])
+}
+
+model PollOption {
+  id           String     @id @default(cuid())
+  pollId       String
+  poll         Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  label        String
+  votes        Int        @default(0)
+  displayOrder Int        @default(0)
+
+  pollVotes    PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id          String     @id @default(cuid())
+  pollId      String
+  poll        Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionId    String
+  option      PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  fingerprint String
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ip          String?
+  createdAt   DateTime   @default(now())
+
+  @@unique([pollId, fingerprint])
+  @@index([pollId, createdAt])
+  @@index([ip, createdAt])
 }
 
 model RSSDeadLetter {

@@ -16,6 +16,7 @@ import { getActiveCharge } from '@/app/actions/charges';
 import { ChargeCard } from '@/components/charge/ChargeCard';
 import { getActiveVoices } from '@/app/actions/voices';
 import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
+import { PollSidebar } from '@/components/poll/PollSidebar';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -148,6 +149,9 @@ export async function DesktopArticle({ article, related = [] }: { article: Artic
               publishedAt: v.publishedAt,
             }))} />
           )}
+
+          {/* Enquete */}
+          <PollSidebar />
 
           {related.length > 0 && (
             <div>
