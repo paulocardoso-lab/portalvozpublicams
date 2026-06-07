@@ -12,7 +12,7 @@ export default async function MenuPage() {
   return (
     <div className="flex flex-col min-h-dvh bg-vp-bg text-vp-text w-full max-w-120 mx-auto border-x border-vp-border">
       <header className="flex items-center justify-between px-4 py-3 border-b border-vp-border">
-        <BrandLogo size="md" />
+        <BrandLogo size="md" cssHeight="var(--vp-compact-logo-size)" />
         <Link href="/" className="text-vp-text text-2xl no-underline leading-none">×</Link>
       </header>
 

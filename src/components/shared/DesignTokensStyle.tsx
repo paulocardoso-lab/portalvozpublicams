@@ -56,6 +56,9 @@ export async function DesignTokensStyle() {
   --vp-header-logo-size: ${r('comp.header-logo-size')}px;
   --vp-header-nav-size: ${r('comp.header-nav-font-size')}px;
   --vp-header-nav-weight: ${t['comp.header-nav-font-weight']};
+  --vp-footer-logo-size: ${r('comp.footer-logo-size')}px;
+  --vp-admin-logo-size: ${r('comp.admin-logo-size')}px;
+  --vp-compact-logo-size: ${r('comp.compact-logo-size')}px;
 
   /* Article */
   --vp-article-max: ${r('comp.article-max-width')}px;

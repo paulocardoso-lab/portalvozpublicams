@@ -91,6 +91,7 @@ export async function SiteHeader() {
         <Link href="/" className="flex items-center no-underline group py-2">
           <Monogram
             size={48}
+            cssHeight="var(--vp-header-logo-size)"
             className="transition-transform group-hover:scale-[1.02]"
             src={settings['BRAND_LOGO_URL'] || '/logo.webp'}
           />

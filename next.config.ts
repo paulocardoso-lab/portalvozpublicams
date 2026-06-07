@@ -17,10 +17,20 @@ const contentSecurityPolicy = [
   "upgrade-insecure-requests",
 ].join("; ");
 
+const freshContentHeaders = [
+  { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, max-age=0" },
+  { key: "Pragma", value: "no-cache" },
+  { key: "Expires", value: "0" },
+];
+
 const nextConfig: NextConfig = {
   serverExternalPackages: ['sharp'],
   async headers() {
     return [
+      {
+        source: "/:path((?!_next/static|_next/image).*)",
+        headers: freshContentHeaders,
+      },
       {
         source: "/(.*)",
         headers: [

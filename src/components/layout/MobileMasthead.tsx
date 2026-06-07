@@ -40,7 +40,7 @@ export function MobileMasthead({ title }: { title?: string }) {
             {title ? (
               <div className="font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-vp-accent">{title}</div>
             ) : (
-              <Monogram size="sm" />
+              <Monogram size="sm" cssHeight="var(--vp-compact-logo-size)" />
             )}
           </Link>
         </div>

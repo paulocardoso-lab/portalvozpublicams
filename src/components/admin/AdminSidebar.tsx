@@ -39,7 +39,7 @@ export function AdminSidebar() {
     <aside className="bg-vp-bg border-r border-vp-border py-4.5 flex flex-col gap-3.5 sticky top-0 h-[100dvh] w-[232px]">
       <div className="px-4.5 pb-4.5 border-b border-vp-border flex items-center gap-2.5">
         <Link href="/" className="no-underline">
-          <BrandLogo size="md" />
+          <BrandLogo size="md" cssHeight="var(--vp-admin-logo-size)" />
         </Link>
         <div className="text-[11px] text-vp-text-3 tracking-[0.1em] uppercase ml-auto">Admin</div>
       </div>

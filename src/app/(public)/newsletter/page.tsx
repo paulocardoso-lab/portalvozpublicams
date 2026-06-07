@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { Monogram } from '@/components/shared/Monogram';
@@ -14,9 +15,9 @@ export default function NewsletterPage() {
       </div>
 
       <div className="lg:hidden flex items-center px-2 py-1 border-b border-vp-border gap-1">
-        <a href="/" aria-label="Fechar" className="text-vp-text text-[24px] leading-none min-w-11 min-h-11 flex items-center justify-center hover:text-vp-accent transition-colors no-underline">×</a>
+        <Link href="/" aria-label="Fechar" className="text-vp-text text-[24px] leading-none min-w-11 min-h-11 flex items-center justify-center hover:text-vp-accent transition-colors no-underline">×</Link>
         <div className="flex-1 text-center">
-          <Monogram size="sm" />
+          <Monogram size="sm" cssHeight="var(--vp-compact-logo-size)" />
         </div>
         <div className="min-w-11" />
       </div>
@@ -104,6 +105,4 @@ export default function NewsletterPage() {
     </div>
   );
 }
-
-
 

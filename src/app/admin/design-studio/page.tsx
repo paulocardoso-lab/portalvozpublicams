@@ -1,9 +1,13 @@
 import React from 'react';
 import { getDesignTokens } from '@/app/actions/design-tokens';
+import { getSiteSettings } from '@/app/actions/settings';
 import { DesignStudioClient } from './DesignStudioClient';
 
 export default async function DesignStudioPage() {
-  const tokens = await getDesignTokens();
+  const [tokens, settings] = await Promise.all([
+    getDesignTokens(),
+    getSiteSettings(),
+  ]);
 
   return (
     <div className="flex flex-col h-full">
@@ -13,7 +17,7 @@ export default async function DesignStudioPage() {
           Edite cores, tipografia e layout do portal em tempo real. As alterações são aplicadas imediatamente sem necessidade de deploy.
         </p>
       </div>
-      <DesignStudioClient initialTokens={tokens} />
+      <DesignStudioClient initialTokens={tokens} initialLogoUrl={settings['BRAND_LOGO_URL'] || '/logo.webp'} />
     </div>
   );
 }

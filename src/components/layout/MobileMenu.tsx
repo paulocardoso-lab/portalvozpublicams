@@ -23,7 +23,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
     <div className="flex flex-col min-h-screen bg-vp-bg w-full fixed inset-0 z-[100] border-x border-vp-border md:hidden">
       {/* 1. Header */}
       <div className="flex items-center justify-between px-4 py-3.5 border-b border-vp-border bg-vp-bg">
-        <Monogram size="sm" />
+        <Monogram size="sm" cssHeight="var(--vp-compact-logo-size)" />
         <button 
           aria-label="Fechar menu" 
           onClick={onClose} 
@@ -94,4 +94,3 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
     </div>
   );
 }
-

@@ -15,7 +15,7 @@ export function FunnelLayout({ children, step, title }: FunnelLayoutProps) {
       <div className="hidden lg:block border-b border-vp-border bg-vp-surface/30">
         <div className="max-w-[1200px] mx-auto px-7 py-5 flex items-center justify-between">
           <Link href="/">
-            <BrandLogo size="md" />
+            <BrandLogo size="md" cssHeight="var(--vp-compact-logo-size)" />
           </Link>
           <div className="flex items-center gap-12 font-sans text-[11px] uppercase tracking-[0.2em] font-black text-vp-text-4">
             <div className="flex items-center gap-3">
@@ -63,4 +63,3 @@ export function FunnelLayout({ children, step, title }: FunnelLayoutProps) {
     </div>
   );
 }
-

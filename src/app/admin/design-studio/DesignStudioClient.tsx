@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useTransition, useRef, useEffect } from 'react';
 import {
   resetDesignTokens,
+  saveDesignBrandLogoUrl,
   listSnapshots,
   deleteSnapshot,
   saveDesignTokensWithSnapshot,
@@ -13,13 +14,15 @@ import {
   type DesignSnapshot,
   type ScheduledTheme,
 } from '@/app/actions/design-tokens';
+import { uploadBrand } from '@/app/actions/brand';
 import { DEFAULT_TOKENS } from '@/lib/design-tokens-types';
 
-type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'historico' | 'agendar';
+type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'marca' | 'historico' | 'agendar';
 type Viewport = 'mobile' | 'tablet' | 'desktop';
 
 interface Props {
   initialTokens: DesignTokens;
+  initialLogoUrl: string;
 }
 
 const VIEWPORT_WIDTHS: Record<Viewport, string> = {
@@ -165,14 +168,19 @@ function buildCssMap(t: DesignTokens): Record<string, string> {
     '--vp-btn-radius': `${n('comp.btn-radius')}px`,
     '--vp-card-radius': `${n('comp.card-radius')}px`,
     '--vp-content-gap': `${n('layout.content-gap')}px`,
+    '--vp-header-logo-size': `${n('comp.header-logo-size')}px`,
+    '--vp-footer-logo-size': `${n('comp.footer-logo-size')}px`,
+    '--vp-admin-logo-size': `${n('comp.admin-logo-size')}px`,
+    '--vp-compact-logo-size': `${n('comp.compact-logo-size')}px`,
     '--vp-article-text-align': t['comp.article-text-align'],
   };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function DesignStudioClient({ initialTokens }: Props) {
+export function DesignStudioClient({ initialTokens, initialLogoUrl }: Props) {
   const [tokens, setTokens] = useState<DesignTokens>({ ...initialTokens });
+  const [logoUrl, setLogoUrl] = useState(initialLogoUrl || '/logo.webp');
   const [activeTab, setActiveTab] = useState<Tab>('cores');
   const [viewport, setViewport] = useState<Viewport>('desktop');
   const [isPending, startTransition] = useTransition();
@@ -188,12 +196,23 @@ export function DesignStudioClient({ initialTokens }: Props) {
   const [schedDateTime, setSchedDateTime] = useState('');
   const [schedLoaded, setSchedLoaded] = useState(false);
   const previewRef = useRef<HTMLIFrameElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const applyToPreview = useCallback((updated: DesignTokens) => {
     const frame = previewRef.current;
     const root = frame?.contentDocument?.documentElement;
     if (!root) return;
     Object.entries(buildCssMap(updated)).forEach(([k, v]) => root.style.setProperty(k, v));
+  }, []);
+
+  const applyLogoToPreview = useCallback((updatedLogoUrl: string) => {
+    const doc = previewRef.current?.contentDocument;
+    if (!doc) return;
+    doc.querySelectorAll<HTMLImageElement>('img[alt="Voz Pública MS"]').forEach(img => {
+      img.src = updatedLogoUrl || '/logo.webp';
+      img.style.width = 'auto';
+      img.style.objectFit = 'contain';
+    });
   }, []);
 
   const updateToken = useCallback((key: keyof DesignTokens, value: string) => {
@@ -205,6 +224,13 @@ export function DesignStudioClient({ initialTokens }: Props) {
     setIsDirty(true);
     setSaved(false);
   }, [applyToPreview]);
+
+  const updateLogoUrl = useCallback((value: string) => {
+    setLogoUrl(value);
+    applyLogoToPreview(value);
+    setIsDirty(true);
+    setSaved(false);
+  }, [applyLogoToPreview]);
 
   const loadSnapshots = useCallback(() => {
     startTransition(async () => {
@@ -229,6 +255,7 @@ export function DesignStudioClient({ initialTokens }: Props) {
     const label = snapshotLabel.trim() || `Versão ${new Date().toLocaleString('pt-BR')}`;
     startTransition(async () => {
       await saveDesignTokensWithSnapshot(tokens, label);
+      await saveDesignBrandLogoUrl(logoUrl);
       setSaved(true);
       setIsDirty(false);
       setSnapshotLabel('');
@@ -241,9 +268,25 @@ export function DesignStudioClient({ initialTokens }: Props) {
     startTransition(async () => {
       await resetDesignTokens();
       setTokens({ ...DEFAULT_TOKENS });
+      setLogoUrl('/logo.webp');
+      await saveDesignBrandLogoUrl('/logo.webp');
       applyToPreview(DEFAULT_TOKENS as DesignTokens);
       setIsDirty(false);
       setSaved(false);
+    });
+  };
+
+  const handleLogoUpload = (file: File | null) => {
+    if (!file) return;
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set('file', file);
+      const publicUrl = await uploadBrand(formData, 'logo');
+      setLogoUrl(publicUrl);
+      applyLogoToPreview(publicUrl);
+      setIsDirty(true);
+      setSaved(false);
+      if (logoInputRef.current) logoInputRef.current.value = '';
     });
   };
 
@@ -312,6 +355,7 @@ export function DesignStudioClient({ initialTokens }: Props) {
     { id: 'tipografia',  label: 'Tipo' },
     { id: 'espacamento', label: 'Espaço' },
     { id: 'componentes', label: 'Comp.' },
+    { id: 'marca',       label: 'Marca' },
     { id: 'historico',   label: 'Hist.' },
     { id: 'agendar',     label: 'Agendar' },
   ];
@@ -403,7 +447,6 @@ export function DesignStudioClient({ initialTokens }: Props) {
               <SliderRow label="Proporção da imagem (%)" value={Number(tokens['comp.card-image-ratio'])} min={40} max={75} step={5} unit="%" onChange={v => updateToken('comp.card-image-ratio', String(v))} />
 
               <SectionLabel>Cabeçalho</SectionLabel>
-              <SliderRow label="Tamanho da logo" value={Number(tokens['comp.header-logo-size'])} min={24} max={80} step={4} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
               <SliderRow label="Fonte da nav" value={Number(tokens['comp.header-nav-font-size'])} min={10} max={16} step={1} unit="px" onChange={v => updateToken('comp.header-nav-font-size', String(v))} />
               <SelectRow label="Peso da nav" value={tokens['comp.header-nav-font-weight']} options={FONT_WEIGHT_OPTIONS} onChange={v => updateToken('comp.header-nav-font-weight', v)} />
 
@@ -412,6 +455,64 @@ export function DesignStudioClient({ initialTokens }: Props) {
               <SliderRow label="Tamanho da fonte" value={Number(tokens['comp.article-font-size'])} min={14} max={24} step={1} unit="px" onChange={v => updateToken('comp.article-font-size', String(v))} />
               <SelectRow label="Alinhamento do texto" value={tokens['comp.article-text-align']} options={TEXT_ALIGN_OPTIONS} onChange={v => updateToken('comp.article-text-align', v)} />
               <SliderRow label="Espaço entre parágrafos" value={Number(tokens['comp.article-paragraph-gap'])} min={12} max={48} step={4} unit="px" onChange={v => updateToken('comp.article-paragraph-gap', String(v))} />
+            </>
+          )}
+
+          {/* ── Marca ── */}
+          {activeTab === 'marca' && (
+            <>
+              <SectionLabel>Logomarca principal</SectionLabel>
+              <div className="border border-vp-border rounded-sm bg-vp-bg p-3 flex flex-col gap-3">
+                <div className="min-h-20 flex items-center justify-center bg-vp-surface border border-vp-border rounded-sm p-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={logoUrl || '/logo.webp'}
+                    alt="Prévia da logomarca"
+                    className="max-w-full object-contain"
+                    style={{ height: `${Number(tokens['comp.header-logo-size']) || 48}px`, width: 'auto' }}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="brand-logo-url" className="text-[10px] text-vp-text-4 font-bold uppercase tracking-wider block mb-1">
+                    URL da logomarca
+                  </label>
+                  <input
+                    id="brand-logo-url"
+                    type="text"
+                    value={logoUrl}
+                    onChange={e => updateLogoUrl(e.target.value)}
+                    className="vp-input text-[12px] py-1.5 w-full"
+                    placeholder="/logo.webp"
+                  />
+                </div>
+                <div>
+                  <input
+                    ref={logoInputRef}
+                    id="brand-logo-upload"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                    onChange={e => handleLogoUpload(e.target.files?.[0] ?? null)}
+                    className="sr-only"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={isPending}
+                    className="vp-btn w-full text-[11px] py-2"
+                  >
+                    {isPending ? 'Enviando...' : 'Enviar nova logomarca'}
+                  </button>
+                </div>
+                <p className="text-[10px] text-vp-text-4 leading-relaxed">
+                  A imagem e todos os tamanhos abaixo preservam a proporção original. Não use versões esticadas ou comprimidas.
+                </p>
+              </div>
+
+              <SectionLabel>Tamanhos por contexto</SectionLabel>
+              <SliderRow label="Cabeçalho principal" value={Number(tokens['comp.header-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+              <SliderRow label="Rodapé" value={Number(tokens['comp.footer-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
+              <SliderRow label="Painel administrativo" value={Number(tokens['comp.admin-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.admin-logo-size', String(v))} />
+              <SliderRow label="Menus, login e fluxos compactos" value={Number(tokens['comp.compact-logo-size'])} min={20} max={72} step={2} unit="px" onChange={v => updateToken('comp.compact-logo-size', String(v))} />
             </>
           )}
 

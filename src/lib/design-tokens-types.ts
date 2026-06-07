@@ -42,6 +42,10 @@ export interface DesignTokens {
   'comp.header-logo-size': string;
   'comp.header-nav-font-size': string;
   'comp.header-nav-font-weight': string;
+  // Components — brand/logo
+  'comp.footer-logo-size': string;
+  'comp.admin-logo-size': string;
+  'comp.compact-logo-size': string;
   // Components — article body
   'comp.article-max-width': string;
   'comp.article-font-size': string;
@@ -87,6 +91,9 @@ export const DEFAULT_TOKENS: DesignTokens = {
   'comp.header-logo-size': '48',
   'comp.header-nav-font-size': '12',
   'comp.header-nav-font-weight': '700',
+  'comp.footer-logo-size': '48',
+  'comp.admin-logo-size': '56',
+  'comp.compact-logo-size': '32',
   'comp.article-max-width': '720',
   'comp.article-font-size': '18',
   'comp.article-text-align': 'left',

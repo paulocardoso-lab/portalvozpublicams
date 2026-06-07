@@ -76,7 +76,7 @@ function LoginForm() {
   return (
     <div className="flex flex-col min-h-screen bg-vp-bg w-full">
       <div className="flex items-center justify-between px-6 py-5 border-b border-vp-border">
-        <Link href="/"><BrandLogo size="md" /></Link>
+        <Link href="/"><BrandLogo size="md" cssHeight="var(--vp-compact-logo-size)" /></Link>
         <Link href="/" className="text-[24px] text-vp-text-3 hover:text-vp-text transition-colors">×</Link>
       </div>
 

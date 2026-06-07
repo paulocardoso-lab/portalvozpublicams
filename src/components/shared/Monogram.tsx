@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import type { CSSProperties } from 'react';
 
 const SIZE_MAP = { sm: 32, md: 48, lg: 64, xl: 96 } as const;
 const LOGO_ASPECT_RATIO = 1536 / 1024;
@@ -7,9 +8,11 @@ interface MonogramProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | number;
   className?: string;
   src?: string;
+  cssHeight?: string;
+  style?: CSSProperties;
 }
 
-export function Monogram({ size = 'md', className = '', src = '/logo.webp' }: MonogramProps) {
+export function Monogram({ size = 'md', className = '', src = '/api/brand/logo', cssHeight, style }: MonogramProps) {
   const height = typeof size === 'number' ? size : SIZE_MAP[size];
 
   return (
@@ -19,9 +22,9 @@ export function Monogram({ size = 'md', className = '', src = '/logo.webp' }: Mo
       height={height}
       width={Math.round(height * LOGO_ASPECT_RATIO)}
       className={className}
-      style={{ height: `${height}px`, maxWidth: '100%', width: 'auto', objectFit: 'contain' }}
+      style={{ height: cssHeight ?? `${height}px`, maxWidth: '100%', width: 'auto', objectFit: 'contain', ...style }}
       priority
-      unoptimized={src.startsWith('http')}
+      unoptimized={src.startsWith('http') || src.startsWith('/api/')}
     />
   );
 }

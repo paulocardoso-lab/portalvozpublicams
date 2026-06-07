@@ -40,6 +40,21 @@ export async function saveDesignTokens(tokens: Partial<DesignTokens>) {
   revalidatePath('/admin/design-studio');
 }
 
+export async function saveDesignBrandLogoUrl(logoUrl: string): Promise<void> {
+  await requireAdmin();
+
+  const value = logoUrl.trim() || '/logo.webp';
+  await prisma.siteSetting.upsert({
+    where: { key: 'BRAND_LOGO_URL' },
+    update: { value },
+    create: { key: 'BRAND_LOGO_URL', value },
+  });
+
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin', 'layout');
+  revalidatePath('/admin/design-studio');
+}
+
 export async function resetDesignTokens() {
   await requireAdmin();
 
