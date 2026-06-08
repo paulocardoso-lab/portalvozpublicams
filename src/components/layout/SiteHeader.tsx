@@ -79,8 +79,8 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      {/* 2. Logo row */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-0 gap-5">
+      {/* 2. Logo row — altura governada por --vp-header-height */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 gap-5 h-(--vp-header-height,72px)">
         <div className="flex items-center gap-3.5">
           <Link href="/menu" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-2 hover:text-vp-accent transition-colors">
             <span className="inline-block w-4 h-[11px] relative">
@@ -96,11 +96,11 @@ export async function SiteHeader() {
           </Link>
         </div>
 
-        <Link href="/" className="flex items-center no-underline group py-2">
+        <Link href="/" className="flex items-center justify-center h-full no-underline group py-2">
           <Monogram
             size={48}
             cssHeight="var(--vp-header-logo-size)"
-            className="transition-transform group-hover:scale-[1.02]"
+            className="transition-transform group-hover:scale-[1.02] max-h-full"
             src={settings['BRAND_LOGO_URL'] || '/logo.webp'}
           />
         </Link>

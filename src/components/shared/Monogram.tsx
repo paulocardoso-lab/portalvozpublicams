@@ -22,7 +22,7 @@ export function Monogram({ size = 'md', className = '', src = '/api/brand/logo',
       height={height}
       width={Math.round(height * LOGO_ASPECT_RATIO)}
       className={className}
-      style={{ height: cssHeight ?? `${height}px`, maxWidth: '100%', width: 'auto', objectFit: 'contain', ...style }}
+      style={{ height: cssHeight ?? `${height}px`, maxHeight: '100%', maxWidth: '100%', width: 'auto', objectFit: 'contain', ...style }}
       priority
       unoptimized={src.startsWith('http') || src.startsWith('/api/')}
     />

@@ -37,10 +37,10 @@ export async function uploadBrandAsset(
   let fileName: string;
 
   if (type === 'logo') {
-    // Logo: convert to WebP, max 400px tall, maintain aspect ratio
+    // Logo: WebP with alpha preserved — transparent background, max 400px tall
     outputBuffer = await sharp(inputBuffer)
-      .resize({ height: 400, withoutEnlargement: true })
-      .webp({ quality: 90 })
+      .resize({ height: 400, withoutEnlargement: true, fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .webp({ quality: 90, lossless: false })
       .toBuffer();
     fileName = 'logo.webp';
   } else {
