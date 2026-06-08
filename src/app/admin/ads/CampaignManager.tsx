@@ -28,17 +28,20 @@ interface SlotDef {
   h: number;
   tolerance: number; // % tolerance on ratio check
   previewH: number;  // px height for preview box
+  where: string;     // descrição contextual de onde aparece no site
+  device: 'desktop' | 'mobile' | 'ambos';
+  maxW: number;      // max-width aplicado no AdSlot (px)
 }
 
 const SLOTS: Record<string, SlotDef> = {
-  'leaderboard':    { label: 'Leaderboard topo',       w: 970, h: 90,  tolerance: 15, previewH: 44  },
-  'sidebar-top':    { label: 'Lateral superior',        w: 300, h: 250, tolerance: 10, previewH: 140 },
-  'sidebar-bottom': { label: 'Lateral inferior',        w: 300, h: 250, tolerance: 10, previewH: 140 },
-  'in-article':     { label: 'Dentro da matéria',       w: 600, h: 120, tolerance: 15, previewH: 68  },
-  'mobile-top':     { label: 'Mobile topo',             w: 320, h: 50,  tolerance: 15, previewH: 36  },
-  'mobile-inline':  { label: 'Mobile entre blocos',     w: 300, h: 250, tolerance: 10, previewH: 140 },
-  'sticky-bottom':  { label: 'Mobile sticky',           w: 320, h: 50,  tolerance: 15, previewH: 36  },
-  'native-feed':    { label: 'Nativo in-feed',          w: 600, h: 200, tolerance: 10, previewH: 110 },
+  'leaderboard':    { label: 'Leaderboard topo',    w: 970, h: 90,  tolerance: 15, previewH: 44,  where: 'Logo abaixo do cabeçalho, na home — centralizado em 970px', device: 'desktop', maxW: 970 },
+  'sidebar-top':    { label: 'Lateral superior',    w: 300, h: 250, tolerance: 10, previewH: 140, where: 'Topo da coluna lateral direita (home e matérias)', device: 'desktop', maxW: 300 },
+  'sidebar-bottom': { label: 'Lateral inferior',    w: 300, h: 250, tolerance: 10, previewH: 140, where: 'Base da coluna lateral direita (home e matérias)', device: 'desktop', maxW: 300 },
+  'in-article':     { label: 'Dentro da matéria',   w: 600, h: 120, tolerance: 15, previewH: 68,  where: 'Inserido após o 3º parágrafo do corpo da matéria', device: 'desktop', maxW: 600 },
+  'mobile-top':     { label: 'Mobile topo',         w: 320, h: 50,  tolerance: 15, previewH: 36,  where: 'Topo da home no celular, abaixo do cabeçalho', device: 'mobile', maxW: 320 },
+  'mobile-inline':  { label: 'Mobile entre blocos', w: 300, h: 250, tolerance: 10, previewH: 140, where: 'Entre os blocos de notícia na home mobile e em matérias', device: 'mobile', maxW: 300 },
+  'sticky-bottom':  { label: 'Mobile sticky',       w: 320, h: 50,  tolerance: 15, previewH: 36,  where: 'Barra fixa no rodapé do celular (dismissível)', device: 'mobile', maxW: 320 },
+  'native-feed':    { label: 'Nativo in-feed',      w: 600, h: 200, tolerance: 10, previewH: 110, where: 'Card nativo inserido no feed de notícias mobile', device: 'mobile', maxW: 600 },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -646,7 +649,9 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
                     onChange={e => setSelectedSlot(e.target.value)}
                   >
                     {Object.entries(SLOTS).map(([value, def]) => (
-                      <option key={value} value={value}>{def.label} ({def.w}×{def.h})</option>
+                      <option key={value} value={value}>
+                        {def.label} — {def.w}×{def.h}px ({def.device === 'desktop' ? 'Desktop' : def.device === 'mobile' ? 'Mobile' : 'Desktop+Mobile'})
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -666,6 +671,30 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
                   />
                 </div>
               </div>
+
+              {/* Slot info card */}
+              {(() => {
+                const def = SLOTS[selectedSlot];
+                if (!def) return null;
+                const deviceIcon = def.device === 'desktop' ? '🖥' : def.device === 'mobile' ? '📱' : '🖥📱';
+                return (
+                  <div className="flex items-start gap-3 px-3.5 py-3 bg-vp-surface/40 border border-vp-border/50 rounded-sm">
+                    <span className="text-[16px] leading-none mt-0.5 select-none">{deviceIcon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[11px] font-bold text-vp-text">{def.label}</span>
+                        <span className="font-mono text-[10px] text-vp-accent bg-vp-accent/10 px-1.5 py-0.5 rounded-sm">
+                          {def.w}×{def.h}px
+                        </span>
+                        <span className="font-mono text-[10px] text-vp-text-4">
+                          max-width: {def.maxW}px no site
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-vp-text-3 mt-1 leading-relaxed">{def.where}</p>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* URL de destino */}
               <div className="space-y-1.5">
