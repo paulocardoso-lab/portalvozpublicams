@@ -29,6 +29,7 @@ const nav: NavItem[] = [
   { id: 'enquetes',  label: 'Enquetes', icon: '◈', href: '/admin/enquetes' },
   { id: 'rss',       label: 'Automação RSS', icon: '📡', href: '/admin/rss' },
   { id: 'podcasts',  label: 'Podcasts', icon: '🎙', href: '/admin/podcasts' },
+  { id: 'som',       label: 'Som Ambiente', icon: '♫', href: '/admin/som-ambiente' },
   { id: 'social',    label: 'Redes sociais', icon: '#', href: '/admin/social' },
   { id: 'metrics',   label: 'Métricas & tráfego', icon: '↗', href: '/admin/metrics' },
   { id: 'market',    label: 'Indicadores do cabeçalho', icon: '$', href: '/admin/metrics/market' },
