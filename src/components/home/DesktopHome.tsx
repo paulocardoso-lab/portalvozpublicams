@@ -103,8 +103,8 @@ export function DesktopHome({
         </div>
       )}
 
-      {/* 2. Top leaderboard ad */}
-      <div className="px-7 pt-4">
+      {/* 2. Top leaderboard ad — IAB 970×90, centrado e contido via AdSlot */}
+      <div className="border-b border-vp-border/40 py-3 px-4">
         <AdSlot id="leaderboard" className="w-full" />
       </div>
 
