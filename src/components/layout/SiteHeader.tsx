@@ -57,9 +57,9 @@ export async function SiteHeader() {
   const whatsappUrl = normalizeWhatsAppLink(settings['SOCIAL_WA'], settings['SOCIAL_WHATSAPP_MESSAGE']);
   
   return (
-    <header className="hidden md:block border-b border-vp-border bg-vp-bg/95 backdrop-blur sticky top-0 z-50">
+    <header className="hidden md:block border-b border-(--vp-header-border-color) bg-(--vp-header-bg) backdrop-blur sticky top-0 z-50">
       {/* 1. Top utility bar */}
-      <div className="flex items-center justify-between px-7 py-2 border-b border-vp-border font-mono text-[11px] text-vp-text-3 tracking-tighter uppercase">
+      <div className="flex items-center justify-between px-7 py-2 border-b border-(--vp-header-border-color) bg-(--vp-header-topbar-bg) font-mono text-[length:var(--vp-header-topbar-font-size)] text-vp-text-3 tracking-tighter uppercase">
         <div className="flex gap-4.5 items-center">
           <span>{formattedDate}</span>
           <span className="text-vp-text-4">·</span>
@@ -82,7 +82,7 @@ export async function SiteHeader() {
       {/* 2. Logo row — altura governada por --vp-header-height */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-center px-7 gap-5 h-(--vp-header-height,72px)">
         <div className="flex items-center gap-3.5">
-          <Link href="/menu" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-2 hover:text-vp-accent transition-colors">
+          <Link href="/menu" className="text-vp-text font-sans text-[length:var(--vp-header-nav-size)] font-[number:var(--vp-header-nav-weight)] flex items-center gap-2 hover:text-vp-accent transition-colors">
             <span className="inline-block w-4 h-[11px] relative">
               <span className="absolute left-0 right-0 top-0 h-[1.5px] bg-current" />
               <span className="absolute left-0 right-0 top-[5px] h-[1.5px] bg-current" />
@@ -90,7 +90,7 @@ export async function SiteHeader() {
             </span>
             MENU
           </Link>
-          <Link href="/busca" className="text-vp-text font-sans text-[12px] font-bold flex items-center gap-1.5 hover:text-vp-accent transition-colors">
+          <Link href="/busca" className="text-vp-text font-sans text-[length:var(--vp-header-nav-size)] font-[number:var(--vp-header-nav-weight)] flex items-center gap-1.5 hover:text-vp-accent transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             BUSCAR
           </Link>
@@ -122,12 +122,12 @@ export async function SiteHeader() {
       </div>
 
       {/* 3. Nav Row */}
-      <nav className="flex border-t border-vp-border overflow-x-auto px-5 scrollbar-hide">
+      <nav className="flex border-t border-(--vp-header-border-color) overflow-x-auto px-(--vp-header-nav-spacing) scrollbar-hide">
         {dbSections.map((s, i) => (
-          <Link 
-            key={s.id} 
-            href={`/editoria/${s.slug}`} 
-            className={`text-[12px] font-bold tracking-[0.04em] uppercase whitespace-nowrap py-2.5 px-3.5 border-b-2 transition-all font-sans ${i === 0 ? 'text-vp-accent border-vp-accent' : 'text-vp-text-2 border-transparent hover:text-vp-text hover:border-vp-border-2'}`}
+          <Link
+            key={s.id}
+            href={`/editoria/${s.slug}`}
+            className={`text-[length:var(--vp-header-nav-size)] font-[number:var(--vp-header-nav-weight)] tracking-[0.04em] uppercase whitespace-nowrap py-2.5 px-(--vp-header-nav-spacing) border-b-2 transition-all font-sans ${i === 0 ? 'text-vp-accent border-vp-accent' : 'text-vp-text-2 border-transparent hover:text-vp-text hover:border-vp-border-2'}`}
           >
             {s.name}
           </Link>

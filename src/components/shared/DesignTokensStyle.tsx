@@ -56,7 +56,20 @@ export async function DesignTokensStyle() {
   --vp-header-logo-size: ${r('comp.header-logo-size')}px;
   --vp-header-nav-size: ${r('comp.header-nav-font-size')}px;
   --vp-header-nav-weight: ${t['comp.header-nav-font-weight']};
+  --vp-header-nav-spacing: ${r('comp.header-nav-spacing')}px;
+  --vp-header-bg: ${t['comp.header-bg']};
+  --vp-header-topbar-bg: ${t['comp.header-topbar-bg']};
+  --vp-header-border-color: ${t['comp.header-border-color']};
+  --vp-header-topbar-font-size: ${r('comp.header-topbar-font-size')}px;
+
+  /* Footer */
   --vp-footer-logo-size: ${r('comp.footer-logo-size')}px;
+  --vp-footer-bg: ${t['comp.footer-bg']};
+  --vp-footer-text: ${t['comp.footer-text-color']};
+  --vp-footer-border: ${t['comp.footer-border-color']};
+  --vp-footer-border-w: ${r('comp.footer-border-width')}px;
+  --vp-footer-py: ${r('comp.footer-padding-y')}px;
+
   --vp-admin-logo-size: ${r('comp.admin-logo-size')}px;
   --vp-compact-logo-size: ${r('comp.compact-logo-size')}px;
 

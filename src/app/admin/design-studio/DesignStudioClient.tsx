@@ -18,7 +18,7 @@ import { uploadBrand } from '@/app/actions/brand';
 import { saveBatchSettings } from '@/app/actions/settings';
 import { DEFAULT_TOKENS } from '@/lib/design-tokens-types';
 
-type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'marca' | 'textos' | 'historico' | 'agendar';
+type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'marca' | 'cabecalho' | 'rodape' | 'textos' | 'historico' | 'agendar';
 type TabGroup = 'visual' | 'conteudo' | 'sistema';
 type Viewport = 'mobile' | 'tablet' | 'desktop';
 
@@ -177,7 +177,19 @@ function buildCssMap(t: DesignTokens): Record<string, string> {
     '--vp-card-radius': `${n('comp.card-radius')}px`,
     '--vp-content-gap': `${n('layout.content-gap')}px`,
     '--vp-header-logo-size': `${n('comp.header-logo-size')}px`,
+    '--vp-header-nav-size': `${n('comp.header-nav-font-size')}px`,
+    '--vp-header-nav-weight': t['comp.header-nav-font-weight'],
+    '--vp-header-nav-spacing': `${n('comp.header-nav-spacing')}px`,
+    '--vp-header-bg': t['comp.header-bg'],
+    '--vp-header-topbar-bg': t['comp.header-topbar-bg'],
+    '--vp-header-border-color': t['comp.header-border-color'],
+    '--vp-header-topbar-font-size': `${n('comp.header-topbar-font-size')}px`,
     '--vp-footer-logo-size': `${n('comp.footer-logo-size')}px`,
+    '--vp-footer-bg': t['comp.footer-bg'],
+    '--vp-footer-text': t['comp.footer-text-color'],
+    '--vp-footer-border': t['comp.footer-border-color'],
+    '--vp-footer-border-w': `${n('comp.footer-border-width')}px`,
+    '--vp-footer-py': `${n('comp.footer-padding-y')}px`,
     '--vp-admin-logo-size': `${n('comp.admin-logo-size')}px`,
     '--vp-compact-logo-size': `${n('comp.compact-logo-size')}px`,
     '--vp-article-text-align': t['comp.article-text-align'],
@@ -406,8 +418,10 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
     { id: 'cores',       label: 'Cores',        icon: '◉', group: 'visual',    desc: 'Paleta, fundos e acento' },
     { id: 'tipografia',  label: 'Tipografia',   icon: 'T', group: 'visual',    desc: 'Famílias e escala de texto' },
     { id: 'espacamento', label: 'Espaçamento',  icon: '⊞', group: 'visual',    desc: 'Grid, container e bordas' },
-    { id: 'componentes', label: 'Componentes',  icon: '▦', group: 'visual',    desc: 'Botões, cards e cabeçalho' },
+    { id: 'componentes', label: 'Componentes',  icon: '▦', group: 'visual',    desc: 'Botões, cards e artigo' },
     { id: 'marca',       label: 'Marca',        icon: '⌘', group: 'visual',    desc: 'Logo e tamanhos por contexto' },
+    { id: 'cabecalho',   label: 'Cabeçalho',    icon: '▀', group: 'visual',    desc: 'Cores, altura, nav e topbar' },
+    { id: 'rodape',      label: 'Rodapé',       icon: '▄', group: 'visual',    desc: 'Cores, borda e espaçamento' },
     { id: 'textos',      label: 'Textos',       icon: '≡', group: 'conteudo',  desc: 'Matéria, home, rodapé' },
     { id: 'historico',   label: 'Histórico',    icon: '⎆', group: 'sistema',   desc: 'Snapshots e rollback' },
     { id: 'agendar',     label: 'Agendar',      icon: '◷', group: 'sistema',   desc: 'Temas agendados e modos' },
@@ -544,8 +558,7 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
                   <img
                     src={logoUrl || '/logo.webp'}
                     alt="Prévia da logomarca"
-                    className="max-w-full object-contain"
-                    style={{ height: `${Number(tokens['comp.header-logo-size']) || 48}px`, width: 'auto' }}
+                    className="max-w-full object-contain w-auto h-(--vp-header-logo-size)"
                   />
                 </div>
                 <div>
@@ -585,17 +598,60 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
                 </p>
               </div>
 
-              <div className="border border-vp-border rounded-sm bg-vp-bg p-3 text-[11px] text-vp-text-3 leading-relaxed">
-                Som ambiente foi movido para um painel dedicado. Acesse{' '}
-                <a href="/admin/som-ambiente" className="text-vp-accent underline">Painel · Som Ambiente</a>{' '}
-                na barra lateral.
-              </div>
-
               <SectionLabel>Tamanhos por contexto</SectionLabel>
               <SliderRow label="Cabeçalho principal" value={Number(tokens['comp.header-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
               <SliderRow label="Rodapé" value={Number(tokens['comp.footer-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
               <SliderRow label="Painel administrativo" value={Number(tokens['comp.admin-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.admin-logo-size', String(v))} />
               <SliderRow label="Menus, login e fluxos compactos" value={Number(tokens['comp.compact-logo-size'])} min={20} max={72} step={2} unit="px" onChange={v => updateToken('comp.compact-logo-size', String(v))} />
+            </>
+          )}
+
+          {/* ── Cabeçalho ── */}
+          {activeTab === 'cabecalho' && (
+            <>
+              <SectionLabel>Cores</SectionLabel>
+              <ColorRow label="Fundo do cabeçalho"    value={tokens['comp.header-bg']}           onChange={v => updateToken('comp.header-bg', v)} />
+              <ColorRow label="Fundo da topbar"        value={tokens['comp.header-topbar-bg']}    onChange={v => updateToken('comp.header-topbar-bg', v)} />
+              <ColorRow label="Cor das bordas"         value={tokens['comp.header-border-color']} onChange={v => updateToken('comp.header-border-color', v)} />
+
+              <SectionLabel>Estrutura</SectionLabel>
+              <SliderRow label="Altura da barra central" value={Number(tokens['layout.header-height'])}        min={40}  max={140} step={4}  unit="px" onChange={v => updateToken('layout.header-height', String(v))} />
+              <SliderRow label="Tamanho da logomarca"    value={Number(tokens['comp.header-logo-size'])}       min={24}  max={120} step={2}  unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+
+              <SectionLabel>Topbar (barra superior)</SectionLabel>
+              <SliderRow label="Tamanho da fonte"      value={Number(tokens['comp.header-topbar-font-size'])} min={9}   max={14}  step={1}  unit="px" onChange={v => updateToken('comp.header-topbar-font-size', String(v))} />
+
+              <SectionLabel>Navegação de editorias</SectionLabel>
+              <SliderRow label="Tamanho da fonte"      value={Number(tokens['comp.header-nav-font-size'])}    min={10}  max={16}  step={1}  unit="px" onChange={v => updateToken('comp.header-nav-font-size', String(v))} />
+              <SelectRow label="Peso da fonte"         value={tokens['comp.header-nav-font-weight']}          options={FONT_WEIGHT_OPTIONS}            onChange={v => updateToken('comp.header-nav-font-weight', v)} />
+              <SliderRow label="Espaçamento horizontal" value={Number(tokens['comp.header-nav-spacing'])}     min={4}   max={32}  step={2}  unit="px" onChange={v => updateToken('comp.header-nav-spacing', String(v))} />
+
+              <div className="mt-1 px-3 py-2.5 bg-vp-surface border border-vp-border rounded-sm">
+                <p className="text-[10px] text-vp-text-4 leading-relaxed">
+                  O cabeçalho é fixo no topo da página (<span className="font-mono">sticky</span>). A topbar exibe data, temperatura e indicadores. A barra de editorias usa os itens cadastrados em <strong className="text-vp-text-3">Editorias</strong>.
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* ── Rodapé ── */}
+          {activeTab === 'rodape' && (
+            <>
+              <SectionLabel>Cores</SectionLabel>
+              <ColorRow label="Fundo do rodapé"        value={tokens['comp.footer-bg']}           onChange={v => updateToken('comp.footer-bg', v)} />
+              <ColorRow label="Cor do texto"            value={tokens['comp.footer-text-color']}   onChange={v => updateToken('comp.footer-text-color', v)} />
+              <ColorRow label="Cor da borda superior"   value={tokens['comp.footer-border-color']} onChange={v => updateToken('comp.footer-border-color', v)} />
+
+              <SectionLabel>Estrutura</SectionLabel>
+              <SliderRow label="Espessura da borda superior" value={Number(tokens['comp.footer-border-width'])} min={0} max={8}   step={1} unit="px" onChange={v => updateToken('comp.footer-border-width', String(v))} />
+              <SliderRow label="Padding vertical"            value={Number(tokens['comp.footer-padding-y'])}    min={16} max={80} step={4} unit="px" onChange={v => updateToken('comp.footer-padding-y', String(v))} />
+              <SliderRow label="Tamanho da logomarca"        value={Number(tokens['comp.footer-logo-size'])}    min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
+
+              <div className="mt-1 px-3 py-2.5 bg-vp-surface border border-vp-border rounded-sm">
+                <p className="text-[10px] text-vp-text-4 leading-relaxed">
+                  Os textos do rodapé (descrição, copyright, denúncias) são editáveis na aba <strong className="text-vp-text-3">Textos</strong>. As editorias listadas vêm do cadastro de <strong className="text-vp-text-3">Editorias</strong>.
+                </p>
+              </div>
             </>
           )}
 
@@ -870,8 +926,8 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
 
         <div className="flex-1 flex items-start justify-center overflow-auto p-6">
           <div
-            className="transition-all duration-300 shadow-2xl h-full min-h-[600px] max-w-full"
-            style={{ width: VIEWPORT_WIDTHS[viewport] }}
+            className="transition-all duration-300 shadow-2xl h-full min-h-[600px] max-w-full w-(--ds-vw)"
+            style={{ '--ds-vw': VIEWPORT_WIDTHS[viewport] } as React.CSSProperties}
           >
             <iframe
               ref={previewRef}
@@ -921,8 +977,8 @@ function ColorRow({ label, value, onChange }: { label: string; value: string; on
     <div className="flex items-center gap-2.5">
       <label
         htmlFor={id}
-        className="w-4 h-4 rounded-sm border border-vp-border-2 shrink-0 cursor-pointer relative overflow-hidden"
-        style={{ backgroundColor: value }}
+        className="w-4 h-4 rounded-sm border border-vp-border-2 shrink-0 cursor-pointer relative overflow-hidden bg-(--swatch)"
+        style={{ '--swatch': value } as React.CSSProperties}
         title={`${label}: ${value}`}
       >
         <input

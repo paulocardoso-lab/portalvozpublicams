@@ -42,8 +42,20 @@ export interface DesignTokens {
   'comp.header-logo-size': string;
   'comp.header-nav-font-size': string;
   'comp.header-nav-font-weight': string;
-  // Components — brand/logo
+  'comp.header-nav-spacing': string;
+  'comp.header-bg': string;
+  'comp.header-topbar-bg': string;
+  'comp.header-border-color': string;
+  'comp.header-topbar-font-size': string;
+  'comp.header-sticky': string;
+  // Components — footer
   'comp.footer-logo-size': string;
+  'comp.footer-bg': string;
+  'comp.footer-text-color': string;
+  'comp.footer-border-color': string;
+  'comp.footer-border-width': string;
+  'comp.footer-padding-y': string;
+  // Components — brand/logo
   'comp.admin-logo-size': string;
   'comp.compact-logo-size': string;
   // Components — article body
@@ -91,7 +103,18 @@ export const DEFAULT_TOKENS: DesignTokens = {
   'comp.header-logo-size': '48',
   'comp.header-nav-font-size': '12',
   'comp.header-nav-font-weight': '700',
+  'comp.header-nav-spacing': '14',
+  'comp.header-bg': '#1a1a19',
+  'comp.header-topbar-bg': '#141413',
+  'comp.header-border-color': '#3a3a37',
+  'comp.header-topbar-font-size': '11',
+  'comp.header-sticky': '1',
   'comp.footer-logo-size': '48',
+  'comp.footer-bg': '#262624',
+  'comp.footer-text-color': '#8a887f',
+  'comp.footer-border-color': '#faf9f5',
+  'comp.footer-border-width': '2',
+  'comp.footer-padding-y': '32',
   'comp.admin-logo-size': '56',
   'comp.compact-logo-size': '32',
   'comp.article-max-width': '720',
