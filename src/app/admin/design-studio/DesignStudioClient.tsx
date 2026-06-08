@@ -237,22 +237,35 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
   const [textsSaved, setTextsSaved] = useState(false);
   const [textsIsPending, startTextsTransition] = useTransition();
 
-  const applyToPreview = useCallback((updated: DesignTokens) => {
-    const frame = previewRef.current;
-    const root = frame?.contentDocument?.documentElement;
-    if (!root) return;
-    Object.entries(buildCssMap(updated)).forEach(([k, v]) => root.style.setProperty(k, v));
+  // Keep a ref to latest tokens/logo so DS_READY can push them immediately
+  const latestTokensRef = useRef<DesignTokens>(initialTokens);
+  const latestLogoRef = useRef<string>(initialLogoUrl || '/logo.webp');
+
+  const postToPreview = useCallback((msg: Record<string, unknown>) => {
+    previewRef.current?.contentWindow?.postMessage(msg, '*');
   }, []);
 
-  const applyLogoToPreview = useCallback((updatedLogoUrl: string) => {
-    const doc = previewRef.current?.contentDocument;
-    if (!doc) return;
-    doc.querySelectorAll<HTMLImageElement>('img[alt="Voz Pública MS"]').forEach(img => {
-      img.src = updatedLogoUrl || '/logo.webp';
-      img.style.width = 'auto';
-      img.style.objectFit = 'contain';
-    });
-  }, []);
+  const applyToPreview = useCallback((updated: DesignTokens) => {
+    latestTokensRef.current = updated;
+    postToPreview({ type: 'DS_TOKENS', tokens: updated });
+  }, [postToPreview]);
+
+  const applyLogoToPreview = useCallback((url: string) => {
+    latestLogoRef.current = url;
+    postToPreview({ type: 'DS_LOGO', url });
+  }, [postToPreview]);
+
+  // When the mockup signals it's ready, push current state immediately
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === 'DS_READY') {
+        postToPreview({ type: 'DS_TOKENS', tokens: latestTokensRef.current });
+        postToPreview({ type: 'DS_LOGO',   url: latestLogoRef.current });
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [postToPreview]);
 
   const updateToken = useCallback((key: keyof DesignTokens, value: string) => {
     setTokens(prev => {
@@ -857,19 +870,14 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
 
         <div className="flex-1 flex items-start justify-center overflow-auto p-6">
           <div
-            className="transition-all duration-300 shadow-2xl"
-            style={{ width: VIEWPORT_WIDTHS[viewport], maxWidth: '100%', minHeight: '600px', height: '100%' }}
+            className="transition-all duration-300 shadow-2xl h-full min-h-[600px] max-w-full"
+            style={{ width: VIEWPORT_WIDTHS[viewport] }}
           >
             <iframe
               ref={previewRef}
               src="/design-studio-preview"
               title="Preview do portal"
-              className="w-full h-full border-0"
-              style={{ minHeight: '600px' }}
-              onLoad={() => {
-                applyToPreview(tokens);
-                applyLogoToPreview(logoUrl);
-              }}
+              className="w-full h-full border-0 min-h-[600px]"
             />
           </div>
         </div>
