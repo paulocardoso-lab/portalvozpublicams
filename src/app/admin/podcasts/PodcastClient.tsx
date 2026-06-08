@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { PodcastEpisode } from '@prisma/client';
 import { savePodcastEpisode, togglePodcastEpisode, deletePodcastEpisode } from '@/app/actions/podcast';
+import { uploadAudioFile } from '@/app/actions/audio';
 import { useRouter } from 'next/navigation';
 import { SafeImage } from '@/components/shared/SafeImage';
 
@@ -17,9 +18,15 @@ export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpi
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [embedUrl, setEmbedUrl] = useState('');
+  const [audioUrl, setAudioUrl] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [duration, setDuration] = useState('');
   const [isActive, setIsActive] = useState(true);
+
+  // Audio upload
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const [audioUploading, setAudioUploading] = useState(false);
+  const [audioUploadError, setAudioUploadError] = useState('');
 
   const startEdit = (ep: PodcastEpisode) => {
     setEditingId(ep.id);
@@ -27,9 +34,11 @@ export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpi
     setTitle(ep.title);
     setDescription(ep.description || '');
     setEmbedUrl(ep.embedUrl || '');
+    setAudioUrl(ep.audioUrl || '');
     setCoverImage(ep.coverImage || '');
     setDuration(ep.duration || '');
     setIsActive(ep.isActive);
+    setAudioUploadError('');
   };
 
   const startAdd = () => {
@@ -38,9 +47,11 @@ export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpi
     setTitle('');
     setDescription('');
     setEmbedUrl('');
+    setAudioUrl('');
     setCoverImage('');
     setDuration('');
     setIsActive(true);
+    setAudioUploadError('');
   };
 
   const cancel = () => {
@@ -59,6 +70,7 @@ export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpi
         title,
         description,
         embedUrl,
+        audioUrl,
         coverImage,
         duration,
         isActive
@@ -151,15 +163,62 @@ export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpi
           </div>
 
           <div>
-            <label className="block text-[12px] uppercase tracking-[0.1em] text-vp-text-2 mb-2 font-bold" title="Embed URL">URL do Áudio ou Spotify/YouTube Embed</label>
-            <input 
-              type="text" 
-              value={embedUrl} 
-              onChange={e => setEmbedUrl(e.target.value)} 
-              className="vp-input w-full" 
-              placeholder="https://..."
+            <label className="block text-[12px] uppercase tracking-[0.1em] text-vp-text-2 mb-2 font-bold" title="Embed URL">URL do Embed (Spotify / YouTube)</label>
+            <input
+              type="text"
+              value={embedUrl}
+              onChange={e => setEmbedUrl(e.target.value)}
+              className="vp-input w-full"
+              placeholder="https://open.spotify.com/embed/..."
               title="Embed URL"
             />
+          </div>
+
+          <div>
+            <label className="block text-[12px] uppercase tracking-[0.1em] text-vp-text-2 mb-2 font-bold" title="URL do áudio direto">URL do Áudio Direto (MP3, OGG, WAV)</label>
+            <input
+              type="text"
+              value={audioUrl}
+              onChange={e => setAudioUrl(e.target.value)}
+              className="vp-input w-full mb-2"
+              placeholder="https://... ou envie um arquivo abaixo"
+              title="URL do áudio direto"
+            />
+            <input
+              ref={audioInputRef}
+              type="file"
+              accept="audio/mpeg,audio/mp3,audio/ogg,audio/wav,audio/mp4,audio/aac,.mp3,.ogg,.wav,.m4a,.aac"
+              title="Arquivo de áudio do episódio"
+              className="hidden"
+              onChange={async e => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setAudioUploading(true);
+                setAudioUploadError('');
+                try {
+                  const fd = new FormData();
+                  fd.append('file', file);
+                  const url = await uploadAudioFile(fd, 'podcasts');
+                  setAudioUrl(url);
+                } catch (err) {
+                  setAudioUploadError(err instanceof Error ? err.message : 'Erro ao enviar áudio.');
+                } finally {
+                  setAudioUploading(false);
+                  e.target.value = '';
+                }
+              }}
+            />
+            <button
+              type="button"
+              disabled={audioUploading || saving}
+              onClick={() => audioInputRef.current?.click()}
+              className="vp-btn text-[11px] py-1.5 w-full"
+            >
+              {audioUploading ? 'Enviando arquivo...' : 'Enviar arquivo de áudio'}
+            </button>
+            {audioUploadError && (
+              <span className="text-[11px] text-red-400 mt-1 block">{audioUploadError}</span>
+            )}
           </div>
 
           <div className="flex items-center gap-2 mt-2">

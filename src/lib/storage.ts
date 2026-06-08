@@ -89,6 +89,26 @@ export async function uploadImage(file: File, bucket: 'articles' | 'profiles' | 
   return publicUrl;
 }
 
+export async function uploadAudio(file: File, bucket: 'ambient' | 'podcasts' = 'podcasts'): Promise<string> {
+  const supabase = getStorageClient();
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'mp3';
+  const allowed = ['mp3', 'ogg', 'wav', 'm4a', 'aac'];
+  if (!allowed.includes(ext)) throw new Error('Formato de áudio não suportado. Use MP3, OGG, WAV, M4A ou AAC.');
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const fileName = `${crypto.randomUUID()}-${Date.now()}.${ext}`;
+  const contentType = ext === 'ogg' ? 'audio/ogg' : ext === 'wav' ? 'audio/wav' : ext === 'm4a' ? 'audio/mp4' : ext === 'aac' ? 'audio/aac' : 'audio/mpeg';
+
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, buffer, { contentType });
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+  return publicUrl;
+}
+
 export async function downloadAndUploadImage(url: string, bucket: 'articles' | 'profiles' = 'articles') {
   try {
     const supabase = getOptionalStorageClient();

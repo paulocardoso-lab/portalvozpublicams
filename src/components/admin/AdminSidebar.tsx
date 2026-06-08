@@ -14,6 +14,7 @@ export function AdminSidebar() {
     { id: 'posts',     label: 'Matérias', icon: '≡', href: '/admin/posts' },
     { id: 'editor',    label: 'Nova matéria', icon: '✎', href: '/admin/posts/new' },
     { id: 'podcasts',  label: 'Podcasts', icon: '🎧', href: '/admin/podcasts' },
+    { id: 'som',       label: 'Som Ambiente', icon: '♫', href: '/admin/som-ambiente' },
     { id: 'sections',  label: 'Editorias', icon: '📁', href: '/admin/sections' },
     { id: 'kanban',    label: 'Fila editorial', icon: '▦', href: '/admin/kanban' },
     { id: 'alerts',    label: 'Faixa ao vivo (Alertas)', icon: '⚠', href: '/admin/alerts' },
@@ -36,12 +37,12 @@ export function AdminSidebar() {
   ];
 
   return (
-    <aside className="bg-vp-bg border-r border-vp-border py-4.5 flex flex-col gap-3.5 sticky top-0 h-[100dvh] w-[232px]">
+    <aside className="bg-vp-bg border-r border-vp-border py-4.5 flex flex-col gap-3.5 sticky top-0 h-dvh w-58">
       <div className="px-4.5 pb-4.5 border-b border-vp-border flex items-center gap-2.5">
         <Link href="/" className="no-underline">
           <BrandLogo size="md" cssHeight="var(--vp-admin-logo-size)" />
         </Link>
-        <div className="text-[11px] text-vp-text-3 tracking-[0.1em] uppercase ml-auto">Admin</div>
+        <div className="text-[11px] text-vp-text-3 tracking-widest uppercase ml-auto">Admin</div>
       </div>
       
       <nav className="grid gap-0.5 px-2.5 flex-1 overflow-y-auto vp-scroll">
@@ -59,7 +60,7 @@ export function AdminSidebar() {
       </nav>
 
       <div className="mt-auto border-t border-vp-border p-3.5 flex items-center gap-2.5 bg-vp-bg">
-        <div className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0">
+        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
           <ImgPH label="" width={32} height={32} />
         </div>
         <div className="flex-1 min-w-0">

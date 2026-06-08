@@ -19,6 +19,7 @@ import { saveBatchSettings } from '@/app/actions/settings';
 import { DEFAULT_TOKENS } from '@/lib/design-tokens-types';
 
 type Tab = 'cores' | 'tipografia' | 'espacamento' | 'componentes' | 'marca' | 'textos' | 'historico' | 'agendar';
+type TabGroup = 'visual' | 'conteudo' | 'sistema';
 type Viewport = 'mobile' | 'tablet' | 'desktop';
 
 interface Props {
@@ -230,12 +231,9 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
   const previewRef = useRef<HTMLIFrameElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const [editorialTexts, setEditorialTexts] = useState<Record<string, string>>({
-    ...Object.fromEntries(EDITORIAL_TEXT_FIELDS.map(f => [f.key, initialSettings[f.key] ?? ''])),
-    'ambient.enabled':   initialSettings['ambient.enabled']   ?? 'false',
-    'ambient.audio_url': initialSettings['ambient.audio_url'] ?? '',
-    'ambient.volume':    initialSettings['ambient.volume']    ?? '10',
-  });
+  const [editorialTexts, setEditorialTexts] = useState<Record<string, string>>(
+    Object.fromEntries(EDITORIAL_TEXT_FIELDS.map(f => [f.key, initialSettings[f.key] ?? '']))
+  );
   const [textsSaved, setTextsSaved] = useState(false);
   const [textsIsPending, startTextsTransition] = useTransition();
 
@@ -391,39 +389,62 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
     setSaved(false);
   };
 
-  const TABS: { id: Tab; label: string }[] = [
-    { id: 'cores',       label: 'Cores' },
-    { id: 'tipografia',  label: 'Tipo' },
-    { id: 'espacamento', label: 'Espaço' },
-    { id: 'componentes', label: 'Comp.' },
-    { id: 'marca',       label: 'Marca' },
-    { id: 'textos',      label: 'Textos' },
-    { id: 'historico',   label: 'Hist.' },
-    { id: 'agendar',     label: 'Agendar' },
+  const TABS: { id: Tab; label: string; icon: string; group: TabGroup; desc: string }[] = [
+    { id: 'cores',       label: 'Cores',        icon: '◉', group: 'visual',    desc: 'Paleta, fundos e acento' },
+    { id: 'tipografia',  label: 'Tipografia',   icon: 'T', group: 'visual',    desc: 'Famílias e escala de texto' },
+    { id: 'espacamento', label: 'Espaçamento',  icon: '⊞', group: 'visual',    desc: 'Grid, container e bordas' },
+    { id: 'componentes', label: 'Componentes',  icon: '▦', group: 'visual',    desc: 'Botões, cards e cabeçalho' },
+    { id: 'marca',       label: 'Marca',        icon: '⌘', group: 'visual',    desc: 'Logo e tamanhos por contexto' },
+    { id: 'textos',      label: 'Textos',       icon: '≡', group: 'conteudo',  desc: 'Matéria, home, rodapé' },
+    { id: 'historico',   label: 'Histórico',    icon: '⎆', group: 'sistema',   desc: 'Snapshots e rollback' },
+    { id: 'agendar',     label: 'Agendar',      icon: '◷', group: 'sistema',   desc: 'Temas agendados e modos' },
+  ];
+
+  const TAB_GROUPS: { id: TabGroup; label: string }[] = [
+    { id: 'visual',   label: 'Visual' },
+    { id: 'conteudo', label: 'Conteúdo' },
+    { id: 'sistema',  label: 'Sistema' },
   ];
 
   return (
-    <div className="flex flex-1 overflow-hidden min-h-0" style={{ height: 'calc(100vh - 130px)' }}>
+    <div className="flex flex-1 overflow-hidden min-h-0 h-[calc(100vh-130px)]">
 
-      {/* ── Sidebar ──────────────────────────────────────────────── */}
-      <aside className="w-[300px] shrink-0 border-r border-vp-border flex flex-col bg-vp-surface overflow-hidden">
+      {/* ── Nav vertical ─────────────────────────────────────────── */}
+      <nav className="w-44 shrink-0 border-r border-vp-border bg-vp-bg flex flex-col overflow-y-auto py-3 gap-1">
+        {TAB_GROUPS.map(group => (
+          <div key={group.id} className="mb-1">
+            <p className="px-3 mb-1 text-[9px] font-black uppercase tracking-[0.18em] text-vp-text-4">{group.label}</p>
+            {TABS.filter(t => t.group === group.id).map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                title={tab.desc}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-vp-surface-2 text-vp-accent border-l-2 border-vp-accent'
+                    : 'text-vp-text-2 border-l-2 border-transparent hover:bg-vp-surface hover:text-vp-text'
+                }`}
+              >
+                <span className={`w-4 text-center text-[13px] shrink-0 ${activeTab === tab.id ? 'text-vp-accent' : 'text-vp-text-3'}`}>{tab.icon}</span>
+                <span className={`text-[12px] leading-tight ${activeTab === tab.id ? 'font-semibold' : 'font-medium'}`}>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        ))}
+      </nav>
 
-        {/* Tabs */}
-        <div className="flex border-b border-vp-border sticky top-0 bg-vp-surface z-10 shrink-0">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                activeTab === tab.id
-                  ? 'text-vp-accent border-b-2 border-vp-accent'
-                  : 'text-vp-text-3 hover:text-vp-text-2'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      {/* ── Sidebar de controles ─────────────────────────────────── */}
+      <aside className="w-72 shrink-0 border-r border-vp-border flex flex-col bg-vp-surface overflow-hidden">
+
+        {/* Header da aba ativa */}
+        <div className="px-4 py-3 border-b border-vp-border shrink-0 bg-vp-bg">
+          {(() => { const t = TABS.find(t => t.id === activeTab)!; return (
+            <div>
+              <p className="text-[13px] font-bold text-vp-text leading-tight">{t.label}</p>
+              <p className="text-[11px] text-vp-text-4 mt-0.5">{t.desc}</p>
+            </div>
+          ); })()}
         </div>
 
         {/* Scrollable content */}
@@ -532,6 +553,7 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
                     ref={logoInputRef}
                     id="brand-logo-upload"
                     type="file"
+                    title="Enviar nova logomarca"
                     accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
                     onChange={e => handleLogoUpload(e.target.files?.[0] ?? null)}
                     className="sr-only"
@@ -550,60 +572,10 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
                 </p>
               </div>
 
-              <SectionLabel>Som ambiente</SectionLabel>
-              <div className="flex flex-col gap-3 border border-vp-border rounded-sm bg-vp-bg p-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editorialTexts['ambient.enabled'] === 'true'}
-                    onChange={e => setEditorialTexts(prev => ({ ...prev, 'ambient.enabled': e.target.checked ? 'true' : 'false' }))}
-                    className="accent-[var(--vp-accent)]"
-                  />
-                  <span className="text-[11px] font-bold text-vp-text-2">Ativar som ambiente no site</span>
-                </label>
-                <label className="grid gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-vp-text-4">URL do áudio (MP3 ou OGG)</span>
-                  <input
-                    type="text"
-                    className="vp-input text-[12px]"
-                    placeholder="https://... /ambiente.mp3"
-                    value={editorialTexts['ambient.audio_url'] ?? ''}
-                    onChange={e => setEditorialTexts(prev => ({ ...prev, 'ambient.audio_url': e.target.value }))}
-                  />
-                  <span className="text-[9px] text-vp-text-4 leading-relaxed">Loop contínuo · recomendado MP3 ~2–4 min, 128 kbps, &lt;3 MB</span>
-                </label>
-                <label className="grid gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-vp-text-4">
-                    Volume padrão <span className="font-mono text-vp-text-3">{editorialTexts['ambient.volume'] ?? '10'}%</span>
-                  </span>
-                  <input
-                    type="range"
-                    min="1"
-                    max="30"
-                    step="1"
-                    value={editorialTexts['ambient.volume'] ?? '10'}
-                    onChange={e => setEditorialTexts(prev => ({ ...prev, 'ambient.volume': e.target.value }))}
-                    className="accent-[var(--vp-accent)]"
-                  />
-                </label>
-                <button
-                  type="button"
-                  disabled={textsIsPending}
-                  onClick={() => {
-                    startTextsTransition(async () => {
-                      await saveBatchSettings({
-                        'ambient.enabled': editorialTexts['ambient.enabled'] ?? 'false',
-                        'ambient.audio_url': editorialTexts['ambient.audio_url'] ?? '',
-                        'ambient.volume': editorialTexts['ambient.volume'] ?? '10',
-                      });
-                      setTextsSaved(true);
-                      setTimeout(() => setTextsSaved(false), 2500);
-                    });
-                  }}
-                  className="vp-btn vp-btn-primary w-full py-2 text-[11px] font-bold uppercase tracking-widest"
-                >
-                  {textsIsPending ? 'Salvando...' : textsSaved ? '✓ Salvo!' : 'Salvar configurações de som'}
-                </button>
+              <div className="border border-vp-border rounded-sm bg-vp-bg p-3 text-[11px] text-vp-text-3 leading-relaxed">
+                Som ambiente foi movido para um painel dedicado. Acesse{' '}
+                <a href="/admin/som-ambiente" className="text-vp-accent underline">Painel · Som Ambiente</a>{' '}
+                na barra lateral.
               </div>
 
               <SectionLabel>Tamanhos por contexto</SectionLabel>
@@ -826,7 +798,7 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
 
         {/* Action bar */}
         {activeTab !== 'historico' && activeTab !== 'agendar' && (
-          <div className="border-t border-vp-border p-3 flex flex-col gap-2 flex-shrink-0 bg-vp-surface">
+          <div className="border-t border-vp-border p-3 flex flex-col gap-2 shrink-0 bg-vp-surface">
             <input
               type="text"
               placeholder="Nome do snapshot (opcional)"
@@ -1010,7 +982,7 @@ function SliderRow({ label, value, min, max, step, unit = '', decimals = 0, onCh
         id={id}
         type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(Number(e.target.value))}
-        className="w-full accent-[var(--vp-accent)] h-1.5 cursor-pointer"
+        className="w-full accent-vp-accent h-1.5 cursor-pointer"
         title={`${label}: ${value.toFixed(decimals)}${unit}`}
       />
     </div>

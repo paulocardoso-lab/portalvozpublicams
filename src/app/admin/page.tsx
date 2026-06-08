@@ -24,7 +24,9 @@ function formatCurrencyFromCents(value: number) {
 }
 
 function greetingFor(date: Date) {
-  const hour = date.getHours();
+  const hour = Number(
+    new Intl.DateTimeFormat('pt-BR', { hour: 'numeric', hour12: false, timeZone: 'America/Campo_Grande' }).format(date)
+  );
   if (hour < 12) return 'Bom dia';
   if (hour < 18) return 'Boa tarde';
   return 'Boa noite';

@@ -190,7 +190,11 @@ export function AmbientSound({ audioUrl, defaultVolume }: Props) {
 
       {/* Floating control — only if consent accepted */}
       {consent === 'accepted' && (
-        <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2">
+        <div
+          className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2"
+          onMouseEnter={() => setShowVolume(true)}
+          onMouseLeave={() => setShowVolume(false)}
+        >
           {/* Volume slider — appears on hover/focus */}
           {showVolume && (
             <div className="bg-vp-surface border border-vp-border p-3 rounded-sm shadow-lg flex flex-col items-center gap-2 w-10">
@@ -213,8 +217,6 @@ export function AmbientSound({ audioUrl, defaultVolume }: Props) {
           <button
             type="button"
             onClick={toggle}
-            onMouseEnter={() => setShowVolume(true)}
-            onMouseLeave={() => setShowVolume(false)}
             title={playing ? 'Pausar som ambiente' : 'Retomar som ambiente'}
             className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all shadow-md ${
               playing
@@ -223,12 +225,10 @@ export function AmbientSound({ audioUrl, defaultVolume }: Props) {
             }`}
           >
             {playing ? (
-              // Sound wave icon
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
               </svg>
             ) : (
-              // Muted icon
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
                 <line x1="2" y1="2" x2="22" y2="22" strokeWidth="1.5"/>
