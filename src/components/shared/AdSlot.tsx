@@ -85,8 +85,6 @@ export function AdSlot({ id, className = '', rotateEvery = 0 }: AdSlotProps) {
   const impressionFired  = useRef(false);
   const rotateRef        = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => { ensureKeyframes(); }, []);
-
   const fetchAd = useCallback(async () => {
     try {
       const res = await fetch(`/api/ads/serve/${id}`);
