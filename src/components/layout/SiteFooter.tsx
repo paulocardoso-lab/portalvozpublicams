@@ -64,8 +64,17 @@ export async function SiteFooter() {
         <div>
           <h4 className="text-[11px] font-bold uppercase tracking-[0.1em] text-vp-text mb-2.5">Institucional</h4>
           <ul className="list-none p-0 m-0 grid gap-1.5">
-            {['Quem somos','Princípios editoriais','Política de correções','Contato','Anuncie','Trabalhe conosco'].map(x => (
-              <li key={x}><a className="hover:text-vp-accent transition-colors cursor-pointer">{x}</a></li>
+            {[
+              { label: 'Quem somos', href: '/quem-somos' },
+              { label: 'Princípios editoriais', href: '/principios-editoriais' },
+              { label: 'Política de correções', href: '/politica-de-correcoes' },
+              { label: 'Contato', href: '/contato' },
+              { label: 'Anuncie', href: '/anuncie' },
+              { label: 'Trabalhe conosco', href: '/trabalhe-conosco' },
+            ].map(({ label, href }) => (
+              <li key={href}>
+                <Link href={href} className="hover:text-vp-accent transition-colors">{label}</Link>
+              </li>
             ))}
           </ul>
         </div>

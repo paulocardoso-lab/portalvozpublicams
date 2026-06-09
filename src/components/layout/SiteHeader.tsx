@@ -96,7 +96,7 @@ export async function SiteHeader() {
           </Link>
         </div>
 
-        <Link href="/" className="flex items-center justify-center h-full no-underline group py-2">
+        <Link href="/" className="vp-header-logo-link flex items-center justify-center h-full no-underline group">
           <Monogram
             size={48}
             cssHeight="var(--vp-header-logo-size)"

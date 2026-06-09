@@ -40,6 +40,7 @@ export interface DesignTokens {
   'comp.card-gap': string;
   // Components — header
   'comp.header-logo-size': string;
+  'comp.header-logo-padding-y': string;
   'comp.header-nav-font-size': string;
   'comp.header-nav-font-weight': string;
   'comp.header-nav-spacing': string;
@@ -101,6 +102,7 @@ export const DEFAULT_TOKENS: DesignTokens = {
   'comp.card-image-ratio': '56',
   'comp.card-gap': '16',
   'comp.header-logo-size': '48',
+  'comp.header-logo-padding-y': '8',
   'comp.header-nav-font-size': '12',
   'comp.header-nav-font-weight': '700',
   'comp.header-nav-spacing': '14',

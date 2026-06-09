@@ -36,6 +36,7 @@ export function AmbientSound({ audioUrl, defaultVolume }: Props) {
   const [volume, setVolume] = useState(defaultVolume);
   const [showVolume, setShowVolume] = useState(false);
   const interactedRef = useRef(false);
+  const userPausedRef = useRef(false);
 
   // On mount: read stored consent
   useEffect(() => {
@@ -119,9 +120,11 @@ export function AmbientSound({ audioUrl, defaultVolume }: Props) {
     const audio = audioRef.current;
     if (!audio) return;
     if (playing) {
+      userPausedRef.current = true;
       audio.pause();
       setPlaying(false);
     } else {
+      userPausedRef.current = false;
       audio.volume = volume / 100;
       audio.play().then(() => setPlaying(true)).catch(() => {});
     }
@@ -136,11 +139,10 @@ export function AmbientSound({ audioUrl, defaultVolume }: Props) {
   useEffect(() => {
     if (consent !== 'accepted') return;
     const resume = () => {
-      if (!playing && audioRef.current) {
+      if (!userPausedRef.current && audioRef.current) {
         audioRef.current.volume = volume / 100;
         audioRef.current.play().then(() => setPlaying(true)).catch(() => {});
       }
-      window.removeEventListener('click', resume);
     };
     window.addEventListener('click', resume, { once: true });
     return () => window.removeEventListener('click', resume);

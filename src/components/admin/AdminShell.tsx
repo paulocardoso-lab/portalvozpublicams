@@ -37,6 +37,7 @@ const nav: NavItem[] = [
   { id: 'audit',     label: 'Logs de auditoria', icon: '⎆', href: '/admin/audit' },
   { id: 'health',    label: 'Saúde do sistema', icon: '✓', href: '/admin/health' },
   { id: 'design-studio', label: 'Design Studio', icon: '◈', href: '/admin/design-studio' },
+  { id: 'institucional', label: 'Páginas institucionais', icon: '§', href: '/admin/paginas-institucionais' },
   { id: 'settings',  label: 'Configurações', icon: '⚙', href: '/admin/settings' },
 ];
 
@@ -178,7 +179,7 @@ export function AdminShell({ children, pendingComments, draftArticles, reviewArt
         </header>
 
         {/* Content Viewport */}
-        <div className="p-8 max-w-[1400px] w-full mx-auto">
+        <div className="p-8 w-full">
           {children}
         </div>
       </main>

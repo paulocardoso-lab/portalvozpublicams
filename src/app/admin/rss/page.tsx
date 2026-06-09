@@ -29,7 +29,7 @@ export default async function RSSDashboardPage() {
     ]);
 
   return (
-    <div className="max-w-300 mx-auto">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-[24px] font-display font-bold">Automação RSS</h1>
@@ -58,17 +58,17 @@ export default async function RSSDashboardPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_350px] gap-6">
+      <div className="grid xl:grid-cols-[1fr_320px] gap-6">
         {/* Feeds List */}
-        <div className="bg-[#141413] border border-vp-border overflow-hidden">
-          <table className="w-full text-left border-collapse">
+        <div className="bg-[#141413] border border-vp-border overflow-x-auto">
+          <table className="w-full min-w-170 text-left border-collapse">
             <thead>
               <tr className="bg-vp-surface border-b border-vp-border">
                 <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Fonte</th>
-                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Editoria</th>
-                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Sincronismo</th>
-                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold">Saúde</th>
-                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold text-right">Ações</th>
+                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold w-28">Editoria</th>
+                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold w-44">Sincronismo</th>
+                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold w-20">Saúde</th>
+                <th className="p-4 text-[11px] uppercase tracking-wider text-vp-text-3 font-bold text-right w-36">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -78,17 +78,17 @@ export default async function RSSDashboardPage() {
                     <div className="font-bold text-[14px]">{feed.name}</div>
                     <div className="text-[11px] text-vp-text-3 truncate max-w-50">{feed.url}</div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-4 w-28">
                     <span className="bg-vp-accent/10 text-vp-accent text-[11px] px-2 py-0.5 border border-vp-accent/20">
                       {feed.targetSection.name}
                     </span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-4 w-44">
                     <div className="text-[12px]">{feed.lastSync ? new Date(feed.lastSync).toLocaleString('pt-BR') : 'Nunca'}</div>
                     <div className="text-[10px] text-vp-text-3">a cada {feed.syncIntervalHours}h · máx {feed.maxItemsPerSync} itens</div>
                     <div className="text-[10px] text-vp-text-3">{feed._count.logs} capturas no total</div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-4 w-20">
                     {feed.disabledAt ? (
                       <span className="text-[10px] text-vp-urgent border border-vp-urgent/30 px-1.5 py-0.5">
                         desabilitado
@@ -101,7 +101,7 @@ export default async function RSSDashboardPage() {
                       <span className="text-[10px] text-green-400">ok</span>
                     )}
                   </td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-right w-36">
                     <RSSActions feed={feed} sections={sections} />
                   </td>
                 </tr>

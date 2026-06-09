@@ -177,6 +177,7 @@ function buildCssMap(t: DesignTokens): Record<string, string> {
     '--vp-card-radius': `${n('comp.card-radius')}px`,
     '--vp-content-gap': `${n('layout.content-gap')}px`,
     '--vp-header-logo-size': `${n('comp.header-logo-size')}px`,
+    '--vp-header-logo-padding-y': `${n('comp.header-logo-padding-y')}px`,
     '--vp-header-nav-size': `${n('comp.header-nav-font-size')}px`,
     '--vp-header-nav-weight': t['comp.header-nav-font-weight'],
     '--vp-header-nav-spacing': `${n('comp.header-nav-spacing')}px`,
@@ -242,6 +243,10 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
   const [schedLoaded, setSchedLoaded] = useState(false);
   const previewRef = useRef<HTMLIFrameElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
+  const [faviconUrl, setFaviconUrl] = useState<string>(
+    (initialSettings['BRAND_FAVICON_URL'] as string | undefined) || ''
+  );
 
   const [editorialTexts, setEditorialTexts] = useState<Record<string, string>>(
     Object.fromEntries(EDITORIAL_TEXT_FIELDS.map(f => [f.key, initialSettings[f.key] ?? '']))
@@ -320,6 +325,7 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
     startTransition(async () => {
       await saveDesignTokensWithSnapshot(tokens, label);
       await saveDesignBrandLogoUrl(logoUrl);
+      if (faviconUrl) await saveBatchSettings({ BRAND_FAVICON_URL: faviconUrl });
       setSaved(true);
       setIsDirty(false);
       setSnapshotLabel('');
@@ -351,6 +357,19 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
       setIsDirty(true);
       setSaved(false);
       if (logoInputRef.current) logoInputRef.current.value = '';
+    });
+  };
+
+  const handleFaviconUpload = (file: File | null) => {
+    if (!file) return;
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set('file', file);
+      const publicUrl = await uploadBrand(formData, 'favicon');
+      setFaviconUrl(publicUrl);
+      setIsDirty(true);
+      setSaved(false);
+      if (faviconInputRef.current) faviconInputRef.current.value = '';
     });
   };
 
@@ -599,10 +618,68 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
               </div>
 
               <SectionLabel>Tamanhos por contexto</SectionLabel>
-              <SliderRow label="Cabeçalho principal" value={Number(tokens['comp.header-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
-              <SliderRow label="Rodapé" value={Number(tokens['comp.footer-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
-              <SliderRow label="Painel administrativo" value={Number(tokens['comp.admin-logo-size'])} min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.admin-logo-size', String(v))} />
-              <SliderRow label="Menus, login e fluxos compactos" value={Number(tokens['comp.compact-logo-size'])} min={20} max={72} step={2} unit="px" onChange={v => updateToken('comp.compact-logo-size', String(v))} />
+              <SliderRow label="Cabeçalho principal" value={Number(tokens['comp.header-logo-size'])} min={24} max={300} step={2} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+              <SliderRow label="Margem vertical (cabeçalho)" value={Number(tokens['comp.header-logo-padding-y'])} min={0} max={40} step={1} unit="px" onChange={v => updateToken('comp.header-logo-padding-y', String(v))} />
+              <SliderRow label="Rodapé" value={Number(tokens['comp.footer-logo-size'])} min={24} max={240} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
+              <SliderRow label="Painel administrativo" value={Number(tokens['comp.admin-logo-size'])} min={24} max={200} step={2} unit="px" onChange={v => updateToken('comp.admin-logo-size', String(v))} />
+              <SliderRow label="Menus, login e fluxos compactos" value={Number(tokens['comp.compact-logo-size'])} min={20} max={160} step={2} unit="px" onChange={v => updateToken('comp.compact-logo-size', String(v))} />
+
+              <SectionLabel>Favicon</SectionLabel>
+              <div className="border border-vp-border rounded-sm bg-vp-bg p-3 flex flex-col gap-3">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 flex items-center justify-center bg-vp-surface border border-vp-border rounded-sm shrink-0">
+                    {faviconUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={faviconUrl} alt="Prévia do favicon" className="w-10 h-10 object-contain" />
+                    ) : (
+                      <span className="text-[10px] text-vp-text-4 text-center leading-tight">Sem favicon</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <p className="text-[12px] font-bold text-vp-text">Ícone da aba do navegador</p>
+                    <p className="text-[10px] text-vp-text-4 leading-relaxed">
+                      PNG ou ICO recomendado · mín. 32×32 px · ideal 512×512 px.<br />
+                      Será redimensionado automaticamente para 512×512 px em PNG.
+                    </p>
+                  </div>
+                </div>
+
+                {faviconUrl && (
+                  <div>
+                    <label htmlFor="brand-favicon-url" className="text-[10px] text-vp-text-4 font-bold uppercase tracking-wider block mb-1">
+                      URL do favicon
+                    </label>
+                    <input
+                      id="brand-favicon-url"
+                      type="text"
+                      value={faviconUrl}
+                      onChange={e => { setFaviconUrl(e.target.value); setIsDirty(true); setSaved(false); }}
+                      className="vp-input text-[12px] py-1.5 w-full font-mono"
+                      placeholder="https://..."
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <input
+                    ref={faviconInputRef}
+                    id="brand-favicon-upload"
+                    type="file"
+                    title="Enviar novo favicon"
+                    accept="image/png,image/x-icon,image/vnd.microsoft.icon,image/jpeg,image/webp,image/svg+xml"
+                    onChange={e => handleFaviconUpload(e.target.files?.[0] ?? null)}
+                    className="sr-only"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => faviconInputRef.current?.click()}
+                    disabled={isPending}
+                    className="vp-btn w-full text-[11px] py-2"
+                  >
+                    {isPending ? 'Enviando...' : 'Enviar novo favicon'}
+                  </button>
+                </div>
+              </div>
             </>
           )}
 
@@ -616,7 +693,8 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
 
               <SectionLabel>Estrutura</SectionLabel>
               <SliderRow label="Altura da barra central" value={Number(tokens['layout.header-height'])}        min={40}  max={140} step={4}  unit="px" onChange={v => updateToken('layout.header-height', String(v))} />
-              <SliderRow label="Tamanho da logomarca"    value={Number(tokens['comp.header-logo-size'])}       min={24}  max={120} step={2}  unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+              <SliderRow label="Tamanho da logomarca"    value={Number(tokens['comp.header-logo-size'])}       min={24}  max={300} step={2}  unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+              <SliderRow label="Margem vertical da logo" value={Number(tokens['comp.header-logo-padding-y'])} min={0}   max={40}  step={1}  unit="px" onChange={v => updateToken('comp.header-logo-padding-y', String(v))} />
 
               <SectionLabel>Topbar (barra superior)</SectionLabel>
               <SliderRow label="Tamanho da fonte"      value={Number(tokens['comp.header-topbar-font-size'])} min={9}   max={14}  step={1}  unit="px" onChange={v => updateToken('comp.header-topbar-font-size', String(v))} />
@@ -645,7 +723,7 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
               <SectionLabel>Estrutura</SectionLabel>
               <SliderRow label="Espessura da borda superior" value={Number(tokens['comp.footer-border-width'])} min={0} max={8}   step={1} unit="px" onChange={v => updateToken('comp.footer-border-width', String(v))} />
               <SliderRow label="Padding vertical"            value={Number(tokens['comp.footer-padding-y'])}    min={16} max={80} step={4} unit="px" onChange={v => updateToken('comp.footer-padding-y', String(v))} />
-              <SliderRow label="Tamanho da logomarca"        value={Number(tokens['comp.footer-logo-size'])}    min={24} max={120} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
+              <SliderRow label="Tamanho da logomarca"        value={Number(tokens['comp.footer-logo-size'])}    min={24} max={240} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
 
               <div className="mt-1 px-3 py-2.5 bg-vp-surface border border-vp-border rounded-sm">
                 <p className="text-[10px] text-vp-text-4 leading-relaxed">

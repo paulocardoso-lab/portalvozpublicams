@@ -353,6 +353,12 @@
 }
 .vp-input:focus { border-color: var(--vp-accent); }
 
+/* ── Header logo padding — controlled by design token ───────────────────────── */
+.vp-header-logo-link {
+  padding-top: var(--vp-header-logo-padding-y, 8px);
+  padding-bottom: var(--vp-header-logo-padding-y, 8px);
+}
+
 /* ── Source attribution block (RSS / AI-humanized articles) ─────────────────── */
 .vp-source-attribution {
   margin-top: 2.5rem;
