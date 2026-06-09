@@ -7,6 +7,7 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { Headline } from '@/components/shared/Headline';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { SafeImage } from '@/components/shared/SafeImage';
+import { AdSlot } from '@/components/shared/AdSlot';
 
 interface DesktopColumnistProps {
   columnist: {
@@ -123,30 +124,12 @@ export function DesktopColumnist({ columnist }: DesktopColumnistProps) {
           <div className="bg-vp-surface border border-vp-border p-5">
             <Eyebrow className="mb-2 text-[10px]">Sobre a coluna</Eyebrow>
             <p className="font-serif text-[14px] text-vp-text-2 leading-[1.55]">
-              Publicada semanalmente. {articles.length} textos no arquivo. Mais de 18 mil leitores recebem esta coluna por e-mail.
+              {articles.length > 0 ? `${articles.length} texto${articles.length > 1 ? 's' : ''} no arquivo.` : 'Colunista do portal.'}
             </p>
           </div>
-          
-          <div className="vp-ad h-[250px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-            300 × 250
-          </div>
-          
-          <div>
-            <h4 className="font-sans text-[11px] uppercase tracking-[0.14em] font-bold text-vp-text mb-4">
-              Temas frequentes
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {['Política', 'ALMS', 'Justiça', 'Agro', 'Pantanal', 'Transparência'].map(t => (
-                <span key={t} className="vp-tag vp-tag-outline cursor-pointer hover:border-vp-accent hover:text-vp-accent transition-all text-[10px]">
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
 
-          <div className="vp-ad h-[600px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-            300 × 600
-          </div>
+          <AdSlot id="sidebar-top" className="w-full" />
+          <AdSlot id="sidebar-bottom" className="w-full" />
         </aside>
       </div>
 

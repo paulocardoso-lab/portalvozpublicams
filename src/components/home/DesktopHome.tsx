@@ -68,7 +68,7 @@ interface DesktopHomeProps {
  */
 export function DesktopHome({
   articles = [],
-  newsletterCount = 4812,
+  newsletterCount = 0,
   agendaEvents = [],
   columnists = [],
   mostRead = [],

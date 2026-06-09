@@ -63,7 +63,7 @@ export async function SiteHeader() {
         <div className="flex gap-4.5 items-center">
           <span>{formattedDate}</span>
           <span className="text-vp-text-4">·</span>
-          <span>Campo Grande 28°C</span>
+          <span>Campo Grande {initialTickerData.weather.temp}°C</span>
           <span className="text-vp-text-4">·</span>
           <HeaderTicker initialData={initialTickerData} />
         </div>

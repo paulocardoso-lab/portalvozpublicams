@@ -7,6 +7,7 @@ import { ImgPH } from '@/components/shared/ImgPH';
 import { Headline } from '@/components/shared/Headline';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { SafeImage } from '@/components/shared/SafeImage';
+import { AdSlot } from '@/components/shared/AdSlot';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -148,29 +149,8 @@ export function DesktopSection({ section, articles }: DesktopSectionProps) {
 
         {/* Sidebar */}
         <aside className="flex flex-col gap-6 self-start">
-          <div className="vp-ad h-[250px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-            300 × 250
-          </div>
-          
-          <div className="bg-vp-surface p-4 border border-vp-border">
-            <h4 className="font-display text-[18px] font-bold text-vp-text mb-4">
-              Repórteres desta editoria
-            </h4>
-            <div className="flex flex-col gap-3">
-              {['Marina Ribeiro', 'Carlos Benites', 'Lucas Fragoso', 'Ana Figueira'].map((name, i) => (
-                <div key={name} className={`flex items-center gap-3 py-1 ${i > 0 ? 'border-t border-vp-border pt-3' : ''}`}>
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-vp-bg shrink-0">
-                    <ImgPH label="" width={32} height={32} />
-                  </div>
-                  <div className="font-sans text-[13px] text-vp-text-2 font-bold">{name}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="vp-ad h-[600px] w-full flex items-center justify-center text-vp-text-4 font-mono text-[11px]">
-            300 × 600
-          </div>
+          <AdSlot id="sidebar-top" className="w-full" />
+          <AdSlot id="sidebar-bottom" className="w-full" />
         </aside>
       </div>
 

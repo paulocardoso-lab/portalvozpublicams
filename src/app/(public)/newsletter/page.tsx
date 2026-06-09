@@ -6,8 +6,10 @@ import { Monogram } from '@/components/shared/Monogram';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { Headline } from '@/components/shared/Headline';
 import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
+import { prisma } from '@/lib/prisma';
 
-export default function NewsletterPage() {
+export default async function NewsletterPage() {
+  const subscriberCount = await prisma.newsletterSubscriber.count().catch(() => 0);
   return (
     <div className="flex flex-col min-h-screen bg-vp-bg w-full">
       <div className="hidden lg:block">
@@ -31,18 +33,17 @@ export default function NewsletterPage() {
               A Semana<br/>em <span className="text-vp-accent italic">MS</span>.
             </Headline>
             <p className="font-serif text-[16px] sm:text-[18px] text-vp-text-2 leading-[1.45] italic lg:max-w-125">
-              O resumo do que importou em Mato Grosso do Sul, escrito à mão pela editora-chefe Marina Ribeiro.
+              O resumo do que importou em Mato Grosso do Sul, toda semana direto na sua caixa de entrada.
             </p>
           </div>
 
           {/* 2. Stats */}
-          <div className="grid grid-cols-3 border-b border-vp-border bg-vp-bg">
+          <div className="grid grid-cols-2 border-b border-vp-border bg-vp-bg">
             {[
-              ['12.483', 'leitores'],
-              ['68%', 'abrem'],
-              ['3 anos', 'no ar']
+              [subscriberCount.toLocaleString('pt-BR'), 'assinantes'],
+              ['Gratuita', 'sempre'],
             ].map(([n, l], i) => (
-              <div key={i} className={`py-6 px-2 text-center ${i < 2 ? 'border-r border-vp-border' : ''}`}>
+              <div key={i} className={`py-6 px-2 text-center ${i < 1 ? 'border-r border-vp-border' : ''}`}>
                 <div className="font-display text-[24px] lg:text-[28px] text-vp-accent font-black">{n}</div>
                 <div className="text-[10px] text-vp-text-3 uppercase tracking-widest mt-1 font-bold">{l}</div>
               </div>
