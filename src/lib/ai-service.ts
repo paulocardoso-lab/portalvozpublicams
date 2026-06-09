@@ -5,21 +5,33 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
 // ── rewriteArticleContent ────────────────────────────────────────────────────
 // Rewrites title, lead and generates tags from raw source text.
 
-export async function rewriteArticleContent(title: string, lead: string, fullText: string) {
+export async function rewriteArticleContent(
+  title: string,
+  lead: string,
+  fullText: string,
+  sections: { slug: string; name: string }[] = []
+) {
   const textSample = fullText.substring(0, 6000).trim();
+
+  const sectionBlock = sections.length > 0
+    ? `\n4. Escolher a EDITORIA mais adequada para esta matéria entre as opções abaixo. Retorne o slug exato.\nEDITORIAS DISPONÍVEIS:\n${sections.map(s => `- ${s.slug}: ${s.name}`).join('\n')}\n`
+    : '';
+
+  const sectionJsonField = sections.length > 0 ? `,"sectionSlug":"<slug exato da editoria escolhida>"` : '';
 
   const prompt = `Você é um editor sênior do portal "Voz Pública MS", de jornalismo independente em Mato Grosso do Sul.
 
 Recebi uma matéria capturada via RSS. Sua tarefa é:
 1. Reescrever o TÍTULO para ser claro, impactante e conter as palavras-chave da notícia.
 2. Reescrever o LEAD (primeiro parágrafo) com 150-250 caracteres, respondendo: quem, o quê, quando, onde.
-3. Sugerir de 3 a 5 TAGS relevantes relacionadas ao conteúdo e ao contexto de Mato Grosso do Sul.
+3. Sugerir de 3 a 5 TAGS relevantes relacionadas ao conteúdo e ao contexto de Mato Grosso do Sul.${sectionBlock}
 
 REGRAS:
 - Use APENAS informações presentes no texto abaixo. NÃO invente fatos.
 - Tom: jornalístico, imparcial, objetivo.
 - Não mencione o nome de outros portais no título ou lead.
 - Se o texto for insuficiente para um lead informativo, use o título como base.
+- Para a editoria: escolha a que melhor representa o TEMA PRINCIPAL da matéria. Se nenhuma for adequada, omita o campo sectionSlug.
 
 ENTRADA:
 Título: ${title}
@@ -28,7 +40,7 @@ Conteúdo completo:
 ${textSample}
 
 Responda APENAS com JSON válido, sem markdown, sem explicações:
-{"title":"...","lead":"...","tags":["...","...","..."]}`;
+{"title":"...","lead":"...","tags":["...","...","..."]${sectionJsonField}}`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -43,10 +55,11 @@ Responda APENAS com JSON válido, sem markdown, sem explicações:
     if (typeof parsed.title !== 'string' || !parsed.title.trim()) parsed.title = title;
     if (typeof parsed.lead !== 'string' || !parsed.lead.trim()) parsed.lead = lead || title;
     if (!Array.isArray(parsed.tags)) parsed.tags = [];
-    return parsed as { title: string; lead: string; tags: string[] };
+    if (typeof parsed.sectionSlug !== 'string') parsed.sectionSlug = null;
+    return parsed as { title: string; lead: string; tags: string[]; sectionSlug: string | null };
   } catch (error) {
     console.error('OpenAI rewriteArticleContent error:', error);
-    return { title, lead: lead || title, tags: [] };
+    return { title, lead: lead || title, tags: [], sectionSlug: null };
   }
 }
 

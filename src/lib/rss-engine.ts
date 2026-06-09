@@ -115,10 +115,13 @@ export async function previewFeed(url: string): Promise<RSSPreviewItem[]> {
 export async function syncFeed(feedId: string): Promise<RSSSyncSummary> {
   const startedAt = Date.now();
 
-  const feed = await prisma.rSSFeed.findUnique({
-    where: { id: feedId },
-    include: { targetSection: true }
-  });
+  const [feed, allSections] = await Promise.all([
+    prisma.rSSFeed.findUnique({
+      where: { id: feedId },
+      include: { targetSection: true }
+    }),
+    prisma.section.findMany({ select: { id: true, slug: true, name: true } }),
+  ]);
 
   if (!feed) throw new Error('Fonte RSS não encontrada.');
 
@@ -205,7 +208,7 @@ export async function syncFeed(feedId: string): Promise<RSSSyncSummary> {
       }
 
       try {
-        await processArticle(item, feed);
+        await processArticle(item, feed, allSections);
         summary.created += 1;
         recentTitles.push((item.title || '').toLowerCase());
 
@@ -389,7 +392,11 @@ function extractParagraphs(
 
 // ── Article processing ────────────────────────────────────────────────────────
 
-async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
+async function processArticle(
+  item: RSSItem,
+  feed: RSSFeedWithSection,
+  allSections: { id: string; slug: string; name: string }[]
+) {
   if (!item.link) throw new Error('Item RSS sem link.');
 
   const link = resolveArticleUrl(item);
@@ -458,16 +465,22 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
   const aiHumanizeEnabled = aiHumanizeFlag?.value !== 'false';
 
   const [
-    { title: aiTitle, lead: aiLead, tags },
+    { title: aiTitle, lead: aiLead, tags, sectionSlug: aiSectionSlug },
     humanizedParagraphs,
   ] = await Promise.all([
     aiRewriteEnabled
-      ? rewriteArticleContent(sourceTitle, sourceLead, sourceTextForAI)
-      : Promise.resolve({ title: sourceTitle, lead: sourceLead, tags: [] as string[] }),
+      ? rewriteArticleContent(sourceTitle, sourceLead, sourceTextForAI, allSections)
+      : Promise.resolve({ title: sourceTitle, lead: sourceLead, tags: [] as string[], sectionSlug: null as string | null }),
     aiHumanizeEnabled
       ? humanizeArticleContent(sourceTitle, rawBodyParagraphs)
       : Promise.resolve(rawBodyParagraphs),
   ]);
+
+  // Resolve section: use AI suggestion if valid, fall back to feed's targetSectionId
+  const aiSection = aiSectionSlug
+    ? allSections.find(s => s.slug === aiSectionSlug)
+    : null;
+  const resolvedSectionId = aiSection?.id ?? feed.targetSectionId;
 
   const slug = slugify(aiTitle);
   let heroImageUrl = rawHeroImage;
@@ -516,7 +529,7 @@ async function processArticle(item: RSSItem, feed: RSSFeedWithSection) {
       lead: aiLead,
       body: { type: 'doc', content: bodyContent },
       status: articleStatus,
-      sectionId: feed.targetSectionId,
+      sectionId: resolvedSectionId,
       publishedAt: feed.autoPublish ? new Date() : null,
       heroImage: heroImageUrl,
       sourceUrl: link,
