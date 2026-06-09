@@ -30,8 +30,12 @@ export function AmbientSoundClient({ initialEnabled, initialAudioUrl, initialVol
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const url = await uploadAudioFile(fd, 'ambient');
-      setAudioUrl(url);
+      const result = await uploadAudioFile(fd, 'ambient');
+      if (result.error) {
+        setUploadError(result.error);
+      } else if (result.url) {
+        setAudioUrl(result.url);
+      }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Erro ao enviar áudio.');
     } finally {

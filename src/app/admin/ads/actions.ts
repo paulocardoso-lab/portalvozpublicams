@@ -83,6 +83,9 @@ export async function createCampaign(formData: FormData) {
     const weight = isNaN(rawWeight) || rawWeight < 1 ? 1 : Math.min(rawWeight, 100);
     const targetUrl = normalizeImageUrl(formData.get("targetUrl")) || "";
 
+    const effectsRaw = formData.getAll("effects") as string[];
+    const effects = effectsRaw.length > 0 ? effectsRaw.join(",") : "";
+
     await prisma.campaign.create({
       data: {
         name: String(formData.get("name") || "Sem nome"),
@@ -93,6 +96,7 @@ export async function createCampaign(formData: FormData) {
         impressions: 0,
         clicks: 0,
         weight,
+        effects,
         startsAt,
         endsAt,
         status: "ACTIVE",

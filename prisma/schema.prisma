@@ -276,6 +276,7 @@ model Campaign {
   impressions Int      @default(0)
   clicks      Int      @default(0)
   weight      Int      @default(1)
+  effects     String   @default("fadeIn,pulse,shimmer")
   startsAt    DateTime
   endsAt      DateTime
   status      CampaignStatus @default(ACTIVE)

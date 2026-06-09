@@ -696,6 +696,38 @@ export function CampaignManager({ initialCampaigns }: { initialCampaigns: Campai
                 );
               })()}
 
+              {/* Efeitos do banner */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">
+                  Efeitos do Banner
+                </span>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {([
+                    { value: 'fadeIn',   label: 'Fade In',   desc: 'Aparece gradualmente' },
+                    { value: 'pulse',    label: 'Pulse',     desc: 'Pulsa suavemente' },
+                    { value: 'shimmer',  label: 'Shimmer',   desc: 'Brilho diagonal' },
+                    { value: 'kenBurns', label: 'Ken Burns', desc: 'Zoom lento' },
+                  ] as const).map(({ value, label, desc }) => (
+                    <label
+                      key={value}
+                      className="flex items-start gap-2 px-3 py-2.5 bg-vp-surface/40 border border-vp-border/50 rounded-sm cursor-pointer hover:border-vp-accent/40 transition-colors has-[:checked]:border-vp-accent has-[:checked]:bg-vp-accent/5"
+                    >
+                      <input
+                        type="checkbox"
+                        name="effects"
+                        value={value}
+                        defaultChecked={value === 'fadeIn' || value === 'pulse' || value === 'shimmer'}
+                        className="mt-0.5 accent-vp-accent"
+                      />
+                      <span className="flex flex-col">
+                        <span className="text-[11px] font-bold text-vp-text">{label}</span>
+                        <span className="text-[10px] text-vp-text-4">{desc}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* URL de destino */}
               <div className="space-y-1.5">
                 <label htmlFor="ad-targetUrl" className="text-[10px] font-black uppercase tracking-widest text-vp-text-4">

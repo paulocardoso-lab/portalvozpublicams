@@ -198,8 +198,12 @@ export function PodcastClient({ initialEpisodes }: { initialEpisodes: PodcastEpi
                 try {
                   const fd = new FormData();
                   fd.append('file', file);
-                  const url = await uploadAudioFile(fd, 'podcasts');
-                  setAudioUrl(url);
+                  const result = await uploadAudioFile(fd, 'podcasts');
+                  if (result.error) {
+                    setAudioUploadError(result.error);
+                  } else if (result.url) {
+                    setAudioUrl(result.url);
+                  }
                 } catch (err) {
                   setAudioUploadError(err instanceof Error ? err.message : 'Erro ao enviar áudio.');
                 } finally {

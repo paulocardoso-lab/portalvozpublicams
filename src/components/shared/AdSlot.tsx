@@ -14,6 +14,7 @@ interface Campaign {
   creative: string;
   name: string;
   targetUrl: string;
+  effects: string;
 }
 
 const FREQ_KEY = 'vp_ad_freq';
@@ -56,8 +57,7 @@ const CENTERED_SLOTS = new Set([
   'leaderboard', 'mobile-top', 'mobile-inline', 'in-article', 'native-feed',
 ]);
 
-// native-feed gets Ken Burns parallax instead of pulse
-const PARALLAX_SLOTS = new Set(['native-feed']);
+const VALID_EFFECTS = new Set(['fadeIn', 'pulse', 'shimmer', 'kenBurns']);
 
 function aspectFor(id: string) {
   return SLOT_ASPECT[id] ?? (id.includes('sidebar') ? 'aspect-[300/250]' : id.includes('mobile') ? 'aspect-[320/50]' : 'aspect-[970/90]');
@@ -152,9 +152,14 @@ export function AdSlot({ id, className = '', rotateEvery = 0 }: AdSlotProps) {
   const aspectClass = aspectFor(id);
   const maxWClass   = maxWFor(id);
   const centered    = CENTERED_SLOTS.has(id);
-  const isParallax  = PARALLAX_SLOTS.has(id);
   const href        = campaign.targetUrl?.trim() || '#';
-  const imgClass    = isParallax ? 'vp-ad-kenburns-img' : 'vp-ad-pulse-img';
+
+  const fx = new Set((campaign.effects || '').split(',').map(s => s.trim()).filter(s => VALID_EFFECTS.has(s)));
+  const hasFadeIn   = fx.has('fadeIn');
+  const hasPulse    = fx.has('pulse');
+  const hasShimmer  = fx.has('shimmer');
+  const hasKenBurns = fx.has('kenBurns');
+  const imgClass    = hasKenBurns ? 'vp-ad-kenburns-img' : hasPulse ? 'vp-ad-pulse-img' : '';
 
   return (
     <div
@@ -166,8 +171,7 @@ export function AdSlot({ id, className = '', rotateEvery = 0 }: AdSlotProps) {
           Publicidade
         </div>
 
-        {/* fade-in wrapper — .is-visible triggers the animation */}
-        <div className={`vp-ad-wrap${visible ? ' is-visible' : ''}`}>
+        <div className={hasFadeIn ? `vp-ad-wrap${visible ? ' is-visible' : ''}` : 'vp-ad-wrap is-visible'}>
           <a
             href={href}
             target={href !== '#' ? '_blank' : undefined}
@@ -176,7 +180,7 @@ export function AdSlot({ id, className = '', rotateEvery = 0 }: AdSlotProps) {
             className="vp-ad-anchor"
             aria-label={`Publicidade — ${campaign.name}`}
           >
-            <ShimmerOverlay key={shimmerKey} />
+            {hasShimmer && <ShimmerOverlay key={shimmerKey} />}
 
             <div className={`relative w-full ${aspectClass} bg-vp-surface/40 overflow-hidden`}>
               <SafeImage
@@ -185,7 +189,7 @@ export function AdSlot({ id, className = '', rotateEvery = 0 }: AdSlotProps) {
                 fill
                 sizes="(max-width: 768px) 100vw, 970px"
                 onError={() => setImageFailed(true)}
-                className={`object-contain${visible ? ` ${imgClass}` : ''}`}
+                className={`object-contain${imgClass && visible ? ` ${imgClass}` : ''}`}
               />
             </div>
           </a>

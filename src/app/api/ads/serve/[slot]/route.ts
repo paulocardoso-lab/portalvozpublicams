@@ -38,6 +38,7 @@ export async function GET(
         impressions: true,
         clicks: true,
         weight: true,
+        effects: true,
         startsAt: true,
         endsAt: true,
         status: true,
