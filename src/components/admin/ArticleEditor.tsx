@@ -195,6 +195,18 @@ export function ArticleEditor({ article, sections, users }: ArticleEditorProps) 
                 </div>
               </div>
 
+              <div className="border-t border-vp-border pt-4">
+                <label className="flex items-center justify-between gap-3 cursor-pointer group">
+                  <span className="text-[11px] text-vp-text-3 uppercase font-bold">Permitir comentários</span>
+                  <input
+                    type="checkbox"
+                    name="allowComments"
+                    defaultChecked={article?.allowComments ?? true}
+                    className="w-4 h-4 accent-vp-accent cursor-pointer"
+                  />
+                </label>
+              </div>
+
               <div className="pt-4 space-y-3">
                 <button type="submit" className="vp-btn vp-btn-primary w-full py-2.5">
                   {article ? 'Salvar Alterações' : 'Publicar Matéria'}

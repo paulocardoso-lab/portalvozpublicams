@@ -141,13 +141,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <div className="hidden md:block" suppressHydrationWarning>
         <DesktopArticle article={serializedArticle} related={related} />
       </div>
-      <div className="max-w-[1200px] mx-auto px-4 pb-20">
-        <CommentSection 
-          articleId={article.id} 
-          comments={serializedArticle.comments} 
-          isLoggedIn={!!session} 
-        />
-      </div>
+      {article.allowComments && (
+        <div className="max-w-300 mx-auto px-4 pb-20">
+          <CommentSection
+            articleId={article.id}
+            comments={serializedArticle.comments}
+            isLoggedIn={!!session}
+          />
+        </div>
+      )}
     </>
   );
 }

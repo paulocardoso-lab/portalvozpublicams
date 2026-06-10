@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { ImgPH } from '@/components/shared/ImgPH';
 import Image from 'next/image';
 
+const PAGE_SIZE = 12;
+
 const publicAuthorSelect = {
   id: true,
   name: true,
@@ -15,38 +17,58 @@ const publicAuthorSelect = {
   avatar: true,
 } as const;
 
-export default async function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function SectionPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   const { slug } = await params;
-  
-  const section = await prisma.section.findUnique({
-    where: { slug },
-    include: {
-      articles: {
-        where: { status: 'PUBLISHED' },
-        include: { authors: { select: publicAuthorSelect } },
-        orderBy: { publishedAt: 'desc' },
-        take: 12,
-      }
-    }
-  });
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
 
+  const section = await prisma.section.findUnique({ where: { slug } });
   if (!section) notFound();
 
-  const articles = section.articles;
+  const [total, articles] = await Promise.all([
+    prisma.article.count({
+      where: { sectionId: section.id, status: 'PUBLISHED' },
+    }),
+    prisma.article.findMany({
+      where: { sectionId: section.id, status: 'PUBLISHED' },
+      include: {
+        authors: { select: publicAuthorSelect },
+        _count: { select: { comments: { where: { status: 'APPROVED' } } } },
+      },
+      orderBy: { publishedAt: 'desc' },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   const featured = articles[0];
   const list = articles.slice(1);
-  
+
   return (
     <>
       {/* Desktop Version */}
       <div className="hidden lg:block">
-        <DesktopSection section={section} articles={articles} />
+        <DesktopSection
+          section={section}
+          articles={articles}
+          total={total}
+          page={page}
+          totalPages={totalPages}
+        />
       </div>
 
       {/* Mobile Version */}
       <div className="lg:hidden flex flex-col min-h-screen bg-vp-bg w-full">
         <MobileMasthead />
-        
+
         <div className="px-4 py-5 border-b-2 border-vp-text">
           <div className="eyebrow text-[10px] mb-1">Editoria</div>
           <h1 className="font-display text-[32px] sm:text-[42px] leading-none mb-3">{section.name}</h1>
@@ -85,10 +107,31 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
               </Link>
               <div>
                 <h3 className="font-display text-[18px] leading-tight mb-1">{art.title}</h3>
-                <div className="byline text-[10px]">há 2h · {art.authors?.[0]?.name}</div>
+                <div className="byline text-[10px]">
+                  {art.publishedAt
+                    ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt))
+                    : ''} · {art.authors?.[0]?.name}
+                </div>
               </div>
             </article>
           ))}
+
+          {/* Paginação mobile */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-1 pt-4 font-sans text-[13px]">
+              {page > 1 && (
+                <Link href={`/editoria/${slug}?page=${page - 1}`} className="vp-btn px-3 py-1.5 border border-vp-border">
+                  ←
+                </Link>
+              )}
+              <span className="px-3 py-1.5 text-vp-text-3">{page} / {totalPages}</span>
+              {page < totalPages && (
+                <Link href={`/editoria/${slug}?page=${page + 1}`} className="vp-btn px-3 py-1.5 border border-vp-border">
+                  →
+                </Link>
+              )}
+            </div>
+          )}
         </div>
 
         <MobileTabBar active="search" />

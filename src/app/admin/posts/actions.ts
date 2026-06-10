@@ -48,6 +48,8 @@ export async function saveArticle(formData: FormData) {
     }
   }
 
+  const allowComments = formData.get('allowComments') === 'on';
+
   const baseData = {
     title,
     slug,
@@ -55,6 +57,7 @@ export async function saveArticle(formData: FormData) {
     lead,
     body: content as Prisma.InputJsonValue,
     status,
+    allowComments,
     section: { connect: { id: sectionId } },
     updatedAt: new Date(),
     heroImage: heroImageUrl || undefined,
