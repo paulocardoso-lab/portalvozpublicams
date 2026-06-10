@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/fetch-agri",
-      "schedule": "0 12-22 * * 1-5"
+      "schedule": "0 20 * * 1-5"
     },
     {
       "path": "/api/cron/apply-scheduled-theme",
