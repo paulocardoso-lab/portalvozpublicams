@@ -156,7 +156,7 @@ export function DesktopHome({
                   )}
                 </div>
                 <Eyebrow className="mb-1.5">{art.section?.name}</Eyebrow>
-                <Headline size="h3" href={`/materia/${art.slug}`} className="vp-card-title">
+                <Headline size="h3" href={`/materia/${art.slug}`} className="mb-(--vp-card-title-gap)">
                   {art.title}
                 </Headline>
                 <p className="font-serif text-[14px] text-vp-text-2 leading-[1.45] line-clamp-3">
@@ -421,7 +421,7 @@ export function DesktopHome({
 
           {/* Newsletter sidebar */}
           <div className="bg-vp-surface p-5 border border-vp-border">
-            <h3 className="font-display text-[19px] font-bold text-vp-text vp-card-title">
+            <h3 className="font-display text-[19px] font-bold text-vp-text mb-(--vp-card-title-gap)">
               {s['home.newsletter_title'] || 'Newsletter · A Semana em MS'}
             </h3>
             <p className="font-serif text-[12px] text-vp-text-2 leading-[1.5] mb-3">
