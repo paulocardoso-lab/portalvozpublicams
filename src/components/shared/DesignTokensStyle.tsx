@@ -51,6 +51,7 @@ export async function DesignTokensStyle() {
   --vp-card-radius: ${r('comp.card-radius')}px;
   --vp-card-border: ${r('comp.card-border-width')}px;
   --vp-card-gap: ${r('comp.card-gap')}px;
+  --vp-card-title-gap: ${r('comp.card-title-gap')}px;
 
   /* Header */
   --vp-header-logo-size: ${r('comp.header-logo-size')}px;

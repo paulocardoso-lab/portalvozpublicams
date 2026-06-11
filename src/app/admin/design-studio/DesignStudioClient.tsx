@@ -553,6 +553,7 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
               <SliderRow label="Border radius" value={Number(tokens['comp.card-radius'])} min={0} max={16} step={1} unit="px" onChange={v => updateToken('comp.card-radius', String(v))} />
               <SliderRow label="Espessura da borda" value={Number(tokens['comp.card-border-width'])} min={0} max={4} step={1} unit="px" onChange={v => updateToken('comp.card-border-width', String(v))} />
               <SliderRow label="Gap entre cards" value={Number(tokens['comp.card-gap'])} min={4} max={48} step={4} unit="px" onChange={v => updateToken('comp.card-gap', String(v))} />
+              <SliderRow label="Espaço título → lead" value={Number(tokens['comp.card-title-gap'])} min={4} max={40} step={2} unit="px" onChange={v => updateToken('comp.card-title-gap', String(v))} />
               <SliderRow label="Proporção da imagem (%)" value={Number(tokens['comp.card-image-ratio'])} min={40} max={75} step={5} unit="%" onChange={v => updateToken('comp.card-image-ratio', String(v))} />
 
               <SectionLabel>Cabeçalho</SectionLabel>

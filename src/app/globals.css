@@ -84,6 +84,9 @@
   text-rendering: optimizeLegibility;
 }
 
+/* Espaço entre título e lead/texto nos cards e blocos de sidebar */
+.vp-card-title { margin-bottom: var(--vp-card-title-gap, 16px); }
+
 /* Desktop/widescreen zoom — equivalente ao zoom 125% do navegador.
    Só ativa em ≥1280px; mobile e laptop ficam intactos. */
 @media (min-width: 1440px) {
@@ -142,6 +145,7 @@
   font-weight: 700;
   border: 1.5px solid var(--vp-text);
   line-height: 1;
+  -webkit-user-select: none;
   user-select: none;
 }
 .vp-monogram .m-l, .vp-monogram .m-r {
