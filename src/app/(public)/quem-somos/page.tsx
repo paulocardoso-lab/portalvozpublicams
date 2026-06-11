@@ -20,7 +20,7 @@ export default async function QuemSomosPage() {
       </h1>
 
       <div className="font-serif text-[16px] sm:text-[17px] leading-relaxed text-vp-text-2 space-y-5">
-        <p>{v('institucional.quem_somos_intro', 'O Voz Pública MS nasceu em 2024 com uma convicção simples e cada vez mais rara: jornalismo de qualidade só existe quando é livre.')}</p>
+        <p>{v('institucional.quem_somos_intro', 'O Voz Pública MS nasceu com uma convicção simples e cada vez mais rara: jornalismo de qualidade só existe quando é livre.')}</p>
 
         <h2 className="font-display text-[22px] font-black text-vp-text mt-8 mb-3">Nossa missão</h2>
         <p>{v('institucional.quem_somos_missao', 'Investigar, apurar e publicar fatos que importam para os cidadãos sul-mato-grossenses.')}</p>

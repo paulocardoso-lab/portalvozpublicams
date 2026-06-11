@@ -84,6 +84,14 @@
   text-rendering: optimizeLegibility;
 }
 
+/* Desktop/widescreen zoom — equivalente ao zoom 125% do navegador.
+   Só ativa em ≥1280px; mobile e laptop ficam intactos. */
+@media (min-width: 1440px) {
+  html {
+    zoom: 1.25;
+  }
+}
+
 /* Utility classes scoped to .vp-root */
 .vp-root a { color: inherit; text-decoration: none; }
 .vp-root a:hover { color: var(--vp-accent); }
