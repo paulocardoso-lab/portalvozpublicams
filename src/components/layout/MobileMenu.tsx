@@ -7,13 +7,14 @@ import Link from 'next/link';
 
 interface MobileMenuProps {
   onClose?: () => void;
+  donationsEnabled?: boolean;
 }
 
 /**
  * MobileMenu — Menu lateral (drawer) para mobile.
  * Navegação completa por editorias e canais institucionais.
  */
-export function MobileMenu({ onClose }: MobileMenuProps) {
+export function MobileMenu({ onClose, donationsEnabled = true }: MobileMenuProps) {
   const sections = [
     'Política','Cidades','Pantanal','Agronegócio','Economia','Segurança',
     'Saúde','Educação','Indígenas','Fronteira','Cultura','Esportes','Opinião','Especiais'
@@ -80,11 +81,13 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
 
       {/* 5. Footer Actions */}
       <div className="p-4 border-t border-vp-border flex flex-col gap-2 bg-vp-bg shadow-[0_-10px_20px_rgba(0,0,0,0.2)]">
-        <Link href="/apoiar" onClick={onClose} className="w-full">
-          <button className="vp-btn vp-btn-primary w-full py-3.5 text-[13px] font-bold uppercase tracking-wider">
-            Apoie o Voz Pública
-          </button>
-        </Link>
+        {donationsEnabled && (
+          <Link href="/apoiar" onClick={onClose} className="w-full">
+            <button className="vp-btn vp-btn-primary w-full py-3.5 text-[13px] font-bold uppercase tracking-wider">
+              Apoie o Voz Pública
+            </button>
+          </Link>
+        )}
         <Link href="/login" onClick={onClose} className="w-full">
           <button className="vp-btn w-full py-3 text-[13px] font-bold uppercase tracking-wider">
             Entrar / Cadastrar

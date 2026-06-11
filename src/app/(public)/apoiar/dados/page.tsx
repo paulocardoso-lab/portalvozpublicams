@@ -1,13 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { FunnelLayout } from '@/components/subscription/FunnelLayout';
-import { formatCurrency, getDonationConfig, paymentHref, resolveDonationSelection } from '@/lib/donation-config';
+import { formatCurrency, getDonationConfig, isDonationsEnabled, paymentHref, resolveDonationSelection } from '@/lib/donation-config';
 
 export const dynamic = 'force-dynamic';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 export default async function DonateDataPage({ searchParams }: { searchParams: SearchParams }) {
+  if (!(await isDonationsEnabled())) redirect('/');
   const query = await searchParams;
   const config = await getDonationConfig();
   const selection = resolveDonationSelection(config, query);

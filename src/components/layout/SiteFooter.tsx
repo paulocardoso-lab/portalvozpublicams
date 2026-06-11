@@ -3,6 +3,7 @@ import { getSiteSettings } from '@/app/actions/settings';
 import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
 import { PollAboveFooter } from '@/components/poll/PollAboveFooter';
+import { isDonationsEnabled } from '@/lib/donation-config';
 import type { Section } from '@prisma/client';
 
 /**
@@ -12,18 +13,21 @@ import type { Section } from '@prisma/client';
 export async function SiteFooter() {
   let settings: Record<string, string> = {};
   let dbSections: Section[] = [];
+  let donationsEnabled = true;
 
   try {
-    const [siteSettings, sections] = await Promise.all([
+    const [siteSettings, sections, donEnabled] = await Promise.all([
       getSiteSettings().catch(() => ({})),
       prisma.section.findMany({
         where: { showInMenu: true },
         orderBy: { menuOrder: 'asc' },
         take: 8
-      }).catch(() => [])
+      }).catch(() => []),
+      isDonationsEnabled().catch(() => true),
     ]);
     settings = siteSettings;
     dbSections = sections;
+    donationsEnabled = donEnabled;
   } catch (error) {
     console.error('Footer data fetch error:', error);
   }
@@ -39,9 +43,11 @@ export async function SiteFooter() {
             {settings['footer.description'] || settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
           </p>
           <div className="mt-3.5 flex flex-col sm:flex-row gap-2">
-            <Link href="/apoiar" className="no-underline flex-1 sm:flex-none">
-              <button className="vp-btn vp-btn-primary text-[11px] font-bold w-full sm:w-auto min-h-11">Faça uma doação</button>
-            </Link>
+            {donationsEnabled && (
+              <Link href="/apoiar" className="no-underline flex-1 sm:flex-none">
+                <button className="vp-btn vp-btn-primary text-[11px] font-bold w-full sm:w-auto min-h-11">Faça uma doação</button>
+              </Link>
+            )}
             <Link href="/newsletter" className="no-underline flex-1 sm:flex-none">
               <button className="vp-btn text-[11px] font-bold w-full sm:w-auto min-h-11">Assine a newsletter</button>
             </Link>

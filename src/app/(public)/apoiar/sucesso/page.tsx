@@ -1,7 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
+import { isDonationsEnabled } from '@/lib/donation-config';
 
-export default function DonateSuccessPage() {
+export default async function DonateSuccessPage() {
+  const donationsEnabled = await isDonationsEnabled();
   return (
     <div className="flex flex-col min-h-screen bg-vp-bg w-full items-center justify-center p-4 sm:p-6 text-center">
       <div className="w-[100px] h-[100px] rounded-full bg-vp-accent flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(217,119,87,0.3)]">
@@ -20,13 +22,15 @@ export default function DonateSuccessPage() {
         Se você pagou por PIX ou transferência, a equipe fará a conferência do comprovante e a identificação do apoio.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[480px]">
+      <div className={`grid gap-4 w-full max-w-[480px] ${donationsEnabled ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
         <Link href="/" className="vp-btn vp-btn-primary py-4 font-bold uppercase tracking-widest text-[13px] no-underline inline-block">
           Ir para a Home →
         </Link>
-        <Link href="/apoiar" className="vp-btn py-4 font-bold uppercase tracking-widest text-[13px] hover:bg-vp-surface transition-colors no-underline inline-block">
-          Fazer outro apoio
-        </Link>
+        {donationsEnabled && (
+          <Link href="/apoiar" className="vp-btn py-4 font-bold uppercase tracking-widest text-[13px] hover:bg-vp-surface transition-colors no-underline inline-block">
+            Fazer outro apoio
+          </Link>
+        )}
       </div>
 
       <div className="mt-12 pt-8 border-t border-vp-border w-full max-w-[420px]">

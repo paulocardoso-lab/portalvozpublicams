@@ -3,11 +3,13 @@ import Link from 'next/link';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import { prisma } from '@/lib/prisma';
 import { BrandLogo } from '@/components/shared/BrandLogo';
+import { isDonationsEnabled } from '@/lib/donation-config';
 
 export default async function MenuPage() {
-  const sections = await prisma.section.findMany({
-    orderBy: { name: 'asc' }
-  });
+  const [sections, donationsEnabled] = await Promise.all([
+    prisma.section.findMany({ orderBy: { name: 'asc' } }),
+    isDonationsEnabled(),
+  ]);
 
   return (
     <div className="flex flex-col min-h-dvh bg-vp-bg text-vp-text w-full max-w-120 mx-auto border-x border-vp-border">
@@ -49,9 +51,11 @@ export default async function MenuPage() {
         </div>
       </nav>
 
-      <div className="p-4 grid grid-cols-2 gap-3 border-t border-vp-border bg-vp-surface">
-        <Link href="/apoiar" className="vp-btn vp-btn-primary py-3 no-underline">Apoie</Link>
-        <Link href="/login" className="vp-btn py-3 no-underline">Entrar</Link>
+      <div className={`p-4 gap-3 border-t border-vp-border bg-vp-surface ${donationsEnabled ? "grid grid-cols-2" : "flex"}`}>
+        {donationsEnabled && (
+          <Link href="/apoiar" className="vp-btn vp-btn-primary py-3 no-underline text-center">Apoie</Link>
+        )}
+        <Link href="/login" className={`vp-btn py-3 no-underline text-center ${donationsEnabled ? "" : "flex-1"}`}>Entrar</Link>
       </div>
 
       <MobileTabBar active="sections" />

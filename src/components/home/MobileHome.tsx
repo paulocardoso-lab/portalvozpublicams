@@ -26,17 +26,19 @@ interface MobileHomeProps {
   activeAlert?: Alert | null;
   featuredSeries?: SeriesWithArticles | null;
   mostRead?: ArticleWithSection[];
+  donationsEnabled?: boolean;
 }
 
 /**
  * MobileHome — Estrutura completa da home page para dispositivos móveis.
  * Dados dinâmicos provenientes do banco de dados.
  */
-export function MobileHome({ 
-  articles = [], 
-  activeAlert, 
+export function MobileHome({
+  articles = [],
+  activeAlert,
   featuredSeries,
-  mostRead = [] 
+  mostRead = [],
+  donationsEnabled = true,
 }: MobileHomeProps) {
   
   const hero = articles[0];
@@ -86,17 +88,19 @@ export function MobileHome({
         )}
 
         {/* 3. Donate banner */}
-        <div className="bg-vp-surface px-4 py-4 border-b border-vp-border">
-          <Eyebrow variant="muted" className="mb-1 text-[10px]">Sem donos. Sem paywall.</Eyebrow>
-          <div className="font-display font-bold text-[17px] text-vp-text leading-[1.2] mb-2.5">
-            Jornalismo independente feito por quem vive em Mato Grosso do Sul.
+        {donationsEnabled && (
+          <div className="bg-vp-surface px-4 py-4 border-b border-vp-border">
+            <Eyebrow variant="muted" className="mb-1 text-[10px]">Sem donos. Sem paywall.</Eyebrow>
+            <div className="font-display font-bold text-[17px] text-vp-text leading-[1.2] mb-2.5">
+              Jornalismo independente feito por quem vive em Mato Grosso do Sul.
+            </div>
+            <Link href="/apoiar">
+              <button className="vp-btn vp-btn-primary w-full text-[12px] font-bold">
+                Apoiar o Voz Pública
+              </button>
+            </Link>
           </div>
-          <Link href="/apoiar">
-            <button className="vp-btn vp-btn-primary w-full text-[12px] font-bold">
-              Apoiar o Voz Pública
-            </button>
-          </Link>
-        </div>
+        )}
 
         {/* 4. List items — native-feed ad injected after 3rd article */}
         <section>

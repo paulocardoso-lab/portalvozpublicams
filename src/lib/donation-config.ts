@@ -65,6 +65,7 @@ export const DONATION_SETTING_KEYS = {
   pix: 'DONATION_PIX_JSON',
   campaign: 'DONATION_CAMPAIGN_JSON',
   paymentMethods: 'DONATION_PAYMENT_METHODS_JSON',
+  enabled: 'ENABLE_DONATIONS',
 } as const;
 
 export const DEFAULT_DONATION_CONFIG: DonationConfig = {
@@ -211,6 +212,11 @@ export async function getDonationConfig() {
   });
 
   return parseDonationConfig(Object.fromEntries(rows.map((row) => [row.key, row.value])));
+}
+
+export async function isDonationsEnabled(): Promise<boolean> {
+  const row = await prisma.siteSetting.findUnique({ where: { key: DONATION_SETTING_KEYS.enabled } });
+  return row === null || row.value !== 'false';
 }
 
 export function supportHref(selection: DonationSelection) {

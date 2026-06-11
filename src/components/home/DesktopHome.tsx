@@ -61,6 +61,7 @@ interface DesktopHomeProps {
   siteSettings?: Record<string, string>;
   activeCharge?: Charge | null;
   activeVoices?: Voice[];
+  donationsEnabled?: boolean;
 }
 
 /**
@@ -82,6 +83,7 @@ export function DesktopHome({
   siteSettings = {},
   activeCharge,
   activeVoices = [],
+  donationsEnabled = true,
 }: DesktopHomeProps) {
   const s = siteSettings;
   const hero = articles[0];
@@ -352,20 +354,22 @@ export function DesktopHome({
         {/* Right sidebar */}
         <aside className="flex flex-col gap-6">
           {/* Donation banner */}
-          <div className="bg-vp-surface border border-vp-border p-5">
-            <Eyebrow className="mb-2">{s['home.donation_eyebrow'] || 'Sem donos. Sem paywall.'}</Eyebrow>
-            <h3 className="font-display text-[22px] font-bold text-vp-text mb-2.5 leading-[1.15]">
-              {s['home.donation_headline'] || 'Jornalismo de MS que você pode confiar.'}
-            </h3>
-            <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5] mb-4">
-              {s['home.donation_body'] || `Somos sustentados por leitores. ${newsletterCount.toLocaleString('pt-BR')} apoiadores até hoje.`}
-            </p>
-            <Link href="/apoiar">
-              <button className="vp-btn vp-btn-primary w-full py-3 font-bold uppercase tracking-widest text-[12px]">
-                {s['home.donation_cta'] || 'Apoie o Voz Pública &#8594;'}
-              </button>
-            </Link>
-          </div>
+          {donationsEnabled && (
+            <div className="bg-vp-surface border border-vp-border p-5">
+              <Eyebrow className="mb-2">{s['home.donation_eyebrow'] || 'Sem donos. Sem paywall.'}</Eyebrow>
+              <h3 className="font-display text-[22px] font-bold text-vp-text mb-2.5 leading-[1.15]">
+                {s['home.donation_headline'] || 'Jornalismo de MS que você pode confiar.'}
+              </h3>
+              <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5] mb-4">
+                {s['home.donation_body'] || `Somos sustentados por leitores. ${newsletterCount.toLocaleString('pt-BR')} apoiadores até hoje.`}
+              </p>
+              <Link href="/apoiar">
+                <button className="vp-btn vp-btn-primary w-full py-3 font-bold uppercase tracking-widest text-[12px]">
+                  {s['home.donation_cta'] || 'Apoie o Voz Pública →'}
+                </button>
+              </Link>
+            </div>
+          )}
 
           {/* Charge do Dia */}
           {activeCharge && (

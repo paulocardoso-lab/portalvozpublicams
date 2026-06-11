@@ -7,6 +7,7 @@ import type { ArticleWithRelations, ArticleWithSection, SeriesWithArticles } fro
 import { getSiteSettings } from '@/app/actions/settings';
 import { getActiveCharge } from '@/app/actions/charges';
 import { getActiveVoices } from '@/app/actions/voices';
+import { isDonationsEnabled } from '@/lib/donation-config';
 import type { Voice } from '@prisma/client';
 
 const publicAuthorSelect = {
@@ -41,6 +42,7 @@ export async function Home() {
   let siteSettings: Record<string, string> = {};
   let activeCharge: Charge | null = null;
   let activeVoices: Voice[] = [];
+  let donationsEnabled = true;
 
   try {
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
@@ -141,9 +143,10 @@ export async function Home() {
     mostRead = fetchedMostRead || [];
     newsletterCount = fetchedNewsletterCount || 0;
     siteSettings = await getSiteSettings().catch(() => ({}));
-    [activeCharge, activeVoices] = await Promise.all([
+    [activeCharge, activeVoices, donationsEnabled] = await Promise.all([
       getActiveCharge().catch(() => null),
       getActiveVoices(4).catch(() => []),
+      isDonationsEnabled().catch(() => true),
     ]);
   } catch (error) {
     console.error('Home data fetch error:', error);
@@ -167,15 +170,17 @@ export async function Home() {
           siteSettings={siteSettings}
           activeCharge={activeCharge}
           activeVoices={activeVoices}
+          donationsEnabled={donationsEnabled}
         />
       </div>
 
       <div className="block lg:hidden">
-        <MobileHome 
+        <MobileHome
           articles={articles}
           activeAlert={activeAlert}
           featuredSeries={featuredSeries}
           mostRead={mostRead}
+          donationsEnabled={donationsEnabled}
         />
       </div>
     </main>

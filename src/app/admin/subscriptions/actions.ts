@@ -76,6 +76,21 @@ async function saveSetting(key: string, value: unknown) {
 export async function saveDonationSettings(formData: FormData) {
   await requireAdmin(["SUPER_ADMIN", "EDITOR_CHIEF", "FINANCE"]);
 
+  // Quick-toggle: only update the enable/disable flag and redirect
+  if (formData.get("_enableDonationsOnly") === "1") {
+    const value = formData.get("enableDonations") === "true" ? "true" : "false";
+    await prisma.siteSetting.upsert({
+      where: { key: "ENABLE_DONATIONS" },
+      update: { value },
+      create: { key: "ENABLE_DONATIONS", value },
+    });
+    await logAudit("DONATIONS_TOGGLE", "donations", "OK", { enabled: value });
+    revalidatePath("/admin/subscriptions");
+    revalidatePath("/apoiar");
+    revalidatePath("/");
+    redirect("/admin/subscriptions?saved=1");
+  }
+
   const plans: DonationPlanConfig[] = [];
   for (let index = 0; index < 6; index += 1) {
     const key = normalizeKey(text(formData, `plan_${index}_key`));

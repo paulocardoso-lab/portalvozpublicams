@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
 import { saveDonationSettings, updateSubscriptionStatus } from "./actions";
 import { SubStatus } from "@prisma/client";
-import { centsToCurrencyInput, getDonationConfig } from "@/lib/donation-config";
+import { centsToCurrencyInput, getDonationConfig, isDonationsEnabled } from "@/lib/donation-config";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
   const query = await searchParams;
   const saved = firstParam(query.saved) === "1";
 
-  const [subscriptions, donationConfig] = await Promise.all([
+  const [subscriptions, donationConfig, donationsEnabled] = await Promise.all([
     prisma.subscription.findMany({
       select: {
         id: true,
@@ -37,6 +37,7 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
       orderBy: { startedAt: "desc" },
     }),
     getDonationConfig(),
+    isDonationsEnabled(),
   ]);
 
   const total = subscriptions.filter((s) => s.status === "ACTIVE").reduce((sum, s) => sum + s.amount, 0);
@@ -84,6 +85,30 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
           Configurações de apoio salvas com sucesso.
         </div>
       ) : null}
+
+      {/* Toggle de acesso público */}
+      <div className={`mb-5 flex items-center justify-between gap-4 px-5 py-4 rounded border ${donationsEnabled ? "border-vp-ok/40 bg-vp-ok/5" : "border-vp-urgent/40 bg-vp-urgent/5"}`}>
+        <div>
+          <div className={`text-[13px] font-semibold ${donationsEnabled ? "text-vp-ok" : "text-vp-urgent"}`}>
+            {donationsEnabled ? "Página de apoio ATIVA" : "Página de apoio DESATIVADA"}
+          </div>
+          <div className="text-[11px] text-vp-text-3 mt-0.5">
+            {donationsEnabled
+              ? "A página /apoiar e todos os cards e botões de doação estão visíveis ao público."
+              : "O acesso a /apoiar está bloqueado. Todos os botões e cards de doação estão ocultos."}
+          </div>
+        </div>
+        <form action={saveDonationSettings}>
+          <input type="hidden" name="_enableDonationsOnly" value="1" />
+          <input type="hidden" name="enableDonations" value={donationsEnabled ? "false" : "true"} />
+          <button
+            type="submit"
+            className={`vp-btn px-4 py-2 text-[12px] font-bold whitespace-nowrap ${donationsEnabled ? "text-vp-urgent border-vp-urgent" : "text-vp-ok border-vp-ok"}`}
+          >
+            {donationsEnabled ? "Desativar acesso" : "Ativar acesso"}
+          </button>
+        </form>
+      </div>
 
       <form action={saveDonationSettings} className="grid gap-5 mb-8">
         <section className="bg-[#141413] border border-vp-border p-5 rounded">

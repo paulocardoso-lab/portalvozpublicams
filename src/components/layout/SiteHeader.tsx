@@ -7,6 +7,7 @@ import { fallbackHeaderIndicators } from '@/lib/market-indicators';
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 import { normalizeWhatsAppLink } from '@/lib/social-links';
+import { isDonationsEnabled } from '@/lib/donation-config';
 import type { Section } from '@prisma/client';
 
 /**
@@ -22,16 +23,17 @@ export async function SiteHeader() {
     year: 'numeric'
   }).format(now);
 
-  let initialTickerData = { 
-    market: { usd: '5,12', boi: '353,80', soja: '122,51', milho: '65,98', trigo: '1.250,00' }, 
+  let initialTickerData = {
+    market: { usd: '5,12', boi: '353,80', soja: '122,51', milho: '65,98', trigo: '1.250,00' },
     indicators: fallbackHeaderIndicators(),
-    weather: { temp: 28 } 
+    weather: { temp: 28 }
   };
   let settings: Record<string, string> = {};
   let dbSections: Section[] = [];
+  let donationsEnabled = true;
 
   try {
-    const [market, weather, indicators, siteSettings, sections] = await Promise.all([
+    const [market, weather, indicators, siteSettings, sections, donEnabled] = await Promise.all([
       getMarketData().catch(() => initialTickerData.market),
       getWeatherData().catch(() => initialTickerData.weather),
       getHeaderIndicators().catch(() => initialTickerData.indicators),
@@ -39,12 +41,14 @@ export async function SiteHeader() {
       prisma.section.findMany({
         where: { showInMenu: true },
         orderBy: { menuOrder: 'asc' }
-      }).catch(() => [])
+      }).catch(() => []),
+      isDonationsEnabled().catch(() => true),
     ]);
 
     initialTickerData = { market, indicators, weather };
     settings = siteSettings;
     dbSections = sections;
+    donationsEnabled = donEnabled;
   } catch (error) {
     console.error('Header data fetch error:', error);
   }
@@ -73,9 +77,11 @@ export async function SiteHeader() {
           <Link href="/denuncia" className="hover:text-vp-accent transition-colors font-sans normal-case tracking-normal font-semibold">Envie sua denúncia</Link>
           <span className="text-vp-text-4">·</span>
           <Link href="/login" className="hover:text-vp-accent transition-colors">Entrar</Link>
-          <Link href="/apoiar">
-            <button className="vp-btn vp-btn-primary px-3 py-1.5 text-[11px] font-bold">Assine</button>
-          </Link>
+          {donationsEnabled && (
+            <Link href="/apoiar">
+              <button className="vp-btn vp-btn-primary px-3 py-1.5 text-[11px] font-bold">Assine</button>
+            </Link>
+          )}
         </div>
       </div>
 

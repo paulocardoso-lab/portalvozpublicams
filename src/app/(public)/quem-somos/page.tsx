@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getSiteSettings } from '@/app/actions/settings';
+import { isDonationsEnabled } from '@/lib/donation-config';
 
 export const metadata: Metadata = {
   title: 'Quem somos — Voz Pública MS',
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function QuemSomosPage() {
-  const s = await getSiteSettings();
+  const [s, donationsEnabled] = await Promise.all([
+    getSiteSettings(),
+    isDonationsEnabled(),
+  ]);
   const v = (key: string, fb: string) => (s[key] as string | undefined)?.trim() || fb;
 
   return (
@@ -36,9 +40,11 @@ export default async function QuemSomosPage() {
       </div>
 
       <div className="mt-12 flex flex-col sm:flex-row gap-3">
-        <a href="/apoiar" className="vp-btn vp-btn-primary text-[12px] font-bold px-6 py-3 text-center">
-          Apoiar o Voz Pública →
-        </a>
+        {donationsEnabled && (
+          <a href="/apoiar" className="vp-btn vp-btn-primary text-[12px] font-bold px-6 py-3 text-center">
+            Apoiar o Voz Pública →
+          </a>
+        )}
         <a href="/principios-editoriais" className="vp-btn text-[12px] font-bold px-6 py-3 text-center">
           Nossos princípios editoriais
         </a>

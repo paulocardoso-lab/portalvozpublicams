@@ -1,7 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { FunnelLayout } from '@/components/subscription/FunnelLayout';
-import { formatCurrency, getDonationConfig, resolveDonationSelection, supportHref } from '@/lib/donation-config';
+import { formatCurrency, getDonationConfig, isDonationsEnabled, resolveDonationSelection, supportHref } from '@/lib/donation-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,7 @@ function percent(current: number, goal: number) {
 }
 
 export default async function DonateAmountPage({ searchParams }: { searchParams: SearchParams }) {
+  if (!(await isDonationsEnabled())) redirect('/');
   const query = await searchParams;
   const config = await getDonationConfig();
   const selection = resolveDonationSelection(config, query);
