@@ -580,3 +580,20 @@ model RSSDeadLetter {
   @@unique([feedId, url])
   @@index([feedId])
 }
+
+model FeaturedVideo {
+  id           String    @id @default(cuid())
+  title        String
+  url          String    @db.Text
+  embedUrl     String    @db.Text
+  platform     String    // "youtube" | "vimeo" | "other"
+  thumbnailUrl String?   @db.Text
+  description  String?   @db.Text
+  isActive     Boolean   @default(true)
+  displayOrder Int       @default(0)
+  publishedAt  DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isActive, displayOrder])
+}

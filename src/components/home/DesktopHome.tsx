@@ -14,6 +14,7 @@ import type { Article, Section, AgendaEvent, Alert, Series, PodcastEpisode, Char
 import { ChargeCard } from '@/components/charge/ChargeCard';
 import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
 import { PollSidebar } from '@/components/poll/PollSidebar';
+import { VideoSidebarBlock } from '@/components/video/VideoSidebarBlock';
 
 export type PublicAuthor = {
   id: string;
@@ -376,6 +377,9 @@ export function DesktopHome({
               publishedAt={activeCharge.publishedAt}
             />
           )}
+
+          {/* Vídeo em Destaque */}
+          <VideoSidebarBlock />
 
           {/* Vozes */}
           {activeVoices.length > 0 && (
