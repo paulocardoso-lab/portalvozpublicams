@@ -35,6 +35,7 @@ const nav: NavItem[] = [
   { id: 'metrics',   label: 'Métricas & tráfego', icon: '↗', href: '/admin/metrics' },
   { id: 'market',    label: 'Indicadores do cabeçalho', icon: '$', href: '/admin/metrics/market' },
   { id: 'subscriptions', label: 'Assinaturas & doações', icon: '♥', href: '/admin/subscriptions' },
+  { id: 'auditorias', label: 'Auditorias', icon: '◇', href: '/admin/auditorias' },
   { id: 'audit',     label: 'Logs de auditoria', icon: '⎆', href: '/admin/audit' },
   { id: 'health',    label: 'Saúde do sistema', icon: '✓', href: '/admin/health' },
   { id: 'design-studio', label: 'Design Studio', icon: '◈', href: '/admin/design-studio' },
