@@ -159,14 +159,17 @@ export function VideosClient({ initialVideos }: { initialVideos: Video[] }) {
             {/* Coluna esquerda — campos */}
             <div className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
-                <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-vp-text-3">URL do vídeo *</span>
-                <input
-                  type="url"
-                  className="vp-input text-[13px]"
-                  placeholder="https://youtube.com/watch?v=... ou URL de GIF"
+                <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-vp-text-3">URL ou código de incorporação *</span>
+                <textarea
+                  rows={2}
+                  className="vp-input text-[13px] resize-y font-mono"
+                  placeholder={'https://youtube.com/watch?v=...\nou cole o <iframe ...> de "Compartilhar › Incorporar"\nou URL de GIF'}
                   value={form.url}
                   onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
                 />
+                <span className="font-sans text-[10px] text-vp-text-4 leading-snug">
+                  Aceita URL do YouTube/Vimeo, o código <code className="font-mono">&lt;iframe&gt;</code> de incorporação completo, ou uma URL de GIF.
+                </span>
                 {preview && (
                   <span className={`self-start text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 ${PLATFORM_COLOR[preview.platform] ?? 'bg-vp-surface-3 text-vp-text-2'}`}>
                     {PLATFORM_LABEL[preview.platform] ?? preview.platform} detectado
