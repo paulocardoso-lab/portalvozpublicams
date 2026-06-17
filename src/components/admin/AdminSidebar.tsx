@@ -30,7 +30,6 @@ export function AdminSidebar() {
     { id: 'social',    label: 'Redes sociais', icon: '#', href: '/admin/social' },
     { id: 'metrics',   label: 'Métricas & tráfego', icon: '↗', href: '/admin/metrics' },
     { id: 'subscriptions', label: 'Assinaturas & doações', icon: '♥', href: '/admin/subscriptions' },
-    { id: 'auditorias', label: 'Auditorias', icon: '◇', href: '/admin/auditorias' },
     { id: 'audit',     label: 'Logs de auditoria', icon: '⎆', href: '/admin/audit' },
     { id: 'health',    label: 'Saúde do sistema', icon: '✓', href: '/admin/health' },
     { id: 'profile',   label: 'Meu perfil', icon: '◐', href: '/admin/profile' },

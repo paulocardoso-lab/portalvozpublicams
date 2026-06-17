@@ -18,6 +18,18 @@ async function logAudit(action: string, target: string, status: string) {
   });
 }
 
+function normalizeSlug(value: FormDataEntryValue | null) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 export async function getMenuSections() {
   return prisma.section.findMany({
     where: { showInMenu: true },
@@ -43,10 +55,7 @@ export async function updateSection(id: string, formData: FormData) {
   await requireAdmin();
 
   const name = String(formData.get('name')).trim();
-  const slug = String(formData.get('slug')).trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
+  const slug = normalizeSlug(formData.get('slug'));
   const description = String(formData.get('description') ?? '').trim();
   const showInMenu = formData.get('showInMenu') === 'on';
   const menuOrder = parseInt(String(formData.get('menuOrder') ?? '0'), 10);
@@ -82,15 +91,15 @@ export async function updateSection(id: string, formData: FormData) {
 export async function createSection(formData: FormData) {
   await requireAdmin();
   const name = String(formData.get('name')).trim();
-  const slug = String(formData.get('slug')).trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
+  const explicitSlug = normalizeSlug(formData.get('slug'));
+  const slug = explicitSlug || normalizeSlug(formData.get('name'));
   const description = String(formData.get('description') ?? '').trim();
   const showInMenu = formData.get('showInMenu') === 'on';
   const menuOrder = parseInt(String(formData.get('menuOrder') ?? '0'));
 
-  if (!name || !slug) return;
+  if (!name || !slug) {
+    throw new Error('Nome e slug são obrigatórios.');
+  }
 
   try {
     await prisma.section.create({
