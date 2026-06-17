@@ -7,6 +7,7 @@ import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import Link from 'next/link';
 import { ImgPH } from '@/components/shared/ImgPH';
 import Image from 'next/image';
+import { formatPortalDate } from '@/lib/portal-time';
 
 const PAGE_SIZE = 12;
 
@@ -109,7 +110,7 @@ export default async function SectionPage({
                 <h3 className="font-display text-[18px] leading-tight mb-1">{art.title}</h3>
                 <div className="byline text-[10px]">
                   {art.publishedAt
-                    ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt))
+                    ? formatPortalDate(art.publishedAt, { day: 'numeric', month: 'short' })
                     : ''} · {art.authors?.[0]?.name}
                 </div>
               </div>

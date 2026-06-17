@@ -18,6 +18,7 @@ import { getActiveVoices } from '@/app/actions/voices';
 import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
 import { PollSidebar } from '@/components/poll/PollSidebar';
 import { isDonationsEnabled } from '@/lib/donation-config';
+import { formatPortalDate } from '@/lib/portal-time';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -103,7 +104,7 @@ export async function DesktopArticle({ article, related = [] }: { article: Artic
                 Por {article.authors?.map(a => a.name).join(' e ') || 'Redação'}
               </div>
               <div className="byline text-[11px] mt-0.5">
-                {article.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(article.publishedAt)) : ''}
+                {article.publishedAt ? formatPortalDate(article.publishedAt, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
               </div>
             </div>
           </div>

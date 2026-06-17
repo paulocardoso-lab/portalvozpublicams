@@ -3,6 +3,7 @@ import type { Article, Section } from '@prisma/client';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { Headline } from '@/components/shared/Headline';
+import { formatPortalDate } from '@/lib/portal-time';
 
 type ArticleWithRelations = Article & {
   section: Section | null;
@@ -88,7 +89,7 @@ export function DesktopSearch({ query, results }: DesktopSearchProps) {
               results.map((art) => (
                 <article key={art.id} className="py-5 border-b border-vp-border group">
                   <div className="font-sans text-[10px] text-vp-text-3 uppercase tracking-widest mb-1.5 font-bold">
-                    {art.section?.name || 'Geral'} · {art.eyebrow || 'Reportagem'} · {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}
+                    {art.section?.name || 'Geral'} · {art.eyebrow || 'Reportagem'} · {art.publishedAt ? formatPortalDate(art.publishedAt, { day: 'numeric', month: 'short' }) : ''}
                   </div>
                   <Headline size="h3" href={`/materia/${art.slug}`} className="!text-[24px] mb-2 group-hover:text-vp-accent transition-colors">
                     {art.title}

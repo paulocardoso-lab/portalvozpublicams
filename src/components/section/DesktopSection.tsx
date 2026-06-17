@@ -8,6 +8,7 @@ import { Headline } from '@/components/shared/Headline';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { SafeImage } from '@/components/shared/SafeImage';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { formatPortalDate } from '@/lib/portal-time';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -110,7 +111,7 @@ export function DesktopSection({ section, articles, total, page, totalPages }: D
                       {featured.lead}
                     </p>
                     <div className="byline text-[11px]">
-                      {featured.authors.map(a => a.name).join(' e ')} · {featured.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(featured.publishedAt)) : ''}
+                      {featured.authors.map(a => a.name).join(' e ')} · {featured.publishedAt ? formatPortalDate(featured.publishedAt, { day: 'numeric', month: 'short' }) : ''}
                     </div>
                   </div>
                 </article>
@@ -138,7 +139,7 @@ export function DesktopSection({ section, articles, total, page, totalPages }: D
                         {art.lead}
                       </p>
                       <div className="byline mt-2.5">
-                        por {art.authors.map(a => a.name).join(', ')} · {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}
+                        por {art.authors.map(a => a.name).join(', ')} · {art.publishedAt ? formatPortalDate(art.publishedAt, { day: 'numeric', month: 'short' }) : ''}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1.5 text-right">

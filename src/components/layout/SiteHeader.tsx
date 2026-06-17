@@ -9,6 +9,7 @@ import { getSiteSettings } from '@/app/actions/settings';
 import { normalizeWhatsAppLink } from '@/lib/social-links';
 import { isDonationsEnabled } from '@/lib/donation-config';
 import type { Section } from '@prisma/client';
+import { formatPortalDate } from '@/lib/portal-time';
 
 /**
  * SiteHeader (Masthead) — Cabeçalho principal do portal.
@@ -16,12 +17,12 @@ import type { Section } from '@prisma/client';
  */
 export async function SiteHeader() {
   const now = new Date();
-  const formattedDate = new Intl.DateTimeFormat('pt-BR', {
+  const formattedDate = formatPortalDate(now, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric'
-  }).format(now);
+  });
 
   let initialTickerData = {
     market: { usd: '5,12', boi: '353,80', soja: '122,51', milho: '65,98', trigo: '1.250,00' },

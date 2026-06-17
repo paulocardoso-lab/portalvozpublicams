@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { submitComment } from '@/app/actions/comments';
+import { formatPortalDate } from '@/lib/portal-time';
 
 interface Comment {
   id: string;
@@ -102,7 +103,7 @@ export function CommentSection({ articleId, comments, isLoggedIn }: CommentSecti
                   {c.user?.name || c.guestName || 'Anônimo'}
                 </span>
                 <span className="text-[12px] text-vp-text-4 font-mono">
-                  {new Date(c.createdAt).toLocaleDateString('pt-BR')}
+                  {formatPortalDate(c.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </span>
               </div>
               <p className="text-[15px] leading-relaxed text-vp-text-2">

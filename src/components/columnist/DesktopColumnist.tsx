@@ -8,6 +8,7 @@ import { Headline } from '@/components/shared/Headline';
 import { Eyebrow } from '@/components/shared/Eyebrow';
 import { SafeImage } from '@/components/shared/SafeImage';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { formatPortalDate } from '@/lib/portal-time';
 
 interface DesktopColumnistProps {
   columnist: {
@@ -78,7 +79,7 @@ export function DesktopColumnist({ columnist }: DesktopColumnistProps) {
           {latest ? (
             <article className="pb-[40px] border-b border-vp-border">
               <Eyebrow className="mb-2.5">
-                Coluna de hoje · {latest.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(latest.publishedAt)) : ''}
+                Coluna de hoje · {latest.publishedAt ? formatPortalDate(latest.publishedAt, { day: 'numeric', month: 'short' }) : ''}
               </Eyebrow>
               <Headline as="h2" size="hero" href={`/materia/${latest.slug}`} className="!text-[42px] italic mb-3.5 leading-[1.1] font-black">
                 “{latest.title}”
@@ -104,7 +105,7 @@ export function DesktopColumnist({ columnist }: DesktopColumnistProps) {
             {archive.map((art) => (
               <article key={art.id} className="py-[20px] border-b border-vp-border grid grid-cols-[60px_1fr] gap-[24px] group">
                 <div className="font-mono text-[11px] text-vp-text-3 tracking-[0.08em] uppercase pt-1.5 font-bold text-center">
-                  {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}
+                  {art.publishedAt ? formatPortalDate(art.publishedAt, { day: 'numeric', month: 'short' }) : ''}
                 </div>
                 <div>
                   <Headline size="h3" href={`/materia/${art.slug}`} className="!text-[22px] italic mb-1.5 leading-snug group-hover:text-vp-accent transition-colors">

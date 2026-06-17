@@ -6,6 +6,7 @@ import { MobileMasthead } from '@/components/layout/MobileMasthead';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import Link from 'next/link';
 import { ImgPH } from '@/components/shared/ImgPH';
+import { formatPortalDate } from '@/lib/portal-time';
 
 export default async function ColumnistPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -74,7 +75,7 @@ export default async function ColumnistPage({ params }: { params: Promise<{ slug
             {archive.map((art) => (
               <article key={art.id} className="grid grid-cols-[50px_1fr] gap-3 pb-4 border-b border-vp-border">
                 <div className="font-mono text-[10px] text-vp-text-3 pt-1">
-                  {art.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(art.publishedAt)) : ''}
+                  {art.publishedAt ? formatPortalDate(art.publishedAt, { day: 'numeric', month: 'short' }) : ''}
                 </div>
                 <Link href={`/materia/${art.slug}`}>
                   <h4 className="font-display text-[18px] italic leading-tight">{art.title}</h4>

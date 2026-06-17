@@ -10,6 +10,7 @@ import { getPodcastEpisodes } from '@/app/actions/podcast';
 import { getSiteSettings } from '@/app/actions/settings';
 import { PodcastPlayButton } from '@/components/podcast/PodcastPlayButton';
 import type { Metadata } from 'next';
+import { formatPortalDate } from '@/lib/portal-time';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -79,7 +80,7 @@ export default async function PodcastEpisodePage({ params }: { params: Promise<{
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono text-vp-text-4">
                   {ep.duration && <span>{ep.duration}</span>}
-                  <span>{new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ep.publishedAt))}</span>
+                  <span>{formatPortalDate(ep.publishedAt, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
                 <div className="mt-4">
                   <PodcastPlayButton episode={ep} size="lg" />

@@ -12,6 +12,7 @@ import { SafeImage } from '@/components/shared/SafeImage';
 import Link from 'next/link';
 import type { Alert } from '@prisma/client';
 import type { ArticleWithRelations, ArticleWithSection, SeriesWithArticles } from './DesktopHome';
+import { formatPortalDate, formatPortalTime } from '@/lib/portal-time';
 
 type MobileArticle = ArticleWithRelations & {
   image?: string | null;
@@ -82,7 +83,7 @@ export function MobileHome({
               {hero.subtitle || hero.excerpt || hero.lead}
             </p>
             <div className="byline text-[11px] text-vp-text-3 font-sans">
-              {hero.authors?.map((a) => a.name).join(' e ') || 'Redação'} · {hero.publishedAt ? new Date(hero.publishedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+              {hero.authors?.map((a) => a.name).join(' e ') || 'Redação'} · {hero.publishedAt ? formatPortalTime(hero.publishedAt) : ''}
             </div>
           </article>
         )}
@@ -113,7 +114,7 @@ export function MobileHome({
                     {article.title}
                   </Headline>
                   <div className="byline text-[11px] text-vp-text-3 font-sans" suppressHydrationWarning>
-                    {article.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(article.publishedAt)) : 'sem data'} · {article.readingTime || article.readTimeMin || 4} min
+                    {article.publishedAt ? formatPortalDate(article.publishedAt, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'sem data'} · {article.readingTime || article.readTimeMin || 4} min
                   </div>
                 </div>
                 {article.image || article.heroImage ? (

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { formatPortalDate } from '@/lib/portal-time';
 
 interface VideoCardProps {
   title: string;
@@ -22,7 +23,7 @@ export function VideoCard({ title, embedUrl, platform, thumbnailUrl, description
   const [playing, setPlaying] = useState(false);
 
   const date = publishedAt
-    ? new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(publishedAt))
+    ? formatPortalDate(publishedAt, { day: '2-digit', month: 'short' })
     : '';
 
   const isGif = platform === 'gif';

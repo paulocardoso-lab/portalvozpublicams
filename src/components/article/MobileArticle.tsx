@@ -11,10 +11,12 @@ import { StickyBottomAd } from '@/components/shared/StickyBottomAd';
 import { ArticleBodyWithAd } from '@/components/shared/ArticleBodyWithAd';
 import { renderArticleBody } from '@/lib/article-renderer';
 import { ShareBar } from '@/components/article/ShareBar';
+import { formatPortalDate } from '@/lib/portal-time';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
   section: Section;
+  comments?: { id: string }[];
 };
 
 /**
@@ -25,6 +27,7 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
   const articleUrl = `https://www.vozpublicams.com.br/materia/${article.slug}`;
+  const approvedCommentsCount = article.comments?.length ?? 0;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,7 +98,7 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
                 {article.authors?.length > 0 ? article.authors.map(a => a.name).join(' e ') : 'Redação'}
               </div>
               <div className="font-sans text-[11px] text-vp-text-3">
-                {article.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(article.publishedAt)) : 'Recente'}
+                {article.publishedAt ? formatPortalDate(article.publishedAt, { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recente'}
               </div>
             </div>
             <button aria-label="Compartilhar matéria" className="text-vp-text-3 p-0 hover:text-vp-accent" onClick={() => setShareOpen(true)}>
@@ -133,7 +136,7 @@ export function MobileArticle({ article }: { article: ArticleWithRelations }) {
         {/* 2. Comments preview */}
         <section className="px-4 py-8 border-t border-vp-border bg-vp-surface mt-8">
           <Headline as="h3" size="h3" hoverAccent={false} className="!text-[18px] mb-4">
-            Comentários · 47
+            Comentários · {approvedCommentsCount}
           </Headline>
           <button className="vp-btn w-full text-[12px] font-bold py-3">
             Ver e participar da conversa

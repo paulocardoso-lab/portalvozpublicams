@@ -15,6 +15,7 @@ import { ChargeCard } from '@/components/charge/ChargeCard';
 import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
 import { PollSidebar } from '@/components/poll/PollSidebar';
 import { VideoSidebarBlock } from '@/components/video/VideoSidebarBlock';
+import { formatPortalDate } from '@/lib/portal-time';
 
 export type PublicAuthor = {
   id: string;
@@ -128,7 +129,7 @@ export function DesktopHome({
                     {hero.lead}
                   </p>
                   <div className="byline">
-                    Por <strong className="text-vp-text">{hero.authors?.map(a => a.name).join(' e ') || 'Redação'}</strong> · {hero.publishedAt ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(hero.publishedAt)) : ''}
+                    Por <strong className="text-vp-text">{hero.authors?.map(a => a.name).join(' e ') || 'Redação'}</strong> · {hero.publishedAt ? formatPortalDate(hero.publishedAt, { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : ''}
                   </div>
                 </div>
                 <div>

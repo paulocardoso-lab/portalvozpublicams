@@ -9,6 +9,7 @@ import { SafeImage } from '@/components/shared/SafeImage';
 import { getPodcastEpisodes } from '@/app/actions/podcast';
 import { getSiteSettings } from '@/app/actions/settings';
 import { PodcastPlayButton } from '@/components/podcast/PodcastPlayButton';
+import { formatPortalDate } from '@/lib/portal-time';
 
 export const metadata = {
   title: 'Podcast | Voz Pública MS',
@@ -88,7 +89,7 @@ export default async function PodcastsPage() {
                         <span className="text-[10px] text-vp-text-4 font-mono">{ep.duration}</span>
                       )}
                       <span className="text-[10px] text-vp-text-4 font-mono">
-                        {new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(ep.publishedAt))}
+                        {formatPortalDate(ep.publishedAt, { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </div>
 
