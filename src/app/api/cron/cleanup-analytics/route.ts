@@ -17,16 +17,25 @@ export async function GET(request: Request) {
   cutoff.setDate(cutoff.getDate() - days);
   cutoff.setHours(0, 0, 0, 0);
 
+  // Raw events use a shorter fixed window: 90 days
+  const EVENT_RETENTION_DAYS = 90;
+  const eventCutoff = new Date();
+  eventCutoff.setDate(eventCutoff.getDate() - EVENT_RETENTION_DAYS);
+  eventCutoff.setHours(0, 0, 0, 0);
+
   try {
-    const deletedVisitors = await prisma.siteVisitorDaily.deleteMany({
-      where: { date: { lt: cutoff } },
-    });
+    const [deletedVisitors, deletedEvents] = await Promise.all([
+      prisma.siteVisitorDaily.deleteMany({ where: { date: { lt: cutoff } } }),
+      prisma.articleViewEvent.deleteMany({ where: { createdAt: { lt: eventCutoff } } }),
+    ]);
 
     return NextResponse.json({
       ok: true,
       retentionDays: days,
       cutoff: cutoff.toISOString(),
       deletedVisitors: deletedVisitors.count,
+      eventRetentionDays: EVENT_RETENTION_DAYS,
+      deletedEvents: deletedEvents.count,
     });
   } catch (error) {
     console.error('cleanup-analytics cron error:', error);

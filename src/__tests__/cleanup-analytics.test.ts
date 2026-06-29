@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 
 const prismaMock = prisma as unknown as {
   siteVisitorDaily: { deleteMany: ReturnType<typeof vi.fn> };
+  articleViewEvent: { deleteMany: ReturnType<typeof vi.fn> };
 };
 
 function makeRequest(authHeader?: string) {
@@ -15,6 +16,7 @@ function makeRequest(authHeader?: string) {
 beforeEach(() => {
   vi.clearAllMocks();
   prismaMock.siteVisitorDaily.deleteMany.mockResolvedValue({ count: 42 });
+  prismaMock.articleViewEvent.deleteMany.mockResolvedValue({ count: 7 });
 
   // Force non-production for most tests so auth is bypassed
   vi.stubEnv('NODE_ENV', 'test');
@@ -32,6 +34,7 @@ describe('GET /api/cron/cleanup-analytics', () => {
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.deletedVisitors).toBe(42);
+    expect(body.deletedEvents).toBe(7);
     expect(body.retentionDays).toBe(180);
     expect(body.cutoff).toBeDefined();
   });
@@ -83,6 +86,7 @@ describe('GET /api/cron/cleanup-analytics', () => {
 
   it('returns 500 when prisma throws', async () => {
     prismaMock.siteVisitorDaily.deleteMany.mockRejectedValue(new Error('db error'));
+    prismaMock.articleViewEvent.deleteMany.mockRejectedValue(new Error('db error'));
     const res = await GET(makeRequest());
     expect(res.status).toBe(500);
     const body = await res.json();

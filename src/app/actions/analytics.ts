@@ -3,8 +3,9 @@
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { rateLimitAction } from '@/lib/rate-limit';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { startOfDay, isValidVisitorId } from '@/lib/analytics-helpers';
+import { parseDevice, parseReferrer } from '@/lib/view-event';
 
 const VISITOR_COOKIE = 'vp_visitor_id';
 const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -44,6 +45,12 @@ export async function recordView(articleId: string) {
 
     const createdVisitor = await visitor;
 
+    const headerStore = await headers();
+    const ua = headerStore.get('user-agent');
+    const device = parseDevice(ua);
+    const referrer = parseReferrer(headerStore.get('referer'));
+    const country = headerStore.get('x-vercel-ip-country') ?? headerStore.get('cf-ipcountry') ?? null;
+
     await Promise.all([
       prisma.article.update({
         where: { id: articleId },
@@ -71,6 +78,10 @@ export async function recordView(articleId: string) {
           visitors: createdVisitor ? 1 : 0,
         },
       }),
+      // Fire-and-forget: raw event for investigative analytics
+      prisma.articleViewEvent.create({
+        data: { articleId, device, referrer, country },
+      }).catch(() => null),
     ]);
 
     return { success: true };

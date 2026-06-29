@@ -120,6 +120,7 @@ model Article {
   saves               SavedArticle[]
   versions            ArticleVersion[]
   viewDays            ArticleViewDaily[]
+  viewEvents          ArticleViewEvent[]
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -517,6 +518,19 @@ model SiteVisitorDaily {
 
   @@unique([date, visitorHash])
   @@index([date])
+}
+
+model ArticleViewEvent {
+  id          String   @id @default(cuid())
+  articleId   String
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  referrer    String?
+  device      String?
+  country     String?
+  createdAt   DateTime @default(now())
+
+  @@index([articleId, createdAt])
+  @@index([createdAt])
 }
 
 model RSSFeed {

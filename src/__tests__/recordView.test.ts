@@ -9,6 +9,7 @@ const prismaMock = prisma as unknown as {
   siteVisitorDaily: { create: ReturnType<typeof vi.fn> };
   article: { update: ReturnType<typeof vi.fn> };
   articleViewDaily: { upsert: ReturnType<typeof vi.fn> };
+  articleViewEvent: { create: ReturnType<typeof vi.fn> };
   siteMetric: { upsert: ReturnType<typeof vi.fn> };
 };
 
@@ -34,6 +35,7 @@ beforeEach(() => {
   prismaMock.siteVisitorDaily.create.mockResolvedValue({ id: 1 });
   prismaMock.article.update.mockResolvedValue({});
   prismaMock.articleViewDaily.upsert.mockResolvedValue({});
+  prismaMock.articleViewEvent.create.mockResolvedValue({});
   prismaMock.siteMetric.upsert.mockResolvedValue({});
 
   rateLimitMock.mockResolvedValue({ limited: false });

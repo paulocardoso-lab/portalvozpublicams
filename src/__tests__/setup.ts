@@ -1,10 +1,16 @@
 import { vi } from 'vitest';
 
+const mockHeaderStore = {
+  get: vi.fn().mockReturnValue(null),
+};
+
 // Mock Next.js server APIs used by analytics actions
 vi.mock('next/headers', () => ({
   cookies: vi.fn(),
-  headers: vi.fn(),
+  headers: vi.fn().mockResolvedValue(mockHeaderStore),
 }));
+
+export { mockHeaderStore };
 
 // Mock Prisma client
 vi.mock('@/lib/prisma', () => ({
@@ -19,6 +25,10 @@ vi.mock('@/lib/prisma', () => ({
     articleViewDaily: {
       upsert: vi.fn(),
       groupBy: vi.fn(),
+    },
+    articleViewEvent: {
+      create: vi.fn(),
+      deleteMany: vi.fn(),
     },
     siteMetric: {
       upsert: vi.fn(),

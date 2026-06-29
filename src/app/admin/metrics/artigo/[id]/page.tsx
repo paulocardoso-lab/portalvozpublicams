@@ -35,12 +35,36 @@ async function getArticleAudit(id: string, days: number) {
   const since = startOfDay(new Date());
   since.setDate(since.getDate() - (days - 1));
 
-  const daily = await prisma.articleViewDaily.findMany({
-    where: { articleId: id, date: { gte: since } },
-    orderBy: { date: "desc" },
-  });
+  const eventWhere = { articleId: id, createdAt: { gte: since } };
 
-  return { article, daily, since };
+  const [daily, referrers, devices, countries] = await Promise.all([
+    prisma.articleViewDaily.findMany({
+      where: { articleId: id, date: { gte: since } },
+      orderBy: { date: "desc" },
+    }),
+    prisma.articleViewEvent.groupBy({
+      by: ["referrer"],
+      where: eventWhere,
+      _count: { referrer: true },
+      orderBy: { _count: { referrer: "desc" } },
+      take: 10,
+    }),
+    prisma.articleViewEvent.groupBy({
+      by: ["device"],
+      where: eventWhere,
+      _count: { device: true },
+      orderBy: { _count: { device: "desc" } },
+    }),
+    prisma.articleViewEvent.groupBy({
+      by: ["country"],
+      where: eventWhere,
+      _count: { country: true },
+      orderBy: { _count: { country: "desc" } },
+      take: 10,
+    }),
+  ]);
+
+  return { article, daily, since, referrers, devices, countries };
 }
 
 export default async function ArticleAuditPage({
@@ -57,7 +81,7 @@ export default async function ArticleAuditPage({
   const data = await getArticleAudit(id, days);
   if (!data) notFound();
 
-  const { article, daily } = data;
+  const { article, daily, referrers, devices, countries } = data;
 
   const periodViews = daily.reduce((sum, d) => sum + d.views, 0);
   const avgPerDay = daily.length > 0 ? Math.round(periodViews / daily.length) : 0;
@@ -131,6 +155,75 @@ export default async function ArticleAuditPage({
           </Link>
         ))}
       </div>
+
+      {/* Event breakdown: referrers, devices, countries */}
+      {(referrers.length > 0 || devices.length > 0 || countries.length > 0) && (
+        <div className="grid sm:grid-cols-3 gap-4 mb-6">
+          {/* Referrers */}
+          <div className="bg-[#141413] border border-vp-border rounded overflow-hidden">
+            <div className="px-4 py-3 border-b border-vp-border text-[12px] font-semibold">Origens</div>
+            {referrers.length === 0 ? (
+              <div className="px-4 py-4 text-[12px] text-vp-text-3 italic">Sem dados</div>
+            ) : (
+              <div className="divide-y divide-vp-border">
+                {referrers.map((r) => {
+                  const label = r.referrer ?? "(direto)";
+                  const count = r._count.referrer;
+                  return (
+                    <div key={label} className="px-4 py-2.5 flex items-center justify-between gap-3">
+                      <span className="text-[12px] truncate text-vp-text-2">{label}</span>
+                      <span className="text-[12px] font-mono font-bold text-vp-accent shrink-0">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Devices */}
+          <div className="bg-[#141413] border border-vp-border rounded overflow-hidden">
+            <div className="px-4 py-3 border-b border-vp-border text-[12px] font-semibold">Dispositivos</div>
+            {devices.length === 0 ? (
+              <div className="px-4 py-4 text-[12px] text-vp-text-3 italic">Sem dados</div>
+            ) : (
+              <div className="divide-y divide-vp-border">
+                {devices.map((d) => {
+                  const total = devices.reduce((s, x) => s + x._count.device, 0);
+                  const label = d.device ?? "unknown";
+                  const pct = total > 0 ? Math.round((d._count.device / total) * 100) : 0;
+                  return (
+                    <div key={label} className="px-4 py-2.5 flex items-center justify-between gap-3">
+                      <span className="text-[12px] capitalize text-vp-text-2">{label}</span>
+                      <span className="text-[12px] font-mono text-vp-text-3">{pct}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Countries */}
+          <div className="bg-[#141413] border border-vp-border rounded overflow-hidden">
+            <div className="px-4 py-3 border-b border-vp-border text-[12px] font-semibold">Países</div>
+            {countries.length === 0 ? (
+              <div className="px-4 py-4 text-[12px] text-vp-text-3 italic">Sem dados</div>
+            ) : (
+              <div className="divide-y divide-vp-border">
+                {countries.map((c) => {
+                  const label = c.country ?? "—";
+                  const count = c._count.country;
+                  return (
+                    <div key={label} className="px-4 py-2.5 flex items-center justify-between gap-3">
+                      <span className="text-[12px] font-mono text-vp-text-2">{label}</span>
+                      <span className="text-[12px] font-mono font-bold text-vp-accent shrink-0">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Daily table */}
       <div className="bg-[#141413] border border-vp-border rounded overflow-hidden">
