@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import prisma from '@/lib/prisma';
 import { fetchJsonIndicatorValue } from '@/lib/market-indicators';
+import { isMarketIndicatorStale } from '@/lib/market-indicator-health';
+import { sendEmail, alertRecipient } from '@/lib/send-email';
+import { marketIndicatorAlertTemplate } from '@/lib/email-templates';
 
 export const dynamic = 'force-dynamic';
 
@@ -199,6 +202,34 @@ export async function GET(request: Request) {
 
     if (updatedKeys.length === 0) {
       return NextResponse.json({ success: false, results, warnings, error: 'Nenhum indicador foi atualizado.' }, { status: 502 });
+    }
+
+    // Check for stale indicators after this run and send alert if any found
+    try {
+      const allIndicators = await prisma.marketIndicator.findMany({
+        where: { isActive: true, sourceType: { not: 'MANUAL' } },
+        select: { key: true, label: true, sourceType: true, sourceRefreshMinutes: true, lastFetchedAt: true, lastFetchError: true },
+      });
+
+      const stale = allIndicators.filter((ind) => isMarketIndicatorStale(ind));
+
+      if (stale.length > 0) {
+        await sendEmail({
+          to: alertRecipient(),
+          subject: `[Voz Pública MS] Alerta: ${stale.length} indicador(es) de mercado desatualizado(s)`,
+          html: marketIndicatorAlertTemplate(
+            stale.map((ind) => ({
+              key: ind.key,
+              label: ind.label ?? ind.key.toUpperCase(),
+              lastFetchedAt: ind.lastFetchedAt,
+              lastFetchError: ind.lastFetchError,
+            })),
+            warnings
+          ),
+        });
+      }
+    } catch (alertErr) {
+      console.error('[fetch-agri] falha ao enviar alerta de indicadores:', alertErr);
     }
 
     return NextResponse.json({

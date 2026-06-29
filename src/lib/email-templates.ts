@@ -56,6 +56,50 @@ export const tipStatusTemplate = (name: string | null, status: string) => {
   return emailLayout(content);
 };
 
+type StaleIndicator = { key: string; label: string; lastFetchedAt: Date | null; lastFetchError: string | null };
+
+export const marketIndicatorAlertTemplate = (stale: StaleIndicator[], failed: string[]) => {
+  const rows = stale
+    .map((ind) => {
+      const lastUpdate = ind.lastFetchedAt
+        ? ind.lastFetchedAt.toLocaleString('pt-BR', { timeZone: 'America/Campo_Grande' })
+        : 'nunca';
+      const error = ind.lastFetchError ? `<br/><span style="color:#c94a2e;font-size:12px;">${ind.lastFetchError}</span>` : '';
+      return `<tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:bold;">${ind.label} (${ind.key})</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:13px;color:#555;">${lastUpdate}${error}</td>
+      </tr>`;
+    })
+    .join('');
+
+  const failedHtml = failed.length
+    ? `<p style="margin-top:24px;"><strong>Fontes que falharam nesta execução:</strong></p>
+       <ul style="font-size:14px;color:#c94a2e;">${failed.map((f) => `<li>${f}</li>`).join('')}</ul>`
+    : '';
+
+  const content = `
+    <h2 style="color:#1a1a19;margin-top:0;">Alerta: indicadores de mercado defasados</h2>
+    <p>O cron de atualização de indicadores detectou ${stale.length} indicador(es) com dados desatualizados:</p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr style="background:#f5f5f5;">
+          <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #ddd;">Indicador</th>
+          <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #ddd;">Última atualização</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${failedHtml}
+    <div style="margin-top:28px;">
+      <a href="https://www.vozpublicams.com.br/admin/metrics/market" class="button">Verificar indicadores</a>
+    </div>
+    <p style="margin-top:24px;font-size:13px;color:#888;">
+      Este alerta é enviado automaticamente pelo cron de indicadores quando um ou mais dados ficam além do prazo esperado de atualização.
+    </p>
+  `;
+  return emailLayout(content);
+};
+
 export const magicLinkTemplate = (url: string) => {
   const content = `
     <h2 style="color: #1a1a19; margin-top: 0;">Entrar no Portal</h2>
