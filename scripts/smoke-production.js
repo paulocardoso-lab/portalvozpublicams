@@ -16,6 +16,7 @@ const checks = [
   { path: "/eu", status: [302, 307, 308], locationIncludes: "/login" },
   { path: "/api/cron/fetch-agri", status: 401 },
   { path: "/api/cron/rss-sync", status: 401 },
+  { path: "/api/cron/cleanup-analytics", status: 401 },
 ];
 
 const requiredHeaders = [
