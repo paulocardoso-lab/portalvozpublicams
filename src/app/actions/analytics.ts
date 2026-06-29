@@ -3,35 +3,53 @@
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { rateLimitAction } from '@/lib/rate-limit';
+import { cookies } from 'next/headers';
+
+const VISITOR_COOKIE = 'vp_visitor_id';
+const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function normalizeVisitorId(visitorId: string | undefined) {
-  const trimmed = visitorId?.trim();
-  if (!trimmed || trimmed.length < 16 || trimmed.length > 128) return null;
-  return crypto.createHash('sha256').update(trimmed).digest('hex');
+function isValidVisitorId(value: string | undefined) {
+  return Boolean(value && /^[a-f0-9-]{32,64}$/i.test(value));
 }
 
-export async function recordView(articleId: string, visitorId?: string) {
+async function getVisitorHash() {
+  const cookieStore = await cookies();
+  let visitorId = cookieStore.get(VISITOR_COOKIE)?.value;
+
+  if (!isValidVisitorId(visitorId)) {
+    visitorId = crypto.randomUUID();
+    cookieStore.set(VISITOR_COOKIE, visitorId, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: VISITOR_COOKIE_MAX_AGE,
+    });
+  }
+
+  return crypto.createHash('sha256').update(visitorId as string).digest('hex');
+}
+
+export async function recordView(articleId: string) {
   try {
     const limit = await rateLimitAction({ key: 'article-view', limit: 80, windowMs: 60 * 1000 });
     if (limit.limited) return { success: false };
 
     const today = startOfDay(new Date());
-    const visitorHash = normalizeVisitorId(visitorId);
+    const visitorHash = await getVisitorHash();
 
-    const visitor = visitorHash
-      ? prisma.siteVisitorDaily.create({
-          data: { date: today, visitorHash },
-        }).catch((error: { code?: string }) => {
-          if (error?.code === 'P2002') return null;
-          throw error;
-        })
-      : null;
+    const visitor = prisma.siteVisitorDaily.create({
+      data: { date: today, visitorHash },
+    }).catch((error: { code?: string }) => {
+      if (error?.code === 'P2002') return null;
+      throw error;
+    });
 
-    const createdVisitor = visitor ? await visitor : null;
+    const createdVisitor = await visitor;
 
     await Promise.all([
       prisma.article.update({
@@ -52,7 +70,7 @@ export async function recordView(articleId: string, visitorId?: string) {
         where: { date: today },
         update: {
           views: { increment: 1 },
-          visitors: visitorHash && createdVisitor ? { increment: 1 } : undefined,
+          visitors: createdVisitor ? { increment: 1 } : undefined,
         },
         create: {
           date: today,
