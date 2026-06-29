@@ -72,6 +72,8 @@ model User {
   auditLogs     AuditLog[]
   articleVersions ArticleVersion[]
   pollVotes     PollVote[]
+
+  @@index([status, role])
 }
 
 enum Role {
@@ -272,6 +274,8 @@ model Transaction {
   externalId     String?
   receiptUrl     String?
   createdAt      DateTime      @default(now())
+
+  @@index([subscriptionId, status])
 }
 
 enum TxStatus {
@@ -552,6 +556,8 @@ model RSSFeed {
   logs                RSSLog[]
   deadLetters         RSSDeadLetter[]
   createdAt           DateTime        @default(now())
+
+  @@index([isActive])
 }
 
 enum RSSLogStatus {
