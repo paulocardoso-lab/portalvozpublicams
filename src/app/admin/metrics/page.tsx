@@ -77,6 +77,9 @@ function PeriodRanking({
               <div className="text-[14px] font-mono font-bold text-vp-accent shrink-0">
                 {formatCompact(article.periodViews)}
               </div>
+              <Link href={`/admin/metrics/artigo/${article.id}`} className="text-[11px] text-vp-text-3 hover:text-vp-accent shrink-0" title="Auditoria detalhada">
+                ↗
+              </Link>
             </div>
           ))
         )}
@@ -184,6 +187,9 @@ export default async function AdminMetricsPage() {
                 <div className="text-[14px] font-mono font-bold text-vp-accent shrink-0">
                   {formatCompact(article.views)}
                 </div>
+                <Link href={`/admin/metrics/artigo/${article.id}`} className="text-[11px] text-vp-text-3 hover:text-vp-accent shrink-0" title="Auditoria detalhada">
+                  ↗
+                </Link>
               </div>
             ))
           )}
