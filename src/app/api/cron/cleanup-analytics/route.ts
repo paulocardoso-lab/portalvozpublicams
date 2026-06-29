@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { retentionDays } from '@/lib/analytics-helpers';
 
 export const dynamic = 'force-dynamic';
-
-const DEFAULT_RETENTION_DAYS = 180;
-
-function retentionDays() {
-  const raw = Number(process.env.ANALYTICS_VISITOR_RETENTION_DAYS);
-  if (!Number.isFinite(raw)) return DEFAULT_RETENTION_DAYS;
-  return Math.max(30, Math.min(730, Math.floor(raw)));
-}
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');

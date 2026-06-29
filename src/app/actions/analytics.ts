@@ -4,17 +4,10 @@ import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { rateLimitAction } from '@/lib/rate-limit';
 import { cookies } from 'next/headers';
+import { startOfDay, isValidVisitorId } from '@/lib/analytics-helpers';
 
 const VISITOR_COOKIE = 'vp_visitor_id';
 const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function isValidVisitorId(value: string | undefined) {
-  return Boolean(value && /^[a-f0-9-]{32,64}$/i.test(value));
-}
 
 async function getVisitorHash() {
   const cookieStore = await cookies();
