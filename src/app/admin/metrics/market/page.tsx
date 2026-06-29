@@ -3,6 +3,7 @@ import type { MarketIndicator } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { deleteMarketIndicator, saveMarketIndicator } from './actions';
 import { MarketSourceTester } from './MarketSourceTester';
+import { isMarketIndicatorStale } from '@/lib/market-indicator-health';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,12 @@ function text(value: unknown) {
 function IndicatorForm({ indicator, isNew = false }: { indicator: EditableIndicator; isNew?: boolean }) {
   const formId = `market-indicator-${indicator.key}`;
   const sourceType = indicator.sourceType || 'MANUAL';
+  const isStale = !isNew && sourceType !== 'MANUAL' && isMarketIndicatorStale({
+    key: indicator.key,
+    sourceType,
+    sourceRefreshMinutes: indicator.sourceRefreshMinutes ?? 60,
+    lastFetchedAt: indicator.lastFetchedAt ?? null,
+  } as MarketIndicator);
 
   return (
     <form id={formId} action={saveMarketIndicator} className="bg-[#141413] border border-vp-border rounded-[4px] p-5 space-y-5">
@@ -39,6 +46,11 @@ function IndicatorForm({ indicator, isNew = false }: { indicator: EditableIndica
             <div className="text-[12px] font-mono">
               {indicator.updatedAt ? new Date(indicator.updatedAt).toLocaleString('pt-BR') : 'Nunca'}
             </div>
+            {sourceType !== 'MANUAL' && (
+              <div className={`text-[10px] font-bold uppercase mt-1 ${isStale ? 'text-vp-urgent' : 'text-vp-ok'}`}>
+                {isStale ? 'Atenção: fonte defasada' : 'Fonte atualizada'}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -134,6 +146,9 @@ function IndicatorForm({ indicator, isNew = false }: { indicator: EditableIndica
       {(indicator.lastFetchStatus || indicator.lastFetchError) && (
         <div className="text-[11px] text-vp-text-3">
           Status da fonte: <span className="font-mono">{indicator.lastFetchStatus || 'sem status'}</span>
+          {indicator.lastFetchedAt ? (
+            <span className="font-mono"> · fetch {new Date(indicator.lastFetchedAt).toLocaleString('pt-BR')}</span>
+          ) : null}
           {indicator.lastFetchError ? <span className="text-vp-urgent"> · {indicator.lastFetchError}</span> : null}
         </div>
       )}

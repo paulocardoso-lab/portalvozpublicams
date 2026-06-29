@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { DashboardStat } from '@/components/admin/DashboardStat';
 import { DashboardSparkline } from '@/components/admin/DashboardSparkline';
+import { isMarketIndicatorStale } from '@/lib/market-indicator-health';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,6 +71,7 @@ export default async function AdminDashboardPage() {
     scheduledArticles,
     missingHeroImages,
     expiringCampaigns,
+    marketIndicators,
     topArticles,
     recentMetrics,
     recentAuditLogs,
@@ -116,6 +118,19 @@ export default async function AdminDashboardPage() {
     prisma.campaign.count({
       where: { status: 'ACTIVE', endsAt: { gte: now, lte: next48h } },
     }),
+    prisma.marketIndicator.findMany({
+      where: {
+        isActive: true,
+        showInHeader: true,
+        sourceType: { not: 'MANUAL' },
+      },
+      select: {
+        key: true,
+        sourceType: true,
+        sourceRefreshMinutes: true,
+        lastFetchedAt: true,
+      },
+    }),
     prisma.article.findMany({
       where: { status: 'PUBLISHED' },
       orderBy: [{ views: 'desc' }, { publishedAt: 'desc' }],
@@ -144,6 +159,7 @@ export default async function AdminDashboardPage() {
   const monthlyRecurringRevenue = activeSubscriptions.reduce((sum, sub) => sum + sub.amount, 0);
   const trafficData = recentMetrics.map((metric) => metric.views);
   const hasTrafficData = trafficData.some((value) => value > 0);
+  const staleMarketIndicators = marketIndicators.filter((indicator) => isMarketIndicatorStale(indicator, now));
 
   const alerts = [
     pendingComments > 0 ? {
@@ -160,6 +176,11 @@ export default async function AdminDashboardPage() {
       level: 'warn',
       text: `${expiringCampaigns} campanha${expiringCampaigns === 1 ? '' : 's'} expira${expiringCampaigns === 1 ? '' : 'm'} em ate 48 horas`,
       href: '/admin/ads',
+    } : null,
+    staleMarketIndicators.length > 0 ? {
+      level: 'warn',
+      text: `${staleMarketIndicators.length} indicador${staleMarketIndicators.length === 1 ? '' : 'es'} do cabecalho sem atualizacao recente`,
+      href: '/admin/metrics/market',
     } : null,
     missingHeroImages > 0 ? {
       level: 'info',

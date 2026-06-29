@@ -120,7 +120,7 @@ export default function DesignStudioPreviewPage() {
                       aquisições de insumos médicos por valores até três vezes superiores ao praticado no mercado nacional.
                     </p>
                     <blockquote>
-                      "Os dados falam por si. Não há justificativa técnica para essa diferença de preço", afirmou
+                      &ldquo;Os dados falam por si. Não há justificativa técnica para essa diferença de preço&rdquo;, afirmou
                       especialista em licitações ouvido pela reportagem sob condição de anonimato.
                     </blockquote>
                     <p>
@@ -150,7 +150,7 @@ export default function DesignStudioPreviewPage() {
                   <div className="img-ph img-ph-charge">
                     <span>Charge editorial</span>
                   </div>
-                  <p className="sidebar-caption">"A Informação Também Tem Lado: O do Cidadão"</p>
+                  <p className="sidebar-caption">&ldquo;A Informação Também Tem Lado: O do Cidadão&rdquo;</p>
                   <a href="#" className="sidebar-link">Arquivo de charges →</a>
                 </div>
 
