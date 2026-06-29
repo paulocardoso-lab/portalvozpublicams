@@ -22,10 +22,7 @@ export function MobileMasthead({ title }: { title?: string }) {
     refreshInterval: 600000, // 10 min
   });
 
-  const mobileIndicators: HeaderIndicator[] = data?.indicators?.filter((item: HeaderIndicator) => item.showInMobile).slice(0, 3) || [
-    { key: 'usd', label: 'USD', value: '5,12', unit: 'R$', showInMobile: true, displayOrder: 10 },
-    { key: 'boi', label: 'BOI', value: '353,80', unit: 'R$/@', showInMobile: true, displayOrder: 20 },
-  ];
+  const mobileIndicators: HeaderIndicator[] = data?.indicators?.filter((item: HeaderIndicator) => item.showInMobile).slice(0, 3) || [];
 
   return (
     <div className="sticky top-0 z-50 bg-vp-bg border-b border-vp-border">
@@ -51,18 +48,22 @@ export function MobileMasthead({ title }: { title?: string }) {
       {/* Edition strip */}
       <div className="px-4 py-1.5 border-t border-vp-border font-sans text-[10px] text-vp-text-3 flex items-center gap-3 tracking-[0.06em] uppercase">
         <span className="font-semibold shrink-0" suppressHydrationWarning>{formatted}</span>
-        <span className="text-vp-text-4 shrink-0">·</span>
-        <div className="vp-ticker-wrap flex-1 min-w-0">
-          <div className="vp-ticker-track font-mono text-vp-text-4">
-            {[...mobileIndicators, ...mobileIndicators].map((item, i) => (
-              <span key={`${item.key}-${i}`} className="inline-flex items-center gap-1 px-3">
-                <span className="text-vp-text-4">{item.label}</span>
-                <span className="text-vp-text-3">{item.value}</span>
-                <span className="opacity-30 ml-1">|</span>
-              </span>
-            ))}
-          </div>
-        </div>
+        {mobileIndicators.length > 0 && (
+          <>
+            <span className="text-vp-text-4 shrink-0">·</span>
+            <div className="vp-ticker-wrap flex-1 min-w-0">
+              <div className="vp-ticker-track font-mono text-vp-text-4">
+                {[...mobileIndicators, ...mobileIndicators].map((item, i) => (
+                  <span key={`${item.key}-${i}`} className="inline-flex items-center gap-1 px-3">
+                    <span className="text-vp-text-4">{item.label}</span>
+                    <span className="text-vp-text-3">{item.value}</span>
+                    <span className="opacity-30 ml-1">|</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

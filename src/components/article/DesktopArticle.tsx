@@ -19,6 +19,7 @@ import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
 import { PollSidebar } from '@/components/poll/PollSidebar';
 import { isDonationsEnabled } from '@/lib/donation-config';
 import { formatPortalDate } from '@/lib/portal-time';
+import prisma from '@/lib/prisma';
 
 type ArticleWithRelations = Article & {
   authors: { id: string; name: string; slug: string | null; avatar: string | null }[];
@@ -36,11 +37,12 @@ type RelatedArticle = {
 export async function DesktopArticle({ article, related = [] }: { article: ArticleWithRelations; related?: RelatedArticle[] }) {
   if (!article) return null;
 
-  const [s, activeCharge, activeVoices, donationsEnabled] = await Promise.all([
+  const [s, activeCharge, activeVoices, donationsEnabled, supporterCount] = await Promise.all([
     getSiteSettings(),
     getActiveCharge().catch(() => null),
     getActiveVoices(3).catch(() => []),
     isDonationsEnabled().catch(() => true),
+    prisma.subscription.count({ where: { status: 'ACTIVE' } }).catch(() => 0),
   ]);
 
   return (
@@ -182,7 +184,9 @@ export async function DesktopArticle({ article, related = [] }: { article: Artic
                 {s['article.support_title'] || 'Apoie esta reportagem'}
               </div>
               <p className="font-serif text-[12px] text-vp-text-2 leading-[1.5] mb-4">
-                {s['article.support_body'] || '8 meses de apuração foram pagos por leitores. Seja um dos 4.812 apoiadores.'}
+                {s['article.support_body'] || (supporterCount > 0
+                  ? `Esta reportagem é aberta porque leitores apoiam o Voz Pública. Seja um dos ${supporterCount.toLocaleString('pt-BR')} apoiadores ativos.`
+                  : 'Esta reportagem é aberta porque leitores podem apoiar o Voz Pública. Contribua para manter este jornalismo de pé.')}
               </p>
               <Link href="/apoiar" className="vp-btn vp-btn-primary w-full py-2.5 font-bold uppercase tracking-widest text-[11px] text-center block">
                 {s['article.support_cta'] || 'Contribuir'}

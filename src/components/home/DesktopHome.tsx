@@ -15,7 +15,7 @@ import { ChargeCard } from '@/components/charge/ChargeCard';
 import { VoicesSidebarBlock } from '@/components/voices/VoiceCard';
 import { PollSidebar } from '@/components/poll/PollSidebar';
 import { VideoSidebarBlock } from '@/components/video/VideoSidebarBlock';
-import { formatPortalDate } from '@/lib/portal-time';
+import { formatPortalDate, formatPortalRelativeTime } from '@/lib/portal-time';
 
 export type PublicAuthor = {
   id: string;
@@ -39,7 +39,7 @@ export type SeriesWithArticles = Series & {
 
 interface DesktopHomeProps {
   articles?: ArticleWithRelations[];
-  newsletterCount?: number;
+  supporterCount?: number;
   agendaEvents?: AgendaEvent[];
   columnists?: {
     id: string;
@@ -53,6 +53,7 @@ interface DesktopHomeProps {
     articles: { title: string; slug: string }[];
   }[];
   mostRead?: ArticleWithSection[];
+  mostReadTitle?: string;
   politica?: ArticleWithRelations[];
   economia?: ArticleWithRelations[];
   cidades?: ArticleWithRelations[];
@@ -71,10 +72,11 @@ interface DesktopHomeProps {
  */
 export function DesktopHome({
   articles = [],
-  newsletterCount = 0,
+  supporterCount = 0,
   agendaEvents = [],
   columnists = [],
   mostRead = [],
+  mostReadTitle = 'Mais lidas',
   activeAlert,
   featuredSeries,
   activePodcast,
@@ -102,7 +104,7 @@ export function DesktopHome({
             {activeAlert.message}
           </span>
           <span className="text-vp-text-3 font-sans text-[11px] ml-auto">
-            atualizado há 4 min
+            atualizado {formatPortalRelativeTime(activeAlert.updatedAt)}
           </span>
         </div>
       )}
@@ -150,7 +152,7 @@ export function DesktopHome({
 
           {/* Secondary 3-up row */}
           <section className="grid grid-cols-3 gap-5 py-6 border-b border-vp-border">
-            {secondary.map((art, i) => (
+            {secondary.map((art) => (
               <article key={art.id}>
                 <div className="relative h-[150px] mb-3 overflow-hidden rounded-sm group">
                   {art.heroImage ? (
@@ -167,7 +169,7 @@ export function DesktopHome({
                   {art.lead}
                 </p>
                 <div className="byline mt-2.5">
-                  Há {i + 1}h · {art.readTimeMin || 4} min de leitura
+                  {art.publishedAt ? formatPortalRelativeTime(art.publishedAt) : 'sem data'} · {art.readTimeMin || 4} min de leitura
                 </div>
               </article>
             ))}
@@ -215,8 +217,8 @@ export function DesktopHome({
                         <Headline size="small" href={`/materia/${art.slug}`} className="mb-1.5">
                           {art.title}
                         </Headline>
-                        <div className="byline text-[10px]">
-                          Série Pantanal · há {i + 3}h
+                      <div className="byline text-[10px]">
+                          Série Especial · {art.publishedAt ? formatPortalRelativeTime(art.publishedAt) : 'sem data'}
                         </div>
                       </div>
                     </article>
@@ -247,7 +249,7 @@ export function DesktopHome({
                         {art.title}
                       </Headline>
                       <div className="byline text-[10px]">
-                        por {art.authors?.[0]?.name || 'Redação'} · há {i + 2}h
+                        por {art.authors?.[0]?.name || 'Redação'} · {art.publishedAt ? formatPortalRelativeTime(art.publishedAt) : 'sem data'}
                       </div>
                     </div>
                   ))}
@@ -300,7 +302,7 @@ export function DesktopHome({
           <section className={`pt-8 pb-6 border-t border-vp-border ${activePodcast ? 'grid grid-cols-2 gap-16' : 'block'}`}>
             <div className={activePodcast ? '' : 'max-w-[640px]'}>
               <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-6">
-                Mais lidas da semana
+                {mostReadTitle}
               </h3>
               <div className="flex flex-col">
                 {mostRead.slice(0, 5).map((art, i) => (
@@ -339,10 +341,11 @@ export function DesktopHome({
                     <button className="w-[38px] h-[38px] rounded-full bg-vp-accent flex items-center justify-center text-vp-bg font-bold">&#9654;</button>
                     <div className="flex-1">
                       <div className="h-[3px] bg-vp-border-2 rounded-full relative">
-                        <div className="absolute left-0 top-0 bottom-0 w-[32%] bg-vp-accent rounded-full" />
+                        <div className="absolute left-0 top-0 bottom-0 w-0 bg-vp-accent rounded-full" />
                       </div>
                       <div className="flex justify-between mt-1.5 font-mono text-[10px] text-vp-text-4">
-                        <span>12:14</span><span>{activePodcast.duration || '38:22'}</span>
+                        <span>Ouvir episódio</span>
+                        {activePodcast.duration && <span>{activePodcast.duration}</span>}
                       </div>
                     </div>
                   </div>
@@ -362,7 +365,9 @@ export function DesktopHome({
                 {s['home.donation_headline'] || 'Jornalismo de MS que você pode confiar.'}
               </h3>
               <p className="font-serif text-[13px] text-vp-text-2 leading-[1.5] mb-4">
-                {s['home.donation_body'] || `Somos sustentados por leitores. ${newsletterCount.toLocaleString('pt-BR')} apoiadores até hoje.`}
+                {s['home.donation_body'] || (supporterCount > 0
+                  ? `Somos sustentados por leitores. ${supporterCount.toLocaleString('pt-BR')} apoiadores ativos.`
+                  : 'Somos sustentados por leitores. Seu apoio mantém este jornalismo aberto.')}
               </p>
               <Link href="/apoiar">
                 <button className="vp-btn vp-btn-primary w-full py-3 font-bold uppercase tracking-widest text-[12px]">

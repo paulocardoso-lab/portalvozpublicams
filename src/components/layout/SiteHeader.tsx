@@ -3,13 +3,13 @@ import Link from 'next/link';
 import { Monogram } from '@/components/shared/Monogram';
 import { HeaderTicker } from './HeaderTicker';
 import { getHeaderIndicators, getMarketData, getWeatherData } from '@/lib/external-data';
-import { fallbackHeaderIndicators } from '@/lib/market-indicators';
 import { prisma } from '@/lib/prisma';
 import { getSiteSettings } from '@/app/actions/settings';
 import { normalizeWhatsAppLink } from '@/lib/social-links';
 import { isDonationsEnabled } from '@/lib/donation-config';
 import type { Section } from '@prisma/client';
 import { formatPortalDate } from '@/lib/portal-time';
+import type { HeaderIndicator } from '@/lib/market-indicators';
 
 /**
  * SiteHeader (Masthead) — Cabeçalho principal do portal.
@@ -24,10 +24,14 @@ export async function SiteHeader() {
     year: 'numeric'
   });
 
-  let initialTickerData = {
-    market: { usd: '5,12', boi: '353,80', soja: '122,51', milho: '65,98', trigo: '1.250,00' },
-    indicators: fallbackHeaderIndicators(),
-    weather: { temp: 28 }
+  let initialTickerData: {
+    market: { usd: string; boi: string; soja: string; milho: string; trigo: string };
+    indicators: HeaderIndicator[];
+    weather: { temp: number | null };
+  } = {
+    market: { usd: '', boi: '', soja: '', milho: '', trigo: '' },
+    indicators: [],
+    weather: { temp: null as number | null }
   };
   let settings: Record<string, string> = {};
   let dbSections: Section[] = [];
@@ -68,9 +72,13 @@ export async function SiteHeader() {
         <div className="flex gap-4.5 items-center">
           <span>{formattedDate}</span>
           <span className="text-vp-text-4">·</span>
-          <span>Campo Grande {initialTickerData.weather.temp}°C</span>
-          <span className="text-vp-text-4">·</span>
-          <HeaderTicker initialData={initialTickerData} />
+          {initialTickerData.weather.temp !== null && (
+            <>
+              <span>Campo Grande {initialTickerData.weather.temp}°C</span>
+              <span className="text-vp-text-4">·</span>
+            </>
+          )}
+          {initialTickerData.indicators.length > 0 && <HeaderTicker initialData={initialTickerData} />}
         </div>
         <div className="flex gap-4 items-center font-bold whitespace-nowrap">
           <Link href="/newsletter" className="hover:text-vp-accent transition-colors font-sans normal-case tracking-normal font-semibold">Newsletter</Link>

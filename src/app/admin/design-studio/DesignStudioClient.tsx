@@ -204,7 +204,7 @@ const EDITORIAL_TEXT_FIELDS: { key: string; label: string; multiline?: boolean; 
   // Matéria
   { key: 'article.open_text',         label: 'Texto "matéria aberta"',          multiline: true,  placeholder: 'Esta reportagem é aberta e sem paywall. Se considera importante, contribua.', group: 'Página de Matéria' },
   { key: 'article.support_title',     label: 'Título "Apoie esta reportagem"',                    placeholder: 'Apoie esta reportagem',                                                         group: 'Página de Matéria' },
-  { key: 'article.support_body',      label: 'Texto do box de apoio',           multiline: true,  placeholder: '8 meses de apuração foram pagos por leitores. Seja um dos 4.812 apoiadores.',  group: 'Página de Matéria' },
+  { key: 'article.support_body',      label: 'Texto do box de apoio',           multiline: true,  placeholder: 'Esta reportagem é aberta porque leitores apoiam o Voz Pública.',              group: 'Página de Matéria' },
   { key: 'article.support_cta',       label: 'Botão de apoio (CTA)',                              placeholder: 'Contribuir',                                                                    group: 'Página de Matéria' },
   // Home
   { key: 'home.donation_eyebrow',     label: 'Eyebrow do bloco de doação',                        placeholder: 'Sem donos. Sem paywall.',                                                       group: 'Home' },

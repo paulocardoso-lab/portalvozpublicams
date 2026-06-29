@@ -10,7 +10,7 @@ interface HeaderTickerProps {
   initialData: {
     market: { usd: string; boi: string; soja: string; milho: string };
     indicators: HeaderIndicator[];
-    weather: { temp: number };
+    weather: { temp: number | null };
   };
 }
 

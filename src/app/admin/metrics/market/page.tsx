@@ -7,10 +7,10 @@ import { MarketSourceTester } from './MarketSourceTester';
 export const dynamic = 'force-dynamic';
 
 const defaults = [
-  { key: 'usd', label: 'Dólar Comercial', value: '5,12', unit: 'R$', displayOrder: 10, showInHeader: true, showInMobile: true, sourceType: 'SYSTEM' },
-  { key: 'boi', label: 'Arroba do Boi', value: '353,80', unit: 'R$/@', displayOrder: 20, showInHeader: true, showInMobile: true, sourceType: 'SYSTEM' },
-  { key: 'soja', label: 'Saca da Soja', value: '122,51', unit: 'R$/sc', displayOrder: 30, showInHeader: true, showInMobile: false, sourceType: 'SYSTEM' },
-  { key: 'milho', label: 'Saca do Milho', value: '65,98', unit: 'R$/sc', displayOrder: 40, showInHeader: true, showInMobile: false, sourceType: 'SYSTEM' },
+  { key: 'usd', label: 'Dólar Comercial', value: '', unit: 'R$', displayOrder: 10, showInHeader: true, showInMobile: true, sourceType: 'SYSTEM' },
+  { key: 'boi', label: 'Arroba do Boi', value: '', unit: 'R$/@', displayOrder: 20, showInHeader: true, showInMobile: true, sourceType: 'SYSTEM' },
+  { key: 'soja', label: 'Saca da Soja', value: '', unit: 'R$/sc', displayOrder: 30, showInHeader: true, showInMobile: false, sourceType: 'SYSTEM' },
+  { key: 'milho', label: 'Saca do Milho', value: '', unit: 'R$/sc', displayOrder: 40, showInHeader: true, showInMobile: false, sourceType: 'SYSTEM' },
 ];
 
 type EditableIndicator = Partial<MarketIndicator> & {

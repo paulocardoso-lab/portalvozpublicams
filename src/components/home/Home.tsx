@@ -17,6 +17,33 @@ const publicAuthorSelect = {
   avatar: true,
 } as const;
 
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+async function getMostReadByPeriod(startDate: Date, take = 5) {
+  const ranked = await prisma.articleViewDaily.groupBy({
+    by: ['articleId'],
+    where: { date: { gte: startDate } },
+    _sum: { views: true },
+    orderBy: { _sum: { views: 'desc' } },
+    take,
+  });
+
+  const ids = ranked.map((item) => item.articleId);
+  if (ids.length === 0) return [];
+
+  const articles = await prisma.article.findMany({
+    where: { id: { in: ids }, status: 'PUBLISHED' },
+    include: { section: true },
+  });
+
+  const byId = new Map(articles.map((article) => [article.id, article]));
+  return ids
+    .map((id) => byId.get(id))
+    .filter((article): article is (typeof articles)[number] => Boolean(article));
+}
+
 export async function Home() {
   let articles: ArticleWithRelations[] = [];
   let columnists: {
@@ -37,8 +64,11 @@ export async function Home() {
   let politica: ArticleWithRelations[] = [];
   let economia: ArticleWithRelations[] = [];
   let cidades: ArticleWithRelations[] = [];
-  let mostRead: ArticleWithSection[] = [];
-  let newsletterCount = 0;
+  let mostReadWeek: ArticleWithSection[] = [];
+  let mostReadToday: ArticleWithSection[] = [];
+  let mostReadWeekIsFallback = false;
+  let mostReadTodayIsFallback = false;
+  let supporterCount = 0;
   let siteSettings: Record<string, string> = {};
   let activeCharge: Charge | null = null;
   let activeVoices: Voice[] = [];
@@ -47,6 +77,8 @@ export async function Home() {
   try {
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
     const todayEnd = new Date(new Date().setHours(23, 59, 59, 999));
+    const weekStart = startOfDay(new Date());
+    weekStart.setDate(weekStart.getDate() - 6);
 
     const [
       fetchedArticles,
@@ -58,8 +90,10 @@ export async function Home() {
       fetchedPolitica,
       fetchedEconomia,
       fetchedCidades,
-      fetchedMostRead,
-      fetchedNewsletterCount
+      fetchedMostReadFallback,
+      fetchedMostReadWeek,
+      fetchedMostReadToday,
+      fetchedSupporterCount
     ] = await Promise.all([
       prisma.article.findMany({
         where: { status: 'PUBLISHED' },
@@ -125,10 +159,12 @@ export async function Home() {
       prisma.article.findMany({
         where: { status: 'PUBLISHED' },
         include: { section: true },
-        orderBy: { views: 'desc' },
+        orderBy: [{ views: 'desc' }, { publishedAt: 'desc' }],
         take: 5,
       }),
-      prisma.newsletterSubscriber.count()
+      getMostReadByPeriod(weekStart, 5),
+      getMostReadByPeriod(todayStart, 5),
+      prisma.subscription.count({ where: { status: 'ACTIVE' } })
     ]);
 
     articles = fetchedArticles || [];
@@ -140,8 +176,11 @@ export async function Home() {
     politica = fetchedPolitica || [];
     economia = fetchedEconomia || [];
     cidades = fetchedCidades || [];
-    mostRead = fetchedMostRead || [];
-    newsletterCount = fetchedNewsletterCount || 0;
+    mostReadWeek = fetchedMostReadWeek.length > 0 ? fetchedMostReadWeek : fetchedMostReadFallback || [];
+    mostReadToday = fetchedMostReadToday.length > 0 ? fetchedMostReadToday : fetchedMostReadFallback || [];
+    mostReadWeekIsFallback = fetchedMostReadWeek.length === 0;
+    mostReadTodayIsFallback = fetchedMostReadToday.length === 0;
+    supporterCount = fetchedSupporterCount || 0;
     siteSettings = await getSiteSettings().catch(() => ({}));
     [activeCharge, activeVoices, donationsEnabled] = await Promise.all([
       getActiveCharge().catch(() => null),
@@ -165,8 +204,9 @@ export async function Home() {
           politica={politica}
           economia={economia}
           cidades={cidades}
-          mostRead={mostRead}
-          newsletterCount={newsletterCount}
+          mostRead={mostReadWeek}
+          mostReadTitle={mostReadWeekIsFallback ? 'Mais lidas' : 'Mais lidas da semana'}
+          supporterCount={supporterCount}
           siteSettings={siteSettings}
           activeCharge={activeCharge}
           activeVoices={activeVoices}
@@ -179,7 +219,8 @@ export async function Home() {
           articles={articles}
           activeAlert={activeAlert}
           featuredSeries={featuredSeries}
-          mostRead={mostRead}
+          mostRead={mostReadToday}
+          mostReadTitle={mostReadTodayIsFallback ? 'Mais lidas' : 'Mais lidas hoje'}
           donationsEnabled={donationsEnabled}
         />
       </div>

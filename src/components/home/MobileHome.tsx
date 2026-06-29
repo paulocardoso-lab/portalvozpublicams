@@ -27,6 +27,7 @@ interface MobileHomeProps {
   activeAlert?: Alert | null;
   featuredSeries?: SeriesWithArticles | null;
   mostRead?: ArticleWithSection[];
+  mostReadTitle?: string;
   donationsEnabled?: boolean;
 }
 
@@ -39,6 +40,7 @@ export function MobileHome({
   activeAlert,
   featuredSeries,
   mostRead = [],
+  mostReadTitle = 'Mais lidas',
   donationsEnabled = true,
 }: MobileHomeProps) {
   
@@ -170,7 +172,7 @@ export function MobileHome({
         {mostRead.length > 0 && (
           <section className="px-5 pt-6 pb-10 border-t border-vp-border">
             <h3 className="font-sans text-[11px] text-vp-text uppercase tracking-[0.14em] font-bold mb-5">
-              Mais lidas hoje
+              {mostReadTitle}
             </h3>
             {mostRead.map((h, i) => (
               <div key={h.id} className={`grid grid-cols-[36px_1fr] gap-4 py-4 ${i < mostRead.length - 1 ? 'border-b border-vp-border' : ''}`}>

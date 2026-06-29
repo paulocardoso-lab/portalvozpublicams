@@ -27,23 +27,12 @@ const DEFAULT_LABELS: Record<string, string> = {
 };
 
 const DEFAULT_VALUES: Record<string, string> = {
-  usd: '5,12',
-  boi: '353,80',
-  soja: '122,51',
-  milho: '65,98',
-  trigo: '1.250,00',
+  usd: '',
+  boi: '',
+  soja: '',
+  milho: '',
+  trigo: '',
 };
-
-const FALLBACK_HEADER_INDICATORS: HeaderIndicator[] = [
-  { key: 'usd', label: 'USD', value: '5,12', unit: 'R$', showInMobile: true, displayOrder: 10 },
-  { key: 'boi', label: 'BOI', value: '353,80', unit: 'R$/@', showInMobile: true, displayOrder: 20 },
-  { key: 'soja', label: 'SOJA', value: '122,51', unit: 'R$/sc', showInMobile: false, displayOrder: 30 },
-  { key: 'milho', label: 'MILHO', value: '65,98', unit: 'R$/sc', showInMobile: false, displayOrder: 40 },
-];
-
-export function fallbackHeaderIndicators() {
-  return FALLBACK_HEADER_INDICATORS;
-}
 
 export function indicatorLabel(indicator: Pick<MarketIndicator, 'key' | 'label'>) {
   return (indicator.label || DEFAULT_LABELS[indicator.key] || indicator.key).trim();

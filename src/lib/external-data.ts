@@ -1,5 +1,5 @@
 import prisma from './prisma';
-import { fallbackHeaderIndicators, toHeaderIndicator } from './market-indicators';
+import { toHeaderIndicator } from './market-indicators';
 
 export async function getMarketData() {
   try {
@@ -14,15 +14,15 @@ export async function getMarketData() {
     }, {} as Record<string, string>);
 
     return {
-      usd: dataMap.usd || "5,12",
-      boi: dataMap.boi || "353,80",
-      soja: dataMap.soja || "122,51",
-      milho: dataMap.milho || "65,98",
-      trigo: dataMap.trigo || "1.250,00"
+      usd: dataMap.usd || "",
+      boi: dataMap.boi || "",
+      soja: dataMap.soja || "",
+      milho: dataMap.milho || "",
+      trigo: dataMap.trigo || ""
     };
   } catch (error) {
     console.error('Erro ao buscar dados financeiros:', error);
-    return { usd: "5,12", boi: "353,80", soja: "122,51", milho: "65,98", trigo: "1.250,00" };
+    return { usd: "", boi: "", soja: "", milho: "", trigo: "" };
   }
 }
 
@@ -39,12 +39,10 @@ export async function getHeaderIndicators() {
       ],
     });
 
-    return indicators.length > 0
-      ? indicators.map(toHeaderIndicator)
-      : fallbackHeaderIndicators();
+    return indicators.map(toHeaderIndicator).filter((indicator) => indicator.value.trim().length > 0);
   } catch (error) {
     console.error('Erro ao buscar indicadores do cabeçalho:', error);
-    return fallbackHeaderIndicators();
+    return [];
   }
 }
 
@@ -59,7 +57,7 @@ export async function getWeatherData() {
     };
   } catch (error) {
     console.error('Erro ao buscar dados de clima:', error);
-    return { temp: 28 };
+    return { temp: null };
   }
 }
 
@@ -68,7 +66,7 @@ export async function getNewsletterStats() {
     return await prisma.newsletterSubscriber.count();
   } catch (error) {
     console.error('Erro ao buscar inscritos:', error);
-    return 1284; // Fallback demo
+    return 0;
   }
 }
 
