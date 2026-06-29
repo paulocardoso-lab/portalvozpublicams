@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { bulkApproveArticles, bulkRejectArticles, bulkDeleteArticles, reprocessRSSArticleHeroImage } from '@/app/actions/rss';
 import type { RSSHeroImageStatusInfo } from '@/lib/rss-image-extractor';
+import { SafeImage } from '@/components/shared/SafeImage';
 
 type QueueArticle = {
   id: string;
@@ -260,11 +261,15 @@ export function ReviewQueueClient({ articles: initial }: { articles: QueueArticl
                   <td className="p-3">
                     <div className="flex items-start gap-3">
                       {article.heroImage && (
-                        <img
-                          src={article.heroImage}
-                          alt=""
-                          className="w-14 h-10 object-cover flex-shrink-0 hidden sm:block"
-                        />
+                        <div className="relative w-14 h-10 flex-shrink-0 hidden sm:block overflow-hidden bg-vp-surface">
+                          <SafeImage
+                            src={article.heroImage}
+                            alt=""
+                            fill
+                            sizes="56px"
+                            className="object-cover"
+                          />
+                        </div>
                       )}
                       <div className="min-w-0">
                         <div className="font-bold text-[13px] leading-tight line-clamp-2">{article.title}</div>

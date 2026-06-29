@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-page-custom-font */
+
 export const dynamic = 'force-static';
 
 export default function DesignStudioPreviewPage() {

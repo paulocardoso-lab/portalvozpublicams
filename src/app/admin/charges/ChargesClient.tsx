@@ -9,7 +9,6 @@ import {
   generateChargeFromArticle,
   searchArticlesForCharge,
   toggleChargeActive,
-  updateCharge,
 } from "@/app/actions/charges";
 import type { Charge } from "@prisma/client";
 

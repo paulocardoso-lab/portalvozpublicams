@@ -69,7 +69,7 @@ export function PodcastPlayerBar() {
           onClick={() => {
             const audio = document.querySelector('audio');
             if (audio) { audio.pause(); audio.src = ''; }
-            window.dispatchEvent(new CustomEvent('podcast-close'));
+            close();
           }}
           title="Fechar player"
           className="text-vp-text-4 hover:text-vp-text transition-colors p-1 shrink-0"

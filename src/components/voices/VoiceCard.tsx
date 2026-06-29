@@ -10,7 +10,7 @@ interface VoiceCardProps {
   variant?: "sidebar" | "feed" | "home";
 }
 
-export function VoiceCard({ id, text, tag, location, publishedAt, variant = "feed" }: VoiceCardProps) {
+export function VoiceCard({ id: _id, text, tag, location, publishedAt, variant = "feed" }: VoiceCardProps) {
   const date = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(new Date(publishedAt));
 
   if (variant === "sidebar") {

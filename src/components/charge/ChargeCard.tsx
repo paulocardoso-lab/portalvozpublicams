@@ -59,7 +59,7 @@ function ChargeLightbox({ imageUrl, caption, credit, onClose }: {
   );
 }
 
-export function ChargeCard({ id, imageUrl, caption, credit, publishedAt }: ChargeCardProps) {
+export function ChargeCard({ id: _id, imageUrl, caption, credit, publishedAt }: ChargeCardProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const date = publishedAt

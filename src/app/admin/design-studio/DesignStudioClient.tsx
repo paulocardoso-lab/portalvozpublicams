@@ -155,48 +155,6 @@ function generateLightPalette(): Partial<DesignTokens> {
   };
 }
 
-// ── CSS map for live preview ──────────────────────────────────────────────────
-function buildCssMap(t: DesignTokens): Record<string, string> {
-  const n = (k: keyof DesignTokens) => Number(t[k]) || 0;
-  return {
-    '--vp-bg': t['color.bg'],
-    '--vp-surface': t['color.surface'],
-    '--vp-surface-2': t['color.surface-2'],
-    '--vp-surface-3': t['color.surface-3'],
-    '--vp-border': t['color.border'],
-    '--vp-border-2': t['color.border-2'],
-    '--vp-text': t['color.text'],
-    '--vp-text-2': t['color.text-2'],
-    '--vp-text-3': t['color.text-3'],
-    '--vp-text-4': t['color.text-4'],
-    '--vp-accent': t['color.accent'],
-    '--vp-accent-hover': t['color.accent-hover'],
-    '--vp-urgent': t['color.urgent'],
-    '--radius-md': `${n('layout.border-radius')}px`,
-    '--vp-btn-radius': `${n('comp.btn-radius')}px`,
-    '--vp-card-radius': `${n('comp.card-radius')}px`,
-    '--vp-content-gap': `${n('layout.content-gap')}px`,
-    '--vp-header-logo-size': `${n('comp.header-logo-size')}px`,
-    '--vp-header-logo-padding-y': `${n('comp.header-logo-padding-y')}px`,
-    '--vp-header-nav-size': `${n('comp.header-nav-font-size')}px`,
-    '--vp-header-nav-weight': t['comp.header-nav-font-weight'],
-    '--vp-header-nav-spacing': `${n('comp.header-nav-spacing')}px`,
-    '--vp-header-bg': t['comp.header-bg'],
-    '--vp-header-topbar-bg': t['comp.header-topbar-bg'],
-    '--vp-header-border-color': t['comp.header-border-color'],
-    '--vp-header-topbar-font-size': `${n('comp.header-topbar-font-size')}px`,
-    '--vp-footer-logo-size': `${n('comp.footer-logo-size')}px`,
-    '--vp-footer-bg': t['comp.footer-bg'],
-    '--vp-footer-text': t['comp.footer-text-color'],
-    '--vp-footer-border': t['comp.footer-border-color'],
-    '--vp-footer-border-w': `${n('comp.footer-border-width')}px`,
-    '--vp-footer-py': `${n('comp.footer-padding-y')}px`,
-    '--vp-admin-logo-size': `${n('comp.admin-logo-size')}px`,
-    '--vp-compact-logo-size': `${n('comp.compact-logo-size')}px`,
-    '--vp-article-text-align': t['comp.article-text-align'],
-  };
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Keys dos textos editoriais gerenciados nesta aba
