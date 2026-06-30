@@ -1,54 +1,62 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
+import { subscribeToNewsletter } from '@/app/actions/newsletter';
 
 export function NewsletterForm() {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  async function handleSubscribe() {
-    if (!email) return;
-    setStatus('loading');
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+
+    const formData = new FormData(e.currentTarget);
     try {
-      const res = await fetch('/api/newsletter/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      if (res.ok) setStatus('success');
-      else setStatus('error');
+      const result = await subscribeToNewsletter(formData);
+      if (result.success) {
+        setMessage({ type: 'success', text: result.message || 'Inscrito!' });
+        (e.currentTarget as HTMLFormElement).reset();
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Erro inesperado' });
+      }
     } catch {
-      setStatus('error');
+      setMessage({ type: 'error', text: 'Erro de conexão' });
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="px-5 py-8 lg:px-12 border-b border-vp-border">
-      {status === 'success' ? (
+      {message?.type === 'success' ? (
         <div className="bg-vp-ok/10 text-vp-ok p-6 text-[14px] border border-vp-ok text-center rounded-sm font-bold">
-          Inscrição confirmada! Verifique sua caixa de entrada para o link de ativação.
+          {message.text}
         </div>
       ) : (
-        <div className="flex flex-col lg:flex-row gap-3">
-          <input 
-            className="vp-input text-[16px] flex-1 py-4 px-5" 
-            placeholder="seu@email.com.br" 
+        <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-3">
+          <input
+            name="email"
             type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            disabled={status === 'loading'}
+            required
+            className="vp-input text-[16px] flex-1 py-4 px-5"
+            placeholder="seu@email.com.br"
+            disabled={loading}
           />
-          <button 
-            onClick={handleSubscribe}
-            disabled={status === 'loading'}
+          <button
+            type="submit"
+            disabled={loading}
             className="vp-btn vp-btn-primary px-8 py-4 text-[13px] font-black uppercase tracking-widest whitespace-nowrap"
           >
-            {status === 'loading' ? 'Enviando...' : 'Receber grátis →'}
+            {loading ? 'Enviando...' : 'Receber grátis →'}
           </button>
-        </div>
+        </form>
       )}
-      {status === 'error' && <p className="text-vp-urgent text-[11px] mt-3 font-bold">Ocorreu um erro. Tente novamente ou fale conosco.</p>}
-      <p className="text-[11px] text-vp-text-3 mt-4 leading-relaxed lg:max-w-[450px]">
+      {message?.type === 'error' && (
+        <p className="text-vp-urgent text-[11px] mt-3 font-bold">{message.text}</p>
+      )}
+      <p className="text-[11px] text-vp-text-3 mt-4 leading-relaxed lg:max-w-112.5">
         Jornalismo independente custa caro, mas esta newsletter é grátis. Cancele quando quiser. Respeitamos sua privacidade e a LGPD.
       </p>
     </div>

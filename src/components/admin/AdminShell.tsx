@@ -78,7 +78,9 @@ export function AdminShell({ children, pendingComments, draftArticles, reviewArt
       `}>
         <div className="px-5 pt-5 pb-4 border-b border-vp-border flex items-start justify-between">
           <div className="flex flex-col gap-2">
-            <Monogram size={56} cssHeight="var(--vp-admin-logo-size)" src={logoUrl} />
+            <span className="inline-flex py-(--vp-admin-logo-padding-y) px-(--vp-admin-logo-padding-x)">
+              <Monogram size={56} cssHeight="var(--vp-admin-logo-size)" src={logoUrl} />
+            </span>
             <div className="text-[9px] text-vp-text-4 font-black uppercase tracking-[0.18em]">Painel Administrativo</div>
           </div>
           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-vp-text-4 mt-1">×</button>

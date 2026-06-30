@@ -55,6 +55,8 @@ export async function DesignTokensStyle() {
 
   /* Header */
   --vp-header-logo-size: ${r('comp.header-logo-size')}px;
+  --vp-header-logo-padding-y: ${r('comp.header-logo-padding-y')}px;
+  --vp-header-logo-padding-x: ${r('comp.header-logo-padding-x')}px;
   --vp-header-nav-size: ${r('comp.header-nav-font-size')}px;
   --vp-header-nav-weight: ${t['comp.header-nav-font-weight']};
   --vp-header-nav-spacing: ${r('comp.header-nav-spacing')}px;
@@ -65,6 +67,8 @@ export async function DesignTokensStyle() {
 
   /* Footer */
   --vp-footer-logo-size: ${r('comp.footer-logo-size')}px;
+  --vp-footer-logo-padding-y: ${r('comp.footer-logo-padding-y')}px;
+  --vp-footer-logo-padding-x: ${r('comp.footer-logo-padding-x')}px;
   --vp-footer-bg: ${t['comp.footer-bg']};
   --vp-footer-text: ${t['comp.footer-text-color']};
   --vp-footer-border: ${t['comp.footer-border-color']};
@@ -72,6 +76,8 @@ export async function DesignTokensStyle() {
   --vp-footer-py: ${r('comp.footer-padding-y')}px;
 
   --vp-admin-logo-size: ${r('comp.admin-logo-size')}px;
+  --vp-admin-logo-padding-y: ${r('comp.admin-logo-padding-y')}px;
+  --vp-admin-logo-padding-x: ${r('comp.admin-logo-padding-x')}px;
   --vp-compact-logo-size: ${r('comp.compact-logo-size')}px;
 
   /* Article */

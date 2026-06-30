@@ -38,7 +38,9 @@ export async function SiteFooter() {
     <footer className="border-t-[length:var(--vp-footer-border-w,2px)] border-(--vp-footer-border) bg-(--vp-footer-bg) font-sans text-[11px] sm:text-[12px] text-(--vp-footer-text) px-4 sm:px-7 pt-(--vp-footer-py) pb-4 sm:pb-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] gap-6 sm:gap-7 mb-6 sm:mb-7">
         <div>
-          <Monogram size="md" cssHeight="var(--vp-footer-logo-size)" className="mb-3" src={settings['BRAND_LOGO_URL'] || '/logo.webp'} />
+          <span className="inline-flex py-(--vp-footer-logo-padding-y) px-(--vp-footer-logo-padding-x)">
+            <Monogram size="md" cssHeight="var(--vp-footer-logo-size)" src={settings['BRAND_LOGO_URL'] || '/logo.webp'} />
+          </span>
           <p className="leading-[1.6] text-vp-text-2 font-serif text-[14px] mt-3">
             {settings['footer.description'] || settings['SITE_DESCRIPTION'] || 'Jornalismo investigativo, plural e sem donos. Cobrimos Mato Grosso do Sul com rigor e independência desde 2024.'}
           </p>

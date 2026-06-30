@@ -576,12 +576,23 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
                 </p>
               </div>
 
-              <SectionLabel>Tamanhos por contexto</SectionLabel>
-              <SliderRow label="Cabeçalho principal" value={Number(tokens['comp.header-logo-size'])} min={24} max={300} step={2} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
-              <SliderRow label="Margem vertical (cabeçalho)" value={Number(tokens['comp.header-logo-padding-y'])} min={0} max={40} step={1} unit="px" onChange={v => updateToken('comp.header-logo-padding-y', String(v))} />
-              <SliderRow label="Rodapé" value={Number(tokens['comp.footer-logo-size'])} min={24} max={240} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
-              <SliderRow label="Painel administrativo" value={Number(tokens['comp.admin-logo-size'])} min={24} max={200} step={2} unit="px" onChange={v => updateToken('comp.admin-logo-size', String(v))} />
-              <SliderRow label="Menus, login e fluxos compactos" value={Number(tokens['comp.compact-logo-size'])} min={20} max={160} step={2} unit="px" onChange={v => updateToken('comp.compact-logo-size', String(v))} />
+              <SectionLabel>Cabeçalho principal</SectionLabel>
+              <SliderRow label="Tamanho" value={Number(tokens['comp.header-logo-size'])} min={24} max={300} step={2} unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+              <SliderRow label="Margem vertical" value={Number(tokens['comp.header-logo-padding-y'])} min={0} max={64} step={1} unit="px" onChange={v => updateToken('comp.header-logo-padding-y', String(v))} />
+              <SliderRow label="Margem horizontal" value={Number(tokens['comp.header-logo-padding-x'])} min={0} max={64} step={1} unit="px" onChange={v => updateToken('comp.header-logo-padding-x', String(v))} />
+
+              <SectionLabel>Rodapé</SectionLabel>
+              <SliderRow label="Tamanho" value={Number(tokens['comp.footer-logo-size'])} min={24} max={240} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
+              <SliderRow label="Margem vertical" value={Number(tokens['comp.footer-logo-padding-y'])} min={0} max={64} step={1} unit="px" onChange={v => updateToken('comp.footer-logo-padding-y', String(v))} />
+              <SliderRow label="Margem horizontal" value={Number(tokens['comp.footer-logo-padding-x'])} min={0} max={64} step={1} unit="px" onChange={v => updateToken('comp.footer-logo-padding-x', String(v))} />
+
+              <SectionLabel>Painel administrativo</SectionLabel>
+              <SliderRow label="Tamanho" value={Number(tokens['comp.admin-logo-size'])} min={24} max={200} step={2} unit="px" onChange={v => updateToken('comp.admin-logo-size', String(v))} />
+              <SliderRow label="Margem vertical" value={Number(tokens['comp.admin-logo-padding-y'])} min={0} max={64} step={1} unit="px" onChange={v => updateToken('comp.admin-logo-padding-y', String(v))} />
+              <SliderRow label="Margem horizontal" value={Number(tokens['comp.admin-logo-padding-x'])} min={0} max={64} step={1} unit="px" onChange={v => updateToken('comp.admin-logo-padding-x', String(v))} />
+
+              <SectionLabel>Menus, login e fluxos compactos</SectionLabel>
+              <SliderRow label="Tamanho" value={Number(tokens['comp.compact-logo-size'])} min={20} max={160} step={2} unit="px" onChange={v => updateToken('comp.compact-logo-size', String(v))} />
 
               <SectionLabel>Favicon</SectionLabel>
               <div className="border border-vp-border rounded-sm bg-vp-bg p-3 flex flex-col gap-3">
@@ -651,9 +662,10 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
               <ColorRow label="Cor das bordas"         value={tokens['comp.header-border-color']} onChange={v => updateToken('comp.header-border-color', v)} />
 
               <SectionLabel>Estrutura</SectionLabel>
-              <SliderRow label="Altura da barra central" value={Number(tokens['layout.header-height'])}        min={40}  max={140} step={4}  unit="px" onChange={v => updateToken('layout.header-height', String(v))} />
-              <SliderRow label="Tamanho da logomarca"    value={Number(tokens['comp.header-logo-size'])}       min={24}  max={300} step={2}  unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
-              <SliderRow label="Margem vertical da logo" value={Number(tokens['comp.header-logo-padding-y'])} min={0}   max={40}  step={1}  unit="px" onChange={v => updateToken('comp.header-logo-padding-y', String(v))} />
+              <SliderRow label="Altura da barra central"   value={Number(tokens['layout.header-height'])}        min={40}  max={140} step={4}  unit="px" onChange={v => updateToken('layout.header-height', String(v))} />
+              <SliderRow label="Tamanho da logomarca"      value={Number(tokens['comp.header-logo-size'])}       min={24}  max={300} step={2}  unit="px" onChange={v => updateToken('comp.header-logo-size', String(v))} />
+              <SliderRow label="Margem vertical da logo"   value={Number(tokens['comp.header-logo-padding-y'])} min={0}   max={64}  step={1}  unit="px" onChange={v => updateToken('comp.header-logo-padding-y', String(v))} />
+              <SliderRow label="Margem horizontal da logo" value={Number(tokens['comp.header-logo-padding-x'])} min={0}   max={64}  step={1}  unit="px" onChange={v => updateToken('comp.header-logo-padding-x', String(v))} />
 
               <SectionLabel>Topbar (barra superior)</SectionLabel>
               <SliderRow label="Tamanho da fonte"      value={Number(tokens['comp.header-topbar-font-size'])} min={9}   max={14}  step={1}  unit="px" onChange={v => updateToken('comp.header-topbar-font-size', String(v))} />
@@ -680,9 +692,11 @@ export function DesignStudioClient({ initialTokens, initialLogoUrl, initialSetti
               <ColorRow label="Cor da borda superior"   value={tokens['comp.footer-border-color']} onChange={v => updateToken('comp.footer-border-color', v)} />
 
               <SectionLabel>Estrutura</SectionLabel>
-              <SliderRow label="Espessura da borda superior" value={Number(tokens['comp.footer-border-width'])} min={0} max={8}   step={1} unit="px" onChange={v => updateToken('comp.footer-border-width', String(v))} />
-              <SliderRow label="Padding vertical"            value={Number(tokens['comp.footer-padding-y'])}    min={16} max={80} step={4} unit="px" onChange={v => updateToken('comp.footer-padding-y', String(v))} />
-              <SliderRow label="Tamanho da logomarca"        value={Number(tokens['comp.footer-logo-size'])}    min={24} max={240} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
+              <SliderRow label="Espessura da borda superior" value={Number(tokens['comp.footer-border-width'])}   min={0}  max={8}   step={1} unit="px" onChange={v => updateToken('comp.footer-border-width', String(v))} />
+              <SliderRow label="Padding vertical"            value={Number(tokens['comp.footer-padding-y'])}      min={16} max={80}  step={4} unit="px" onChange={v => updateToken('comp.footer-padding-y', String(v))} />
+              <SliderRow label="Tamanho da logomarca"        value={Number(tokens['comp.footer-logo-size'])}      min={24} max={240} step={2} unit="px" onChange={v => updateToken('comp.footer-logo-size', String(v))} />
+              <SliderRow label="Margem vertical da logo"     value={Number(tokens['comp.footer-logo-padding-y'])} min={0}  max={64}  step={1} unit="px" onChange={v => updateToken('comp.footer-logo-padding-y', String(v))} />
+              <SliderRow label="Margem horizontal da logo"   value={Number(tokens['comp.footer-logo-padding-x'])} min={0}  max={64}  step={1} unit="px" onChange={v => updateToken('comp.footer-logo-padding-x', String(v))} />
 
               <div className="mt-1 px-3 py-2.5 bg-vp-surface border border-vp-border rounded-sm">
                 <p className="text-[10px] text-vp-text-4 leading-relaxed">

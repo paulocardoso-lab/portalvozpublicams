@@ -42,6 +42,7 @@ export interface DesignTokens {
   // Components — header
   'comp.header-logo-size': string;
   'comp.header-logo-padding-y': string;
+  'comp.header-logo-padding-x': string;
   'comp.header-nav-font-size': string;
   'comp.header-nav-font-weight': string;
   'comp.header-nav-spacing': string;
@@ -52,6 +53,8 @@ export interface DesignTokens {
   'comp.header-sticky': string;
   // Components — footer
   'comp.footer-logo-size': string;
+  'comp.footer-logo-padding-y': string;
+  'comp.footer-logo-padding-x': string;
   'comp.footer-bg': string;
   'comp.footer-text-color': string;
   'comp.footer-border-color': string;
@@ -59,6 +62,8 @@ export interface DesignTokens {
   'comp.footer-padding-y': string;
   // Components — brand/logo
   'comp.admin-logo-size': string;
+  'comp.admin-logo-padding-y': string;
+  'comp.admin-logo-padding-x': string;
   'comp.compact-logo-size': string;
   // Components — article body
   'comp.article-max-width': string;
@@ -105,6 +110,7 @@ export const DEFAULT_TOKENS: DesignTokens = {
   'comp.card-title-gap': '16',
   'comp.header-logo-size': '48',
   'comp.header-logo-padding-y': '8',
+  'comp.header-logo-padding-x': '0',
   'comp.header-nav-font-size': '12',
   'comp.header-nav-font-weight': '700',
   'comp.header-nav-spacing': '14',
@@ -114,12 +120,16 @@ export const DEFAULT_TOKENS: DesignTokens = {
   'comp.header-topbar-font-size': '11',
   'comp.header-sticky': '1',
   'comp.footer-logo-size': '48',
+  'comp.footer-logo-padding-y': '0',
+  'comp.footer-logo-padding-x': '0',
   'comp.footer-bg': '#262624',
   'comp.footer-text-color': '#8a887f',
   'comp.footer-border-color': '#faf9f5',
   'comp.footer-border-width': '2',
   'comp.footer-padding-y': '32',
   'comp.admin-logo-size': '56',
+  'comp.admin-logo-padding-y': '0',
+  'comp.admin-logo-padding-x': '0',
   'comp.compact-logo-size': '32',
   'comp.article-max-width': '720',
   'comp.article-font-size': '18',

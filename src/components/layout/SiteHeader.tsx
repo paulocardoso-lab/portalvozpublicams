@@ -112,12 +112,14 @@ export async function SiteHeader() {
         </div>
 
         <Link href="/" className="vp-header-logo-link flex items-center justify-center h-full no-underline group">
-          <Monogram
-            size={48}
-            cssHeight="var(--vp-header-logo-size)"
-            className="transition-transform group-hover:scale-[1.02] max-h-full"
-            src={settings['BRAND_LOGO_URL'] || '/logo.webp'}
-          />
+          <span className="inline-flex py-(--vp-header-logo-padding-y) px-(--vp-header-logo-padding-x)">
+            <Monogram
+              size={48}
+              cssHeight="var(--vp-header-logo-size)"
+              className="transition-transform group-hover:scale-[1.02] max-h-full"
+              src={settings['BRAND_LOGO_URL'] || '/logo.webp'}
+            />
+          </span>
         </Link>
 
         <div className="flex gap-3 justify-end items-center font-sans text-[11px] text-vp-text-3">

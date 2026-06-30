@@ -3,31 +3,33 @@
 import React, { useState } from 'react';
 import { subscribeToNewsletter } from '@/app/actions/newsletter';
 
-export function NewsletterForm({ 
-  layout = 'vertical', 
+interface NewsletterFormProps {
+  layout?: 'vertical' | 'horizontal';
+  placeholder?: string;
+  buttonText?: string;
+  className?: string;
+}
+
+export function NewsletterForm({
+  layout = 'vertical',
   placeholder = 'seu@email.com.br',
   buttonText = 'Quero receber',
-  className = ''
-}: { 
-  layout?: 'vertical' | 'horizontal',
-  placeholder?: string,
-  buttonText?: string,
-  className?: string
-}) {
+  className = '',
+}: NewsletterFormProps) {
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
-    
+
     const formData = new FormData(e.currentTarget);
     try {
       const result = await subscribeToNewsletter(formData);
       if (result.success) {
         setMessage({ type: 'success', text: result.message || 'Inscrito!' });
-        e.currentTarget.reset();
+        (e.currentTarget as HTMLFormElement).reset();
       } else {
         setMessage({ type: 'error', text: result.error || 'Erro inesperado' });
       }
@@ -40,20 +42,19 @@ export function NewsletterForm({
 
   return (
     <div className={className}>
-      <form 
-        onSubmit={handleSubmit} 
+      <form
+        onSubmit={handleSubmit}
         className={layout === 'vertical' ? 'flex flex-col gap-2' : 'flex gap-2'}
       >
-        <input 
+        <input
           name="email"
-          type="email" 
+          type="email"
           required
           placeholder={placeholder}
-          className="vp-input w-full py-2.5 text-[13px]" 
-          title="Seu melhor e-mail"
+          className="vp-input w-full py-2.5 text-[13px]"
         />
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className={`vp-btn vp-btn-primary font-bold uppercase tracking-widest text-[11px] ${layout === 'vertical' ? 'w-full py-2.5' : 'px-6 py-2.5 whitespace-nowrap'}`}
         >
